@@ -128,14 +128,7 @@ class InodeLayer():
 
 
 
-
-
-
-
-                # WHERE THE ACTUAL FUCK AM I SUPPOSED TO GET THE INODE NUMBER
-                # "Returns" the updated "inode" object
-                MemoryInterface.update_inode_table(inode, UPDATED_INODE_NUMBER)
-                # OR 
+                # HOW IS THIS PART SUPPOSED TO BE DONE, COME BACK HERE
                 return inode
 
 
@@ -183,18 +176,8 @@ class InodeLayer():
 
 
 
-
-
-
-
-
-
-                # WHERE THE ACTUAL FUCK AM I SUPPOSED TO GET THE INODE NUMBER
-                # "Returns" the updated "inode" object and returns the data actually read
-                MemoryInterface.update_inode_table(inode, UPDATED_INODE_NUMBER)
-                # OR
-                #return retData, inode #?
-                return retData
+                # HOW IS THIS SUPPOSED TO BE DONE, FIGURE THIS SHIT OUT
+                return inode, retData
 
     #IMPLEMENTS THE COPY FUNCTION 
     def copy(self, inode):
@@ -218,10 +201,9 @@ class InodeLayer():
                 interface.update_data_block(newBlock, newBlockContents)
                 inodeCopy.blk_numbers.append(newBlock)
 
-            # HOW THE FUCK AM I SUPPOSED TO GET THE INODE NUMBER
-            # Return the new inode object
-            MemoryInterface.update_inode_table(inode, UPDATED_INODE_NUMBER)
-            # OR
+
+
+            # COME  BACK HERE AND MAKE SURE YOU ARE DOING THIS SHIT CORRECTLY
             return inodeCopy
 
     def status(self):
