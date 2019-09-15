@@ -147,28 +147,32 @@ class InodeLayer():
             else:
                 offsetBlockIndex = offset / config.BLOCK_SIZE
                 offsetByteIndex = offset % config.BLOCK_SIZE
+                offsetByte = offset
                 bytesRead = 0
 
                 # Loop through the length of data to be read
                 for i in range(length):
-                    offsetByteIndex %= config.BLOCK_SIZE
-                    # Check to see if we are still reading from existing blocks
-                    if ((offset - 1) + bytesRead) < inode.size:
-                        if currBlock != self.INDEX_TO_BLOCK_NUMBER(inode, offsetBlockIndex):
-                            currBlock = self.INDEX_TO_BLOCK_NUMBER(inode, offsetBlockIndex)
-                            currBlockContents = interface.BLOCK_NUMBER_TO_DATA_BLOCK(currBlock)
+                    # Keep reading as long as the offset is within the size of the file
+                    if offsetByte < inode.size:
+                        offsetByteIndex %= config.BLOCK_SIZE
+                        # Check to see if we are still reading from existing blocks
+                        if ((offset - 1) + bytesRead) < inode.size:
+                            if currBlock != self.INDEX_TO_BLOCK_NUMBER(inode, offsetBlockIndex):
+                                currBlock = self.INDEX_TO_BLOCK_NUMBER(inode, offsetBlockIndex)
+                                currBlockContents = interface.BLOCK_NUMBER_TO_DATA_BLOCK(currBlock)
 
-                        # Read byte to retData array and then increment bytesRead and offsetByteIndex
-                        retData.append(currBlockContents[offsetByteIndex])
-                        bytesRead += 1
-                        offsetByteIndex += 1
+                            # Read byte to retData array and then increment bytesRead and offsetByteIndex
+                            retData.append(currBlockContents[offsetByteIndex])
+                            bytesRead += 1
+                            offsetByteIndex += 1
+                            offsetByte += 1
 
-                        # Check if we need to update offsetBlockIndex
-                        if offsetByteIndex == config.BLOCK_SIZE:
-                            offsetBlockIndex += 1
-                    else:
-                        # Break out of the loop in this case, as it means you are at the end of the file
-                        break
+                            # Check if we need to update offsetBlockIndex
+                            if offsetByteIndex == config.BLOCK_SIZE:
+                                offsetBlockIndex += 1
+                        else:
+                            # Break out of the loop in this case, as it means you are at the end of the file
+                            break
 
                 # Update the "accessed" and "modified" times in the inode
                 inode.time_accessed = str(datetime.datetime.now())[:19]
