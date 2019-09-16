@@ -80,8 +80,8 @@ print(MemoryInterface.status())
 # We take a data buffer of 256 characters all "C"
 writeData1 = ["C"] * 256
 
-# # Write to inode 1 at offset that just writes to a new block
-inode1 = interface.write(inode1, 896, writeData1)
+# # # Write to inode 1 at offset that just writes to a new block
+# inode1 = interface.write(inode1, 896, writeData1)
 
 # # Print memory system
 # print(MemoryInterface.status())
@@ -104,17 +104,22 @@ inode1 = interface.write(inode1, 896, writeData1)
 # print len(readData3)
 # print readData3
 
-checkBlockContents = blockInt.BLOCK_NUMBER_TO_DATA_BLOCK(inode1.blk_numbers[2])
-print checkBlockContents.count("C")
-print checkBlockContents.count(" ")
+# checkBlockContents = blockInt.BLOCK_NUMBER_TO_DATA_BLOCK(inode1.blk_numbers[2])
+# print checkBlockContents.count("C")
+# print checkBlockContents.count(" ")
 
 
 # Check if we preserve data if written in the middle
 #writeData2 = ["C"] * 128
 
-#inode1 = interface.write(inode1, 640, writeData2)
+inode1 = interface.write(inode1, 896, writeData1)
 
-#print(MemoryInterface.status())
+print(MemoryInterface.status())
+print inode1.blk_numbers
+
+checkBlockContents = blockInt.BLOCK_NUMBER_TO_DATA_BLOCK(inode1.blk_numbers[1])
+print checkBlockContents.count("B")
+print checkBlockContents.count("C")
 
 
 
