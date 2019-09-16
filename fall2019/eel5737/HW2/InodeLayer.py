@@ -53,28 +53,27 @@ class InodeLayer():
                 exit()
             else:
                 newBlock = 0
-                newBlockContents = []
+                newBlockContents = [0] * 512
                 initBlockIndex = offset / config.BLOCK_SIZE
                 offsetBlockIndex = offset / config.BLOCK_SIZE
                 offsetByteIndex = offset % config.BLOCK_SIZE
-                initBlockNumLength = inode.blk_numbers.length()
+                initBlockNumLength = len(inode.blk_numbers) - inode.blk_numbers.count(-1)
                 newSize = offset - 1
 
                 # Warn if the length of the write is going to exceed the 
                 # maximum file size if all bytes are written
-                if (newSize + data.length()) >= maxFileSize:
+                if (newSize + len(data)) >= maxFileSize:
                     print "\nWarning: Length of data to write at given offset exceeds maximum file size."
                     print "\nProceeding with write call until file is at maximum size......\n"
 
                 # Loop through the data to be written
-                # HOW THE FUCK AM I SUPPOSED TO KNOW THE MAX FILE SIZE
-                for i in range(data.length()) && newSize < maxFileSize:
+                for i in range(len(data)) and newSize < maxFileSize:
                     # Check to see if we are still writing to existing blocks
                     if offsetBlockIndex < initBlockNumLength:
                         currBlock = self.INDEX_TO_BLOCK_NUMBER(inode, offsetBlockIndex)
 
                         # Check to see if the offset is inside an existing block
-                        if (offset % config.BLOCK_SIZE) != 0 && offsetBlockIndex == initBlockIndex:
+                        if (offset % config.BLOCK_SIZE) != 0 and offsetBlockIndex == initBlockIndex:
                             # Retrieve existing contents
                             currBlockContents = interface.BLOCK_NUMBER_TO_DATA_BLOCK(currBlock)
                             # Copy old data into new list up to the place to write
@@ -95,31 +94,32 @@ class InodeLayer():
                             interface.update_data_block(currBlock, newBlockContents)
                             inode.size = newSize
                             # Clear newBlockContents for next writing
-                            newBlockContents = []
+                            newBlockContents = [0] * 512
 
                     # This runs if we are writing to a location in a new block
                     else:
+
+
+                        # WILL HAVE TO LOOK AT THIS MORE
+
+
                         # If this is the first byte index grab a new block.
                         if offsetByteIndex == 0: #&& offsetBlockIndex == initBlockNumLength:
                             if newBlock != 0:
                                 # Update the data block
+                                offsetBlockIndex += 1
+                                inode.size = newSize
                                 interface.update_data_block(newBlock, newBlockContents)
                             
                             # Retrieve a new valid block and add the block number to the inode
                             newBlock = interface.get_valid_data_block()
-                            inode.blk_numbers.append(newBlock)
-                            inode.size = newSize
-                            newBlockContents = []
+                            inode.blk_numbers[offsetBlockIndex] = newBlock
+                            newBlockContents = [0] * 512
 
                         # In any normal case just update the offsetByteIndex and newBlockContents
                         newBlockContents[offsetByteIndex] = data[i]
                         offsetByteIndex += 1
                         newSize += 1
-
-                # if last block is not full, fill with zeros
-                while newBlockContents.size() != config.BLOCK_SIZE && newSize < maxFileSize:
-                    newBlockContents.append(0)
-                    newSize += 1
 
                 # Write the last block to memory
                 interface.update_data_block(newBlock, newBlockContents)
@@ -147,32 +147,30 @@ class InodeLayer():
             else:
                 offsetBlockIndex = offset / config.BLOCK_SIZE
                 offsetByteIndex = offset % config.BLOCK_SIZE
-                offsetByte = offset
                 bytesRead = 0
+                currBlock = self.INDEX_TO_BLOCK_NUMBER(inode, offsetBlockIndex)
+                currBlockContents = interface.BLOCK_NUMBER_TO_DATA_BLOCK(currBlock)
 
                 # Loop through the length of data to be read
                 for i in range(length):
                     # Keep reading as long as the offset is within the size of the file
-                    if offsetByte < inode.size:
+                    if ((offset - 1) + bytesRead) < inode.size:
                         offsetByteIndex %= config.BLOCK_SIZE
-                        # Check to see if we are still reading from existing blocks
-                        if ((offset - 1) + bytesRead) < inode.size:
-                            if currBlock != self.INDEX_TO_BLOCK_NUMBER(inode, offsetBlockIndex):
-                                currBlock = self.INDEX_TO_BLOCK_NUMBER(inode, offsetBlockIndex)
-                                currBlockContents = interface.BLOCK_NUMBER_TO_DATA_BLOCK(currBlock)
 
-                            # Read byte to retData array and then increment bytesRead and offsetByteIndex
-                            retData.append(currBlockContents[offsetByteIndex])
-                            bytesRead += 1
-                            offsetByteIndex += 1
-                            offsetByte += 1
+                        # Read byte to retData array and then increment bytesRead and offsetByteIndex
+                        retData.append(currBlockContents[offsetByteIndex])
+                        bytesRead += 1
+                        offsetByteIndex += 1
 
-                            # Check if we need to update offsetBlockIndex
-                            if offsetByteIndex == config.BLOCK_SIZE:
-                                offsetBlockIndex += 1
-                        else:
-                            # Break out of the loop in this case, as it means you are at the end of the file
-                            break
+                        # Check if we need to update offsetBlockIndex
+                        if offsetByteIndex == config.BLOCK_SIZE:
+                            offsetBlockIndex += 1
+                            currBlock = self.INDEX_TO_BLOCK_NUMBER(inode, offsetBlockIndex)
+                            currBlockContents = interface.BLOCK_NUMBER_TO_DATA_BLOCK(currBlock)
+
+                    else:
+                        # Break out of the loop in this case, as it means you are at the end of the file
+                        break
 
                 # Update the "accessed" and "modified" times in the inode
                 inode.time_accessed = str(datetime.datetime.now())[:19]
@@ -189,21 +187,22 @@ class InodeLayer():
         else:
             inodeCopy = self.new_inode(inode.type)
 
-            for offsetBlockIndex in range(inode.blk_numbers.length()):
+            for offsetBlockIndex in range((len(inode.blk_numbers) - inode.blk_numbers.count(-1))):
                 # Retrieve inode block and data
                 oldBlock = self.INDEX_TO_BLOCK_NUMBER(inode, offsetBlockIndex)
-                oldBlockContents = inteface.BLOCK_NUMBER_TO_DATA_BLOCK(oldBlock)
+                oldBlockContents = interface.BLOCK_NUMBER_TO_DATA_BLOCK(oldBlock)
                 # Create inodeCopy valid block and copy data to it
                 newBlock = interface.get_valid_data_block()
-                newBlockContents = []
-                for j in (0, oldBlockContents.length()):
-                    newBlockContents.append(oldBlockContents[j])
+                newBlockContents = [0] * 512
+                for j in range(len(oldBlockContents)):
+                    newBlockContents[j] = oldBlockContents[j]
                 # Update newblock contents and append block num to inode
                 interface.update_data_block(newBlock, newBlockContents)
-                inodeCopy.blk_numbers.append(newBlock)
+                inodeCopy.blk_numbers[offsetBlockIndex] = newBlock
 
             # Update the "accessed" and "modified" times in the inode
             inode.time_accessed = str(datetime.datetime.now())[:19]
+            inodeCopy.size = inode.size
 
             # Return the new instance/copied inode
             return inodeCopy
