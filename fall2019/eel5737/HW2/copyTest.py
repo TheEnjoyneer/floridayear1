@@ -112,14 +112,12 @@ writeData1 = ["C"] * 256
 # Check if we preserve data if written in the middle
 #writeData2 = ["C"] * 128
 
-inode1 = interface.write(inode1, 896, writeData1)
+inode1 = interface.write(inode1, 128, writeData1)
 
 print(MemoryInterface.status())
 print inode1.blk_numbers
+print inode1.size
 
-checkBlockContents = blockInt.BLOCK_NUMBER_TO_DATA_BLOCK(inode1.blk_numbers[1])
-print checkBlockContents.count("B")
-print checkBlockContents.count("C")
 
 
 

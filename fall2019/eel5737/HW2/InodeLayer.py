@@ -120,6 +120,7 @@ class InodeLayer():
                 if newBlock != 0:
                     interface.update_data_block(newBlock, newBlockContents)
                 else:
+                    self.free_data_block(inode, offsetBlockIndex + 1)
                     interface.update_data_block(currBlock, newBlockContents)
 
                 # Update the "accessed" and "modified" times in the inode
