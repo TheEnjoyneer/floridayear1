@@ -202,6 +202,9 @@ class InodeLayer():
                 interface.update_data_block(newBlock, newBlockContents)
                 inodeCopy.blk_numbers.append(newBlock)
 
+            # Update the "accessed" and "modified" times in the inode
+            inode.time_accessed = str(datetime.datetime.now())[:19]
+
             # Return the new instance/copied inode
             return inodeCopy
 
