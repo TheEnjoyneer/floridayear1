@@ -128,7 +128,7 @@ class InodeLayer():
                     interface.update_data_block(newBlock, newBlockContents)
                 else:
                     self.free_data_block(inode, offsetBlockIndex + 1)
-                    # empty characters after write
+                    # loop through next stuff and add empty characters after write
                     for i in range(offsetByteIndex, config.BLOCK_SIZE):
                         newBlockContents[i] = ""
                     # update the block

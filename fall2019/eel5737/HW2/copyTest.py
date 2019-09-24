@@ -135,6 +135,8 @@ inode2 = interface.write(inode2, 22, "Well hello there")
 print(MemoryInterface.status())
 inode2, testRead = interface.read(inode2, 0, 80)
 print "'" + testRead + "'"
+print len(testRead)
+print inode2.size
 
 
 
