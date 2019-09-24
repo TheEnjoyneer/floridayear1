@@ -46,15 +46,15 @@ class InodeLayer():
         # Error check for if inode is of type: file
         if inode.type != 0:
             print "\nError: inode is not of type: FILE\n"
-            exit()
+            return -1
         elif offset < 0:
             print "\nError: given offset is less than 0\n"
-            exit()
+            return -1
         else:
             # Error check for it offset is greater than file size
             if inode.size < offset:
                 print "\nError: offset for write() is greater than file size\n"
-                exit()
+                return -1
             else:
                 newBlock = 0
                 newBlockContents = [""] * 512
@@ -143,15 +143,15 @@ class InodeLayer():
         # Error check for if inode is of type: file
         if inode.type != 0:
             print "\nError: inode is not of type: FILE\n"
-            exit()
+            return -1
         elif offset < 0:
             print "\nError: given offset is less than 0\n"
-            exit()
+            return -1
         else:
             # Error check for it offset is greater than file size
             if inode.size < offset:
                 print "\nError: offset for read() is greater than file size\n"
-                exit()
+                return -1
             else:
                 offsetBlockIndex = offset / config.BLOCK_SIZE
                 offsetByteIndex = offset % config.BLOCK_SIZE
@@ -195,7 +195,7 @@ class InodeLayer():
         # Error check for if inode is of type: file
         if inode.type != 0:
             print "\nError: inode is not of type: FILE\n"
-            exit()
+            return -1
         else:
             inodeCopy = self.new_inode(inode.type)
 
