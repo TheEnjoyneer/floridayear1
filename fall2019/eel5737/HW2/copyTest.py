@@ -130,6 +130,13 @@ print inode2.blk_numbers
 print(MemoryInterface.status())
 
 
+print "\n\n\n\n"
+inode2 = interface.write(inode2, 22, "Well hello there")
+print(MemoryInterface.status())
+inode2, testRead = interface.read(inode2, 0, 80)
+print "'" + testRead + "'"
+
+
 
 
 
