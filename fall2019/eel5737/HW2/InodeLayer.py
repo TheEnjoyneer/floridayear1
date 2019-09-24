@@ -47,6 +47,9 @@ class InodeLayer():
         if inode.type != 0:
             print "\nError: inode is not of type: FILE\n"
             exit()
+        elif offset < 0:
+            print "\nError: given offset is less than 0\n"
+            exit()
         else:
             # Error check for it offset is greater than file size
             if inode.size < offset:
@@ -140,6 +143,9 @@ class InodeLayer():
         # Error check for if inode is of type: file
         if inode.type != 0:
             print "\nError: inode is not of type: FILE\n"
+            exit()
+        elif offset < 0:
+            print "\nError: given offset is less than 0\n"
             exit()
         else:
             # Error check for it offset is greater than file size

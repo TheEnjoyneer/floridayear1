@@ -118,6 +118,17 @@ print(MemoryInterface.status())
 print inode1.blk_numbers
 print inode1.size
 
+print "\n"
+print inode1.blk_numbers
+print inode2.blk_numbers
+test = blockInt.BLOCK_NUMBER_TO_DATA_BLOCK(8)
+#print test
+interface.free_data_block(inode2, 1)
+test2 = blockInt.BLOCK_NUMBER_TO_DATA_BLOCK(11)
+print test2
+print inode2.blk_numbers
+print(MemoryInterface.status())
+
 
 
 
