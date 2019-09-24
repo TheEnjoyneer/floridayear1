@@ -82,6 +82,9 @@ class InodeLayer():
                                 currBlockContents = interface.BLOCK_NUMBER_TO_DATA_BLOCK(currBlock)
                                 newBlockContents = list(currBlockContents)
 
+                                for j in range(len(newBlockContents), 512):
+                                    newBlockContents.append("")
+
                             # Add the next piece of data and then index offsetByteIndex
                             newBlockContents[offsetByteIndex] = data[i]
                             offsetByteIndex += 1
@@ -174,8 +177,12 @@ class InodeLayer():
                 # Update the "accessed" and "modified" times in the inode
                 inode.time_accessed = str(datetime.datetime.now())[:19]
 
+                # Join the return string
+                returnData = ""
+                returnData = returnData.join(retData)
+
                 # Return the updated indode and the return data
-                return inode, retData
+                return inode, returnData
 
     #IMPLEMENTS THE COPY FUNCTION 
     def copy(self, inode):

@@ -1,0 +1,97 @@
+['TEST SUCCEEDED : (read  attempt to inode that is not file)
+System Calls in Test : "read(inode=testInode, offset=0, length=8)",
+\n  EXPECTED: \n  ACTUAL: \n\n', 
+
+'TEST SUCCEEDED : (write attempt to inode that is not file)
+System Calls in Test : "write(inode=testInode, offset=0, data="")", "read(inode=testInode, offset=0, length=8)",
+\nWRITE ERROR CAUGHT\n\n', 
+
+
+
+TEST 1:
+
+'TEST FAILED    : (write initial string to file)
+System Calls in Test : "write(inode=testInode, offset=0, data="01234567")",  "read(inode=testInode, offset=0, length=8)",
+\nWRITE RETURNED ERROR : (list assignment index out of range)\n\n', 
+
+* IM NOT SO SURE THIS SHOULD FAIL, I TRIED THIS AND DIDN'T SEE ANY ISSUE *
+* should be fixed with the block list assignment fix, even though idk why this case failed *
+
+
+
+TEST 2:
+
+'TEST FAILED    : (copy of file)
+System Calls in Test : "copy(inode=testInode)",  "read(inode=copyInode, offset=0, length=8)",
+\nCOPY SHARES BLOCK NUMBERS WITH SOURCE\n\n', 
+
+* THIS IS BULLSHIT I DO A DEEP COPY EVERY TIME SO IT SHOULD NEVER SHARE BLOCK NUMBERS WITH SOURCE
+
+
+TEST 3:
+
+'TEST FAILED    : (read file at an offset)
+System Calls in Test : "read(inode=testInode, offset=2, length=2)",
+\n  EXPECTED: 23\n  ACTUAL: [\'2\', \'3\']\n\n', 
+
+* THIS ONE IS FIXED JUST BY "JOINING" THE LIST BEFORE RETURNING IT *
+
+
+TEST 4:
+
+'TEST FAILED    : (write to middle of file)
+System Calls in Test : "write(inode=testInode, offset=1, data="writehere")",  "read(inode=testInode, offset=0, length=10)",
+\nWRITE RETURNED ERROR : (list assignment index out of range)\n\n', 
+
+* fixed with the block list assignment fix *
+
+
+
+
+'TEST SUCCEEDED : (write attempt beyond file size)
+System Calls in Test : "write(inode=testInode, offset=12, data="beyond")",  "read(inode=testInode, offset=0, length=16)",
+\nWRITE ERROR CAUGHT\n\n', 
+
+'TEST SUCCEEDED : (read  attempt beyond file size )
+System Calls in Test : "read(inode=testInode, offset=12, length=3)",
+\n  EXPECTED: \n  ACTUAL: \n\n', 
+
+
+TEST 5:
+
+'TEST FAILED    : (write reset to the file at 0)
+System Calls in Test : "write(inode=testInode, offset=0, data="reset\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")",  "read(inode=testInode, offset=0, length=5)",
+\nWRITE RETURNED ERROR : (list assignment index out of range)\n\n', 
+
+* fixed with the block list assignment fix *
+
+
+TEST 6:
+
+'TEST FAILED    : (write append to end of file)
+System Calls in Test : "write(inode=testInode, offset=5, data=" append")",  "read(inode=testInode, offset=0, length=12)",
+\nWRITE RETURNED ERROR : (list assignment index out of range)\n\n', 
+
+* fixed with the block list assignment fix *
+
+
+TEST 7:
+
+'TEST FAILED    : (truncate)
+System Calls in Test : "write(inode=testInode, offset=0, data="0000    0002    0004    0006    ")",  "read(inode=testInode, offset=0, length=16)",
+\nWRITE RETURNED ERROR : (list assignment index out of range)\n\n', 
+
+* fixed with the block list assignment fix *
+
+
+
+TEST 8:
+
+'TEST FAILED : (time modified or time accessed is equal to time created)\n']
+
+* if the program runs all within a second, then the time accessed and modified will equal the time created *
+
+
+
+
+
