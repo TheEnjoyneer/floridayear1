@@ -8,13 +8,13 @@ interface = InodeLayer.InodeLayer()
 inode1 = interface.new_inode(0)
 block1 = blockInt.get_valid_data_block()
 block2 = blockInt.get_valid_data_block()
-block1contents = ["A"] * 512
-block2contents = ["B"] * 512
+block1contents = ["A"] * config.BLOCK_SIZE
+block2contents = ["B"] * config.BLOCK_SIZE
 blockInt.update_data_block(block1, block1contents)
 blockInt.update_data_block(block2, block2contents)
 inode1.blk_numbers[0] = block1
 inode1.blk_numbers[1] = block2
-inode1.size = 512 * 2
+inode1.size = config.BLOCK_SIZE * 2
 inode1.time_accessed = str(datetime.datetime.now())[:19]
 inode1.time_modified = str(datetime.datetime.now())[:19]
 
@@ -31,7 +31,7 @@ initBlockNumLength1 = len(inode1.blk_numbers) - inode1.blk_numbers.count(-1)
 # Print the memory system again
 print(MemoryInterface.status())
 
-# Print Check for copy function success
+#Print Check for copy function success
 # print "\nInode 1 info below\n"
 # print inode1.type
 # print "\n"
@@ -78,7 +78,7 @@ print(MemoryInterface.status())
 
 # Now we test the write functionality
 # We take a data buffer of 256 characters all "C"
-writeData1 = ["C"] * 256
+writeData1 = ["C"] * (config.BLOCK_SIZE / 2)
 
 # # # Write to inode 1 at offset that just writes to a new block
 # inode1 = interface.write(inode1, 896, writeData1)
@@ -87,17 +87,17 @@ writeData1 = ["C"] * 256
 # print(MemoryInterface.status())
 
 # # Print Check for copy function success
-# print "\nInode 1 info below\n"
-# print inode1.type
-# print "\n"
-# print inode1.blk_numbers
-# print "\n"
-# print inode1.time_accessed
-# print "\n"
-# print inode1.time_modified
-# print "\n"
-# print inode1.size
-# print "\n"
+print "\nInode 1 info below\n"
+print inode1.type
+print "\n"
+print inode1.blk_numbers
+print "\n"
+print inode1.time_accessed
+print "\n"
+print inode1.time_modified
+print "\n"
+print inode1.size
+print "\n"
 
 # inode1, readData3 = interface.read(inode1, 896, 300)
 
@@ -111,23 +111,33 @@ writeData1 = ["C"] * 256
 
 # Check if we preserve data if written in the middle
 #writeData2 = ["C"] * 128
+# print inode1.blk_numbers
+# print inode1.size
+# print len(inode1.blk_numbers)
+# print writeData1
+# print inode1.blk_numbers[1]
+# interface.free_data_block(inode1, 1)
 
-inode1 = interface.write(inode1, 128, writeData1)
+#inode1 = interface.write(inode1, 2, writeData1)
+interface.free_data_block(inode1, 0)
+print(MemoryInterface.status())
+
+exit()
+inode2 = interface.write(inode2, 0, writeData1)
 
 print(MemoryInterface.status())
 print inode1.blk_numbers
 print inode1.size
 
-print "\n"
-print inode1.blk_numbers
-print inode2.blk_numbers
-test = blockInt.BLOCK_NUMBER_TO_DATA_BLOCK(8)
-#print test
-interface.free_data_block(inode2, 1)
-test2 = blockInt.BLOCK_NUMBER_TO_DATA_BLOCK(11)
-print test2
-print inode2.blk_numbers
-print(MemoryInterface.status())
+# print "\n"
+# print inode1.blk_numbers
+# print inode2.blk_numbers
+# #print test
+# interface.free_data_block(inode2, 1)
+# test2 = blockInt.BLOCK_NUMBER_TO_DATA_BLOCK(11)
+# print test2
+# print inode2.blk_numbers
+# print(MemoryInterface.status())
 
 
 print "\n\n\n\n"

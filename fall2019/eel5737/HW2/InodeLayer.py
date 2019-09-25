@@ -40,7 +40,7 @@ class InodeLayer():
     # IMPLEMENTS WRITE FUNCTIONALITY
     def write(self, inode, offset, data):
         # Calculate maximum file size before doing anything
-        maxFileBlocks = (config.INODE_SIZE - 63 - config.MAX_FILE_NAME_SIZE) / 2
+        maxFileBlocks = len(inode.blk_numbers)
         maxFileSize = config.BLOCK_SIZE * maxFileBlocks
 
         # Error check for if inode is of type: file
@@ -66,7 +66,7 @@ class InodeLayer():
 
                 # Warn if the length of the write is going to exceed the 
                 # maximum file size if all bytes are written
-                if (newSize + len(data)) >= maxFileSize:
+                if (newSize + len(data)) > maxFileSize:
                     print "\nWarning: Length of data to write at given offset exceeds maximum file size."
                     print "\nProceeding with write call until file is at maximum size......\n"
 
@@ -127,12 +127,17 @@ class InodeLayer():
                 if newBlock != 0:
                     interface.update_data_block(newBlock, newBlockContents)
                 else:
-                    self.free_data_block(inode, offsetBlockIndex + 1)
                     # loop through next stuff and add empty characters after write
-                    for i in range(offsetByteIndex, config.BLOCK_SIZE):
-                        newBlockContents[i] = ""
+                    if newSize < maxFileSize:
+                        for i in range(offsetByteIndex, config.BLOCK_SIZE):
+                            newBlockContents[i] = ""
                     # update the block
-                    interface.update_data_block(currBlock, newBlockContents)
+                    if offsetByteIndex != config.BLOCK_SIZE:
+                        interface.update_data_block(currBlock, newBlockContents)
+                        self.free_data_block(inode, (newSize / config.BLOCK_SIZE) + 1)
+                    else:
+                        self.free_data_block(inode, (newSize / config.BLOCK_SIZE))
+                    
 
                 # Update the "accessed" and "modified" times in the inode
                 inode.size = newSize

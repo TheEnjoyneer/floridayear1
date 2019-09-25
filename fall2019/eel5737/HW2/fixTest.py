@@ -91,6 +91,7 @@ time.sleep(1)
 testInode, testRead = inodeInt.read(testInode, 0, 5)
 
 # print the output
+print "Length of reset string is: ", len("reset\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00") 
 print "'" + testRead + "'"
 print "\n"
 
@@ -103,6 +104,8 @@ print "\nRUNNING TEST 6:\n"
 # perform the write
 testInode = inodeInt.write(testInode, 5, " append")
 time.sleep(1)
+print "File size: ", testInode.size
+print testInode.blk_numbers
 
 # read the write
 testInode, testRead = inodeInt.read(testInode, 0, 12)
@@ -125,6 +128,8 @@ time.sleep(1)
 testInode, testRead = inodeInt.read(testInode, 0, 16)
 
 # print the output
+print "Length of file + write at offset: ", len("0000    0002    0004    0006    ")
+print testInode.blk_numbers
 print "'" + testRead + "'"
 print "\n"
 
