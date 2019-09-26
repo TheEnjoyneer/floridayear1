@@ -64,9 +64,10 @@ class Operations():
 
 	#REMOVES THE INVALID DATA BLOCK TO MAKE IT REUSABLE
 	def free_data_block(self, block_number):  	
-		sblock.ADDR_BITMAP_BLOCKS[block_number / sblock.BLOCK_SIZE].block[block_number % sblock.BLOCK_SIZE] = 0
-		b = sblock.ADDR_DATA_BLOCKS[block_number - sblock.DATA_BLOCKS_OFFSET].block
-		for i in range(0, sblock.BLOCK_SIZE): b[i] = '\0'
+		if block_number > 0:
+			sblock.ADDR_BITMAP_BLOCKS[block_number / sblock.BLOCK_SIZE].block[block_number % sblock.BLOCK_SIZE] = 0
+			b = sblock.ADDR_DATA_BLOCKS[block_number - sblock.DATA_BLOCKS_OFFSET].block
+			for i in range(0, sblock.BLOCK_SIZE): b[i] = '\0'
 
 
 	#WRITES TO THE DATA BLOCK
