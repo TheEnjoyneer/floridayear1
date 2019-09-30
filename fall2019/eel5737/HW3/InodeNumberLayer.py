@@ -63,17 +63,100 @@ class InodeNumberLayer():
 	def link(self, file_inode_number, hardlink_name, hardlink_parent_inode_number):
 		'''WRITE YOUR CODE HERE'''
 
+		# Lookup location to add hardlink_name to
+		file_inode = self.INODE_NUMBER_TO_INODE(file_inode_number)
+
+
+		# Add hardlink_name to location bound to hardlink_parent_inode_number
+		# HOW DO I ADD A HARDLINK_NAME TO A FILE?  HOW ARE WE SAVING THIS?
+
+
+		# Increment file_inode_number's reference count
+
+
+		# Return something possibly?
+
 
 	#REMOVES THE INODE ENTRY FROM INODE TABLE
 	def unlink(self, inode_number, parent_inode_number, filename):
 		'''WRITE YOUR CODE HERE'''
 
+		# Remove link from file system
+
+
+		# Decrement reference count for inode
+
+
+		# Check if inode is for a non-empty directory
+
+
+		# If inode is empty directory/file AND ref count is now 0
+		# Free all blocks in the inode, and free the inode
+
+
+		# Return something?
+
 
 	#IMPLEMENTS WRITE FUNCTIONALITY
 	def write(self, inode_number, offset, data, parent_inode_number):
 		'''WRITE YOUR CODE HERE'''
-		
+		# WHAT IS parent_inode_number SUPPOSED TO BE USED FOR HERE
+
+		# Retrieve inode object
+		inode = self.INODE_NUMBER_TO_INODE(inode_number)
+
+		# Check inode type
+		if inode.type != 0:
+			print "\nError: inode is not of type: file.\n"
+			return -1
+		else:
+			# Call the InodeLayer write function
+			inode = interface.write(inode, offset, data)
+
+			# Check for errors
+			if inode == -1:
+				print "\nError in InodeLayer write to inode_number: ", inode_number, "\n"
+				return -1
+			else:
+				# Update the inode table
+				self.update_inode_table(inode, inode_number)
+
+				# Return something?
+				return inode
+
 
 	#IMPLEMENTS READ FUNCTIONALITY
 	def read(self, inode_number, offset, length, parent_inode_number):
 		'''WRITE YOUR CODE HERE'''
+		# WHAT IS parent_inode_number SUPPOSED TO BE USED FOR HERE
+
+		# Retrieve inode object
+		inode = self.INODE_NUMBER_TO_INODE(inode_number)
+
+		# Check inode type
+		if inode.type != 0:
+			print "\nError: inode is not of type: file.\n"
+			return -1
+		else:
+			# Call the InodeLayer read function
+			inode, retData = interface.read(inode, offset, length)
+
+			if inode == -1:
+				print "\nError in InodeLayer read from inode_number: ", inode_number, "\n"
+				return -1
+			else:
+				# Update the inode table
+				self.update_inode_table(inode, inode_number)
+
+				# Return the data read
+				return inode, retData
+
+
+
+
+
+
+
+
+
+
