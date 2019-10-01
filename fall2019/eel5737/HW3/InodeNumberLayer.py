@@ -66,8 +66,11 @@ class InodeNumberLayer():
 		file_inode = self.INODE_NUMBER_TO_INODE(file_inode_number)
 		hardlink_parent_inode = self.INODE_NUMBER_TO_INODE(hardlink_parent_inode_number)
 
+		print hardlink_name
+		print file_inode.links
+
 		# Ensure the inodes are valid before using them
-		if (hardlink_parent_inode) == False or (inode == False):
+		if (hardlink_parent_inode) == False or (file_inode == False):
 			print "\nError: Parent inode or file inode number supplied is invalid.\n"
 			return -1
 
@@ -85,7 +88,6 @@ class InodeNumberLayer():
 		return
 
 
-
 	#REMOVES THE INODE ENTRY FROM INODE TABLE
 	def unlink(self, inode_number, parent_inode_number, filename):
 
@@ -100,7 +102,7 @@ class InodeNumberLayer():
 
 		# Check if we need to free the inode and do so if necessary
 		if inode.type == 1: # If inode is a directory
-			if (inode.links - 1) == 0:
+			if (inode.links - 1) == 1:
 				# Check if directory is empty
 				if len(inode.directory) == 0:
 					# Remove the filename from the parent_inode
@@ -119,16 +121,23 @@ class InodeNumberLayer():
 					return -1
 
 		elif inode.type == 0: # If inode is a file
-			# Remove the filename from the parent_inode
-			del parent_inode.directory[filename]
-			# Decrement reference count for inode
-			inode.links -= 1
-			# Update parent inode in the inode table
-			self.update_inode_table(parent_inode, parent_inode_number)
+			if (inode.links - 1) == 0:
+				# Remove the filename from the parent_inode
+				del parent_inode.directory[filename]
+				# Update parent inode in the inode table
+				self.update_inode_table(parent_inode, parent_inode_number)
+				# Free all blocks and free the inode
+				interface.free_data_block(inode, 0)
+				self.update_inode_table(False, inode_number)
 
-			# Free all blocks and free the inode
-			interface.free_data_block(inode, 0)
-			self.update_inode_table(False, inode_number)
+			else:
+				# Remove the filename from the parent_inode
+				del parent_inode.directory[filename]
+				# Decrement reference count for inode
+				inode.links -= 1
+				# Update parent inode and the file inode in the inode table
+				self.update_inode_table(parent_inode, parent_inode_number)
+				self.update_inode_table(inode, inode_number)
 
 		else: # If inode is not a file or directory (for now) return error
 			print "\nGiven inode is of a type: ", inode.type, "and is not acceptable in this system."
