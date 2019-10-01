@@ -110,6 +110,12 @@ class InodeNumberLayer():
 				else:  # If not free return error with message of non-empty directory unlink attempt
 					print "\nError: Attempt to remove a the last link to a non-empty directory."
 					return -1
+			else:
+				# Remove the filename from the parent_inode
+				del parent_inode.directory[filename]
+				# Decrement reference count for inode
+				inode.links -= 1
+
 
 		elif inode.type == 0: # If inode is a file
 			if (inode.links - 1) == 0:

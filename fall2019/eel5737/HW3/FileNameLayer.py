@@ -109,9 +109,6 @@ class FileNameLayer():
 	#HARDLINK
 	def link(self, old_path, new_path, inode_number_cwd):
 
-		# THIS LINK ASSUMES THAT OUR NEW PATH GIVEN DOES NOT INCLUDE A NAME FOR THE FILE
-		# AND THAT IT ONLY CONTAINS THE PATH TO PLACE THE FILE
-
 		# Split paths and names for usage
 		new_link_path, new_link_name = os.path.split(new_path)
 		child_path, child_name = os.path.split(old_path)
@@ -128,12 +125,31 @@ class FileNameLayer():
 		new_link_parent_inode_number = self.CHILD_INODE_NUMBER_FROM_PARENT_INODE_NUMBER(new_link_name, new_link_grandparent_inode_number)
 		# Find the child inode number
 		child_inode_number = self.CHILD_INODE_NUMBER_FROM_PARENT_INODE_NUMBER(child_name, parent_inode_number)
+		child_inode = interface.INODE_NUMBER_TO_INODE(child_inode_number)
 
 		if (child_inode_number == False) or (new_link_parent_inode_number == False):
 			print "\nError: issue in finding child inode number to create new hard link for.\n"
 			return -1
 		else:
 			# Call InodeNumberLayer link with parent inode number for new path
+			new_link_parent_inode = interface.INODE_NUMBER_TO_INODE(new_link_parent_inode_number)
+			child_inode = interface.INODE_NUMBER_TO_INODE(child_inode_number)
+
+			# This is here for the ambiguity in how somebody may give arguments to the move function
+			if new_link_parent_inode == False:
+				new_link_parent_inode_number = new_link_grandparent_inode_number
+				if child_inode.type == 0:
+					child_name = new_link_name
+				else:
+					print "\nWarning: Attempted to rename a directory upon moving it."
+					print "Our system does not allow this as we save directory names in the inode."
+					print "And this becomes a complex issue of how to know when to rename the inode within"
+					print "the framework we are working in.\n"
+
+			if child_name == "":
+				print "\nError: Invalid name to link to. [blank name]"
+				return -1
+
 			linkErr = interface.link(child_inode_number, child_name, new_link_parent_inode_number)
 
 			if linkErr == -1:
@@ -180,19 +196,29 @@ class FileNameLayer():
 
 	#MOVE
 	def mv(self, old_path, new_path, inode_number_cwd):
-
-		# Create link at the new path
+		
+		# Link to the new path
 		linkErr = self.link(old_path, new_path, inode_number_cwd)
 
-		# Delete link at the old path
-		unlinkErr = self.unlink(old_path, inode_number_cwd)
-
-		# Return something?
-		if (linkErr == -1) or (unlinkErr == -1):
+		if linkErr == -1:
 			print "\nError: issue in moving file from " + old_path + " to " + new_path + ".\n"
 			return -1
 		else:
-			return
+			# Delete link at the old path
+			unlinkErr = self.unlink(old_path, inode_number_cwd)
+
+			if unlinkErr == -1:
+				print "\nError: issue in moving file from " + old_path + " to " + new_path + ".\n"
+				return -1
+			else:
+				return
+
+		# # Return something?
+		# if (linkErr == -1) or (unlinkErr == -1):
+		# 	print "\nError: issue in moving file from " + old_path + " to " + new_path + ".\n"
+		# 	return -1
+		# else:
+		# 	return
 
 
 	
