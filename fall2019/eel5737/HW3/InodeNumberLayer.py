@@ -66,9 +66,6 @@ class InodeNumberLayer():
 		file_inode = self.INODE_NUMBER_TO_INODE(file_inode_number)
 		hardlink_parent_inode = self.INODE_NUMBER_TO_INODE(hardlink_parent_inode_number)
 
-		print hardlink_name
-		print file_inode.links
-
 		# Ensure the inodes are valid before using them
 		if (hardlink_parent_inode) == False or (file_inode == False):
 			print "\nError: Parent inode or file inode number supplied is invalid.\n"
@@ -107,15 +104,9 @@ class InodeNumberLayer():
 				if len(inode.directory) == 0:
 					# Remove the filename from the parent_inode
 					del parent_inode.directory[filename]
-					# Decrement reference count for inode
-					inode.links -= 1
-					# Update parent inode in the inode table
-					self.update_inode_table(parent_inode, parent_inode_number)
-
 					# if empty, free all blocks in inode, and free the inode
 					interface.free_data_block(inode, 0)
-					self.update_inode_table(False, inode_number)
-
+					inode = False
 				else:  # If not free return error with message of non-empty directory unlink attempt
 					print "\nError: Attempt to remove a the last link to a non-empty directory."
 					return -1
@@ -124,24 +115,22 @@ class InodeNumberLayer():
 			if (inode.links - 1) == 0:
 				# Remove the filename from the parent_inode
 				del parent_inode.directory[filename]
-				# Update parent inode in the inode table
-				self.update_inode_table(parent_inode, parent_inode_number)
 				# Free all blocks and free the inode
 				interface.free_data_block(inode, 0)
-				self.update_inode_table(False, inode_number)
-
+				inode = False
 			else:
 				# Remove the filename from the parent_inode
 				del parent_inode.directory[filename]
 				# Decrement reference count for inode
 				inode.links -= 1
-				# Update parent inode and the file inode in the inode table
-				self.update_inode_table(parent_inode, parent_inode_number)
-				self.update_inode_table(inode, inode_number)
 
 		else: # If inode is not a file or directory (for now) return error
 			print "\nGiven inode is of a type: ", inode.type, "and is not acceptable in this system."
 			return -1
+
+		# Update parent inode and the file inode in the inode table
+		self.update_inode_table(parent_inode, parent_inode_number)
+		self.update_inode_table(inode, inode_number)
 
 		# Return if it gets this far
 		return

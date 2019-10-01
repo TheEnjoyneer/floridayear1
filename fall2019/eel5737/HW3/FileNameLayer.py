@@ -88,7 +88,6 @@ class FileNameLayer():
 
 		# Find the file's parent's inode number
 		parent_inode_number = self.LOOKUP(path, inode_number_cwd)
-
 		# Find the file's inode number
 		file_inode_number = self.CHILD_INODE_NUMBER_FROM_PARENT_INODE_NUMBER(filename, parent_inode_number)
 
@@ -110,6 +109,9 @@ class FileNameLayer():
 	#HARDLINK
 	def link(self, old_path, new_path, inode_number_cwd):
 
+		# THIS LINK ASSUMES THAT OUR NEW PATH GIVEN DOES NOT INCLUDE A NAME FOR THE FILE
+		# AND THAT IT ONLY CONTAINS THE PATH TO PLACE THE FILE
+
 		# Split paths and names for usage
 		new_link_path, new_link_name = os.path.split(new_path)
 		child_path, child_name = os.path.split(old_path)
@@ -124,7 +126,6 @@ class FileNameLayer():
 
 		# Get inode number at next location
 		new_link_parent_inode_number = self.CHILD_INODE_NUMBER_FROM_PARENT_INODE_NUMBER(new_link_name, new_link_grandparent_inode_number)
-
 		# Find the child inode number
 		child_inode_number = self.CHILD_INODE_NUMBER_FROM_PARENT_INODE_NUMBER(child_name, parent_inode_number)
 
@@ -179,8 +180,6 @@ class FileNameLayer():
 
 	#MOVE
 	def mv(self, old_path, new_path, inode_number_cwd):
-
-		print "MOVE COMMAND HERE"
 
 		# Create link at the new path
 		linkErr = self.link(old_path, new_path, inode_number_cwd)
