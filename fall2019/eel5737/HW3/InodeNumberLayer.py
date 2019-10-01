@@ -139,7 +139,7 @@ class InodeNumberLayer():
 		self.update_inode_table(inode, inode_number)
 
 		# Return if it gets this far
-		return
+		return True
 
 
 	#IMPLEMENTS WRITE FUNCTIONALITY
@@ -173,7 +173,7 @@ class InodeNumberLayer():
 					self.update_inode_table(inode, inode_number)
 
 					# Return
-					return
+					return True
 		else:
 			# if the inode does not exist in the parent directory return error
 			print "\nError: Given inode number does not have a binding in the given parent inode number's context.\n"

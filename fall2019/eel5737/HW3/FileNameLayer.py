@@ -103,7 +103,7 @@ class FileNameLayer():
 				print "\nError: issue in writing data to file at inode_number ", file_inode_number, "\n"
 				return -1
 			else:
-				return
+				return True
 
 
 	#HARDLINK
@@ -156,7 +156,7 @@ class FileNameLayer():
 				print "\nError: issue in linking " + new_path + " to " + old_path + "\n"
 				return -1
 			else:
-				return
+				return True
 
 
 	#REMOVES THE FILE/DIRECTORY
@@ -192,7 +192,7 @@ class FileNameLayer():
 				print "\nError: issue in unlinking " + path + "\n"
 				return -1
 			else:
-				return
+				return True
 
 	#MOVE
 	def mv(self, old_path, new_path, inode_number_cwd):
@@ -211,7 +211,7 @@ class FileNameLayer():
 				print "\nError: issue in moving file from " + old_path + " to " + new_path + ".\n"
 				return -1
 			else:
-				return
+				return True
 
 		# # Return something?
 		# if (linkErr == -1) or (unlinkErr == -1):
