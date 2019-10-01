@@ -61,7 +61,8 @@ class InodeNumberLayer():
 
 	#LINKS THE INODE
 	def link(self, file_inode_number, hardlink_name, hardlink_parent_inode_number):
-		'''WRITE YOUR CODE HERE'''
+
+		# CHECK IF WE NEED TO BE ABLE TO CREATE A NEW INODE HERE
 
 		# Lookup location to add hardlink_name to
 		file_inode = self.INODE_NUMBER_TO_INODE(file_inode_number)
@@ -89,7 +90,6 @@ class InodeNumberLayer():
 
 	#REMOVES THE INODE ENTRY FROM INODE TABLE
 	def unlink(self, inode_number, parent_inode_number, filename):
-		'''WRITE YOUR CODE HERE'''
 
 		# Retrieve inode to unlink filename from
 		inode = self.INODE_NUMBER_TO_INODE(inode_number)
@@ -142,8 +142,8 @@ class InodeNumberLayer():
 
 	#IMPLEMENTS WRITE FUNCTIONALITY
 	def write(self, inode_number, offset, data, parent_inode_number):
-		'''WRITE YOUR CODE HERE'''
-		# WHAT IS parent_inode_number SUPPOSED TO BE USED FOR HERE
+
+		# CHECK IF WE NEED TO BE ABLE TO CREATE A NEW INODE IN WRITE
 
 		# Retrieve parent inode and file inode
 		parent_inode = self.INODE_NUMBER_TO_INODE(parent_inode_number)
@@ -182,8 +182,6 @@ class InodeNumberLayer():
 
 	#IMPLEMENTS READ FUNCTIONALITY
 	def read(self, inode_number, offset, length, parent_inode_number):
-		'''WRITE YOUR CODE HERE'''
-		# WHAT IS parent_inode_number SUPPOSED TO BE USED FOR HERE
 
 		# Retrieve parent inode and file inode
 		parent_inode = self.INODE_NUMBER_TO_INODE(parent_inode_number)
