@@ -65,36 +65,79 @@ class InodeNumberLayer():
 
 		# Lookup location to add hardlink_name to
 		file_inode = self.INODE_NUMBER_TO_INODE(file_inode_number)
+		hardlink_parent_inode = self.INODE_NUMBER_TO_INODE(hardlink_parent_inode_number)
 
+		# Ensure the inodes are valid before using them
+		if (hardlink_parent_inode) == False or (inode == False):
+			print "\nError: Parent inode or file inode number supplied is invalid.\n"
+			return -1
 
-		# Add hardlink_name to location bound to hardlink_parent_inode_number
-		# HOW DO I ADD A HARDLINK_NAME TO A FILE?  HOW ARE WE SAVING THIS?
+		# Add link to directory in new location
+		hardlink_parent_inode.directory[hardlink_name] = file_inode_number
 
+		# Increment file_inode ref count
+		file_inode.links += 1
 
-		# Increment file_inode_number's reference count
+		# Update the inode table with the new values necessary
+		self.update_inode_table(hardlink_parent_inode, hardlink_parent_inode_number)
+		self.update_inode_table(file_inode, file_inode_number)
 
+		# Return if we get here
+		return
 
-		# Return something possibly?
 
 
 	#REMOVES THE INODE ENTRY FROM INODE TABLE
 	def unlink(self, inode_number, parent_inode_number, filename):
 		'''WRITE YOUR CODE HERE'''
 
-		# Remove link from file system
+		# Retrieve inode to unlink filename from
+		inode = self.INODE_NUMBER_TO_INODE(inode_number)
+		parent_inode = self.INODE_NUMBER_TO_INODE(parent_inode_number)
 
+		# Ensure the inodes are valid before using them
+		if (parent_inode) == False or (inode == False):
+			print "\nError: Parent inode or file inode number supplied is invalid.\n"
+			return -1
 
-		# Decrement reference count for inode
+		# Check if we need to free the inode and do so if necessary
+		if inode.type == 1: # If inode is a directory
+			if (inode.links - 1) == 0:
+				# Check if directory is empty
+				if len(inode.directory) == 0:
+					# Remove the filename from the parent_inode
+					del parent_inode.directory[filename]
+					# Decrement reference count for inode
+					inode.links -= 1
+					# Update parent inode in the inode table
+					self.update_inode_table(parent_inode, parent_inode_number)
 
+					# if empty, free all blocks in inode, and free the inode
+					interface.free_data_block(inode, 0)
+					self.update_inode_table(False, inode_number)
 
-		# Check if inode is for a non-empty directory
+				else:  # If not free return error with message of non-empty directory unlink attempt
+					print "\nError: Attempt to remove a the last link to a non-empty directory."
+					return -1
 
+		elif inode.type == 0: # If inode is a file
+			# Remove the filename from the parent_inode
+			del parent_inode.directory[filename]
+			# Decrement reference count for inode
+			inode.links -= 1
+			# Update parent inode in the inode table
+			self.update_inode_table(parent_inode, parent_inode_number)
 
-		# If inode is empty directory/file AND ref count is now 0
-		# Free all blocks in the inode, and free the inode
+			# Free all blocks and free the inode
+			interface.free_data_block(inode, 0)
+			self.update_inode_table(False, inode_number)
 
+		else: # If inode is not a file or directory (for now) return error
+			print "\nGiven inode is of a type: ", inode.type, "and is not acceptable in this system."
+			return -1
 
-		# Return something?
+		# Return if it gets this far
+		return
 
 
 	#IMPLEMENTS WRITE FUNCTIONALITY
@@ -102,27 +145,39 @@ class InodeNumberLayer():
 		'''WRITE YOUR CODE HERE'''
 		# WHAT IS parent_inode_number SUPPOSED TO BE USED FOR HERE
 
-		# Retrieve inode object
+		# Retrieve parent inode and file inode
+		parent_inode = self.INODE_NUMBER_TO_INODE(parent_inode_number)
 		inode = self.INODE_NUMBER_TO_INODE(inode_number)
 
-		# Check inode type
-		if inode.type != 0:
-			print "\nError: inode is not of type: file.\n"
+		# Ensure the inodes are valid before using them
+		if (parent_inode) == False or (inode == False):
+			print "\nError: Parent inode or file inode number supplied is invalid.\n"
 			return -1
-		else:
-			# Call the InodeLayer write function
-			inode = interface.write(inode, offset, data)
 
-			# Check for errors
-			if inode == -1:
-				print "\nError in InodeLayer write to inode_number: ", inode_number, "\n"
+		# Check if the inode exists in the parent directory
+		if inode_number in parent_inode.directory.values():
+			# Check inode type
+			if inode.type != 0:
+				print "\nError: inode is not of type: file.\n"
 				return -1
 			else:
-				# Update the inode table
-				self.update_inode_table(inode, inode_number)
+				# Call the InodeLayer write function
+				inode = interface.write(inode, offset, data)
 
-				# Return something?
-				return inode
+				# Check for errors
+				if inode == -1:
+					print "\nError in InodeLayer write to inode_number: ", inode_number, "\n"
+					return -1
+				else:
+					# Update the inode table
+					self.update_inode_table(inode, inode_number)
+
+					# Return
+					return
+		else:
+			# if the inode does not exist in the parent directory return error
+			print "\nError: Given inode number does not have a binding in the given parent inode number's context.\n"
+			return -1
 
 
 	#IMPLEMENTS READ FUNCTIONALITY
@@ -130,27 +185,39 @@ class InodeNumberLayer():
 		'''WRITE YOUR CODE HERE'''
 		# WHAT IS parent_inode_number SUPPOSED TO BE USED FOR HERE
 
-		# Retrieve inode object
+		# Retrieve parent inode and file inode
+		parent_inode = self.INODE_NUMBER_TO_INODE(parent_inode_number)
 		inode = self.INODE_NUMBER_TO_INODE(inode_number)
 
-		# Check inode type
-		if inode.type != 0:
-			print "\nError: inode is not of type: file.\n"
+		# Ensure the inodes are valid before using them
+		if (parent_inode) == False or (inode == False):
+			print "\nError: Parent inode or file inode number supplied is invalid.\n"
 			return -1
-		else:
-			# Call the InodeLayer read function
-			inode, retData = interface.read(inode, offset, length)
 
-			if inode == -1:
-				print "\nError in InodeLayer read from inode_number: ", inode_number, "\n"
+		# Check if the inode exists in the parent directory
+		if inode_number in parent_inode.directory.values():
+			# Check inode type
+			if inode.type != 0:
+				print "\nError: inode is not of type: file.\n"
 				return -1
 			else:
-				# Update the inode table
-				self.update_inode_table(inode, inode_number)
+				# Call the InodeLayer read function
+				inode, retData = interface.read(inode, offset, length)
 
-				# Return the data read
-				return inode, retData
+				if inode == -1:
+					print "\nError in InodeLayer read from inode_number: ", inode_number, "\n"
+					return -1
+				else:
+					# Update the inode table
+					self.update_inode_table(inode, inode_number)
 
+					# Return the data read
+					return retData
+
+		else:
+			# if the 
+			print "\nError: Given inode number does not have a binding in the given parent inode number's context.\n"
+			return -1
 
 
 
