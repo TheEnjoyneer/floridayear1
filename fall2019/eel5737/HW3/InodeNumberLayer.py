@@ -62,8 +62,6 @@ class InodeNumberLayer():
 	#LINKS THE INODE
 	def link(self, file_inode_number, hardlink_name, hardlink_parent_inode_number):
 
-		# CHECK IF WE NEED TO BE ABLE TO CREATE A NEW INODE HERE
-
 		# Lookup location to add hardlink_name to
 		file_inode = self.INODE_NUMBER_TO_INODE(file_inode_number)
 		hardlink_parent_inode = self.INODE_NUMBER_TO_INODE(hardlink_parent_inode_number)
@@ -142,8 +140,6 @@ class InodeNumberLayer():
 
 	#IMPLEMENTS WRITE FUNCTIONALITY
 	def write(self, inode_number, offset, data, parent_inode_number):
-
-		# CHECK IF WE NEED TO BE ABLE TO CREATE A NEW INODE IN WRITE
 
 		# Retrieve parent inode and file inode
 		parent_inode = self.INODE_NUMBER_TO_INODE(parent_inode_number)
