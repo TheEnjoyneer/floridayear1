@@ -213,12 +213,5 @@ class FileNameLayer():
 			else:
 				return True
 
-		# # Return something?
-		# if (linkErr == -1) or (unlinkErr == -1):
-		# 	print "\nError: issue in moving file from " + old_path + " to " + new_path + ".\n"
-		# 	return -1
-		# else:
-		# 	return
-
 
 	
