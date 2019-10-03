@@ -171,6 +171,7 @@ class InodeNumberLayer():
 				else:
 					# Update the inode table
 					self.update_inode_table(inode, inode_number)
+					self.update_inode_table(parent_inode, parent_inode_number)
 
 					# Return
 					return True
@@ -208,6 +209,7 @@ class InodeNumberLayer():
 				else:
 					# Update the inode table
 					self.update_inode_table(inode, inode_number)
+					self.update_inode_table(parent_inode, parent_inode_number)
 
 					# Return the data read
 					return retData
