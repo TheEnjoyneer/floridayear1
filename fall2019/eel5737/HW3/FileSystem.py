@@ -72,6 +72,8 @@ if __name__ == '__main__':
     # my_object.status()
     # my_object.rm("/A")
     # my_object.status()
+
+
     my_object.mkdir("/A/C")
     my_object.status()
     my_object.mkdir("/D")
@@ -84,6 +86,10 @@ if __name__ == '__main__':
     my_object.mv("/A/C/B", "/")
     my_object.status()
     my_object.read("/B/1.txt", 0, 10)
+    my_object.mv("/B/1.txt", "/A/C/")
+    my_object.status()
+
+
     #my_object.read("/A/C/B/1.txt", 0, 5)
 
     

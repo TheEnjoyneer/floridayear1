@@ -138,7 +138,7 @@ class FileNameLayer():
 			# This is here for the ambiguity in how somebody may give arguments to the move function
 			if new_link_parent_inode == False:
 				new_link_parent_inode_number = new_link_grandparent_inode_number
-				if child_inode.type != 1:
+				if child_inode.type != 1 and new_link_name != "":
 					child_name = new_link_name
 				else:
 					print "\nWarning: Attempted to rename a directory upon moving it."
@@ -147,7 +147,7 @@ class FileNameLayer():
 					print "the framework we are working in.\n"
 
 			if child_name == "":
-				print "\nError: Invalid name to link to. [blank name]"
+				print "\nWarning: Invalid name to link to: [blank name].  Moving with same name."
 				return -1
 
 			linkErr = interface.link(child_inode_number, child_name, new_link_parent_inode_number)
