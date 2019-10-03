@@ -138,7 +138,7 @@ class FileNameLayer():
 			# This is here for the ambiguity in how somebody may give arguments to the move function
 			if new_link_parent_inode == False:
 				new_link_parent_inode_number = new_link_grandparent_inode_number
-				if child_inode.type == 0:
+				if child_inode.type != 1:
 					child_name = new_link_name
 				else:
 					print "\nWarning: Attempted to rename a directory upon moving it."
