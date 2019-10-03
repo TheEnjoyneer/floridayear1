@@ -9,7 +9,8 @@ MemoryInterface.Initialize_My_FileSystem()
 interface = InodeNumberLayer.InodeNumberLayer()
 
 # Begin Test conditions here
-
+inode1_number = interface.new_inode_number(1, -1, "/")
+inode2_number = interface.new_inode_number()
 
 
 

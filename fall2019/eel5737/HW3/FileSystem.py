@@ -81,7 +81,10 @@ if __name__ == '__main__':
     my_object.read("/B/1.txt", 0, 5)
     my_object.mv("/B", "/A/C/D")
     my_object.status()
-    my_object.read("/A/C/B/1.txt", 0, 5)
+    my_object.mv("/A/C/B", "/")
+    my_object.status()
+    my_object.read("/B/1.txt", 0, 10)
+    #my_object.read("/A/C/B/1.txt", 0, 5)
 
     
     '''Examples:
