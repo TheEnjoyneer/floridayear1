@@ -132,6 +132,7 @@ server = SimpleXMLRPCServer(("",8000))
 print ("Listening on port 8000...")
 
 # Registering all server functions below
+server.register_multicall_functions()
 server.register_function(Initialize, 		   	"Initialize")
 server.register_function(addr_inode_table, 		"addr_inode_table")
 server.register_function(get_data_block, 		"get_data_block")
