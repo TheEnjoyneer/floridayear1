@@ -1,4 +1,8 @@
-# SKELETON CODE FOR SERVER STUB HW4
+# server_stub.py
+# Christopher Brant
+# University of Florida
+# EEL 5737 PoCSD
+# HW4 Part B
 import xmlrpclib
 from SimpleXMLRPCServer import SimpleXMLRPCServer
 
@@ -17,6 +21,11 @@ def Initialize():
 
 	# EVERYTHING BELOW HERE IS WHAT WILL NEED TO BE CHANGED
 	# HOWEVER DO SPECIFICALLY USE THESE FUNCTION NAMES
+
+	# BIG NOTE HERE
+	# Remember that you have to marshal the data back and forth on top of the way this is all saved
+	# BIG NOTE ABOVE
+
 
 	#GIVES ADDRESS OF INODE TABLE
 	def addr_inode_table(self):				
