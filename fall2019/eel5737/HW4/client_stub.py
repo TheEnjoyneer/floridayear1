@@ -12,11 +12,12 @@ class client_stub():
 
 	# example provided for initialize
 	def Initialize(self):
-		try :
+		try:
 			self.proxy.Initialize()
-		except Exception as err :
+		except Exception as err:
 			# print error message
-			quit()
+				print "Error in re-initializing the filesystem."
+				quit()
 
 
 	#REQUEST TO FETCH THE INODE FROM INODE NUMBER FROM SERVER
@@ -24,11 +25,11 @@ class client_stub():
 		# Return the correct data
 		try:
 			return pickle.loads(self.proxy.inode_number_to_inode(pickle.dumps(inode_number)))
-		except xmlrpclib.Fault as err:
+		except xmlrpclib.Error as err:
 			print "A fault occurred in client_stub.inode_number_to_inode()"
 			print "Fault code: %d" % err.faultCode
 			print "Fault string: %s" % err.faultString
-			exit()
+			quit()
 
 
 	#REQUEST THE DATA FROM THE SERVER
@@ -40,7 +41,7 @@ class client_stub():
 			print "A fault occurred in client_stub.get_data_block()"
 			print "Fault code: %d" % err.faultCode
 			print "Fault string: %s" % err.faultString
-			exit()
+			quit()
 
 
 	#REQUESTS THE VALID BLOCK NUMBER FROM THE SERVER 
@@ -52,7 +53,7 @@ class client_stub():
 			print "A fault occurred in client_stub.get_valid_data_block()"
 			print "Fault code: %d" % err.faultCode
 			print "Fault string: %s" % err.faultString
-			exit()
+			quit()
 
 
 	#REQUEST TO MAKE BLOCKS RESUABLE AGAIN FROM SERVER
@@ -64,7 +65,7 @@ class client_stub():
 			print "A fault occurred in client_stub.free_data_block()"
 			print "Fault code: %d" % err.faultCode
 			print "Fault string: %s" % err.faultString
-			exit()
+			quit()
 
 
 	#REQUEST TO WRITE DATA ON THE THE SERVER
@@ -76,7 +77,7 @@ class client_stub():
 			print "A fault occurred in client_stub.update_data_block()"
 			print "Fault code: %d" % err.faultCode
 			print "Fault string: %s" % err.faultString
-			exit()
+			quit()
 
 
 	#REQUEST TO UPDATE THE UPDATED INODE IN THE INODE TABLE FROM SERVER
@@ -88,7 +89,7 @@ class client_stub():
 			print "A fault occurred in client_stub.update_inode_table()"
 			print "Fault code: %d" % err.faultCode
 			print "Fault string: %s" % err.faultString
-			exit()
+			quit()
 
 
 	#REQUEST FOR THE STATUS OF FILE SYSTEM FROM SERVER
@@ -100,7 +101,7 @@ class client_stub():
 			print "A fault occurred in client_stub.status()"
 			print "Fault code: %d" % err.faultCode
 			print "Fault string: %s" % err.faultString
-			exit()
+			quit()
 
 
 
