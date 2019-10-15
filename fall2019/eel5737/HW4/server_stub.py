@@ -11,11 +11,18 @@ import time, Memory, pickle , InodeOps, config
 filesystem = Memory.Operations()
 
 # FUNCTION DEFINITIONS 
-
 # INITIALIZE THE FILESYSTEM
 def Initialize():
 	# Marshal the response of Memory.Initialize()
-	return pickle.dumps(Memory.Initialize())
+	retVal = Memory.Initialize()
+	retVal = pickle.dumps(retVal)
+	return retVal
+
+
+#GIVES ADDRESS OF INODE TABLE
+# Not so sure this needs to be implemented in this specific version
+def addr_inode_table():				
+	return pickle.dumps(sblock.ADDR_INODE_BLOCKS)
 
 
 #RETURNS THE DATA OF THE BLOCK
