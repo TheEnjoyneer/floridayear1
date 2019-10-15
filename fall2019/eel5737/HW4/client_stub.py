@@ -38,7 +38,7 @@ class client_stub():
 		# Return the correct data
 		try:
 			return pickle.loads(self.proxy.get_data_block(pickle.dumps(block_number)))
-		except xmlrpclib.Fault as err:
+		except xmlrpclib.Error as err:
 			print "A fault occurred in client_stub.get_data_block()"
 			print "Fault code: %d" % err.faultCode
 			print "Fault string: %s" % err.faultString
@@ -50,7 +50,7 @@ class client_stub():
 		# Return the correct data
 		try:
 			return pickle.loads(self.proxy.get_valid_data_block())
-		except xmlrpclib.Fault as err:
+		except xmlrpclib.Error as err:
 			print "A fault occurred in client_stub.get_valid_data_block()"
 			print "Fault code: %d" % err.faultCode
 			print "Fault string: %s" % err.faultString
@@ -62,7 +62,7 @@ class client_stub():
 	    # Return the possible error, if no error, set retErr to 0
 		try:
 			return pickle.loads(self.proxy.free_data_block(pickle.dumps(block_number)))
-		except xmlrpclib.Fault as err:
+		except xmlrpclib.Error as err:
 			print "A fault occurred in client_stub.free_data_block()"
 			print "Fault code: %d" % err.faultCode
 			print "Fault string: %s" % err.faultString
@@ -74,7 +74,7 @@ class client_stub():
 		# Return the possible error, if no error, set retErr to 0
 		try:
 			return pickle.loads(self.proxy.update_data_block(pickle.dumps(block_number), pickle.dumps(block_data)))
-		except xmlrpclib.Fault as err:
+		except xmlrpclib.Error as err:
 			print "A fault occurred in client_stub.update_data_block()"
 			print "Fault code: %d" % err.faultCode
 			print "Fault string: %s" % err.faultString
@@ -86,7 +86,7 @@ class client_stub():
 		# Return the possible error, if no error, set retErr to 0
 		try:
 			return pickle.loads(self.proxy.update_inode_table(pickle.dumps(inode), pickle.dumps(inode_number)))
-		except xmlrpclib.Fault as err:
+		except xmlrpclib.Error as err:
 			print "A fault occurred in client_stub.update_inode_table()"
 			print "Fault code: %d" % err.faultCode
 			print "Fault string: %s" % err.faultString
@@ -98,7 +98,7 @@ class client_stub():
 		# Return the status string after marshalling the data
 		try:
 			return pickle.loads(self.proxy.status())
-		except xmlrpclib.Fault as err:
+		except xmlrpclib.Error as err:
 			print "A fault occurred in client_stub.status()"
 			print "Fault code: %d" % err.faultCode
 			print "Fault string: %s" % err.faultString
