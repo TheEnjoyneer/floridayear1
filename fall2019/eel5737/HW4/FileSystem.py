@@ -1,4 +1,4 @@
-import MemoryInterface, AbsolutePathNameLayer
+import MemoryInterface, AbsolutePathNameLayer, time
 
 def Initialize_My_FileSystem():
     MemoryInterface.Initialize_My_FileSystem()
@@ -47,11 +47,14 @@ class FileSystemOperations():
 
 if __name__ == '__main__':
     #DO NOT MODIFY THIS
+    
     Initialize_My_FileSystem()
     AbsolutePathNameLayer.AbsolutePathNameLayer().new_entry('/', 1)
     my_object = FileSystemOperations()
     my_object.status()
     #YOU MAY WRITE YOUR CODE AFTER HERE
+
+    timing_start = time.time()
 
     my_object.mkdir("/A")
     my_object.status()
@@ -89,6 +92,12 @@ if __name__ == '__main__':
     my_object.read("/B/1.txt", 0, 10)
     my_object.mv("/B/1.txt", "/A/C/")
     my_object.status()
+
+    timing_end = time.time()
+
+    timing = timing_end - timing_start
+
+    print "\nTotal time for execution in nanoseconds is: ", timing, ".\n"
 
 
     #my_object.read("/A/C/B/1.txt", 0, 5)
