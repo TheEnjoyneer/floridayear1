@@ -8,22 +8,14 @@ from SimpleXMLRPCServer import SimpleXMLRPCServer
 
 import time, Memory, pickle , InodeOps, config
 
-
 filesystem = Memory.Operations()
 
 # FUNCTION DEFINITIONS 
 
-# example provided for initialize
+# INITIALIZE THE FILESYSTEM
 def Initialize():
-	retVal = Memory.Initialize()
-	retVal = pickle.dumps(retVal)
-	return retVal
-
-
-#GIVES ADDRESS OF INODE TABLE
-# Not so sure this needs to be implemented in this specific version
-def addr_inode_table():				
-	return pickle.dumps(sblock.ADDR_INODE_BLOCKS)
+	# Marshal the response of Memory.Initialize()
+	return pickle.dumps(Memory.Initialize())
 
 
 #RETURNS THE DATA OF THE BLOCK

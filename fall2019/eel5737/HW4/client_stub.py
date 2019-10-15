@@ -10,7 +10,7 @@ class client_stub():
 	def __init__(self):
 		self.proxy = xmlrpclib.ServerProxy("http://localhost:8000/")
 
-	# example provided for initialize
+	# CLIENT REQUEST TO INITIALIZE THE MEMORY SYSTEM
 	def Initialize(self):
 		try:
 			self.proxy.Initialize()
