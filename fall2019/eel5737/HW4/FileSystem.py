@@ -48,7 +48,7 @@ class FileSystemOperations():
 if __name__ == '__main__':
     #DO NOT MODIFY THIS
     Initialize_My_FileSystem()
-    #AbsolutePathNameLayer.AbsolutePathNameLayer().new_entry('/', 1)
+    AbsolutePathNameLayer.AbsolutePathNameLayer().new_entry('/', 1)
     my_object = FileSystemOperations()
     my_object.status()
     #YOU MAY WRITE YOUR CODE AFTER HERE

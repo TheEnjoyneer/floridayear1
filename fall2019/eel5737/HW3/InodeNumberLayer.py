@@ -72,10 +72,13 @@ class InodeNumberLayer():
 			return -1
 
 		# Add link to directory in new location
-		hardlink_parent_inode.directory[hardlink_name] = file_inode_number
-
-		# Increment file_inode ref count
-		file_inode.links += 1
+		if not hardlink_name in hardlink_parent_inode.directory.keys():
+			hardlink_parent_inode.directory[hardlink_name] = file_inode_number
+			# Increment file_inode ref count
+			file_inode.links += 1
+		else:
+			print "\nError: Attempt to link two files with the same name in a single directory."
+			return -1
 
 		# Update the inode table with the new values necessary
 		self.update_inode_table(hardlink_parent_inode, hardlink_parent_inode_number)
