@@ -13,7 +13,8 @@ for i in range(num_servers) :
 	# append to the list of client proxies
 	print('running server #' + str(portNum+i))
 	proxy.append(xmlrpclib.ServerProxy("http://localhost:" + str(portNum + i) + "/"))
-	os.system('gnome-terminal -e \"python server.py ' + str(portNum + i) + '\"')
+	os.system('open -a Terminal.app python server.py ' + str(portNum + i));
+	#os.system('open -a Terminal -e python server.py ' + str(portNum + i))# + '\"')
 	time.sleep(1)
 
 while True:
