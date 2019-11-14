@@ -1,21 +1,49 @@
-import math, config
+import math, config, InodeOps
 
 portNum = 8000
 
 class raidController():
+    # Server state array to keep 
+    self.serverStates = [True] * config.NUM_OF_SERVERS
+    self.numServerFailures = 0
     # Total number of blocks in our virtual memory is equal to the number of blocks per server
     self.maxDataBlocks = (config.INODE_SIZE - 63 - config.MAX_FILE_NAME_SIZE) / 2
     # Virtual data block size is equal to the size of an individual server's data block * (num_servers - 1)
     self.virtBlockSize = config.BLOCK_SIZE * (config.NUM_OF_SERVERS - 1)
 
 
+    # ENSURE THAT CODE IS ADDED TO CHECK FOR SERVER FAILURES EVERY TIME A REQUEST IS SENT
+    # THIS IS IMPORTANT SO THAT WE HAVE AN ACCURATE REPRESENTATION IN SERVERSTATES AS WELL 
+    # AS AN ACCURATE NUMOFSERVERFAILURES SO THAT WE KNOW IF WE SHOULD BE TOLERATING 
+    # FAILURE OR JUST QUITTING EXECUTION
+
+
 
     def __init__(self):
-        # Initialize the memory map array and the server proxies
-        # COME BACK HERE AND DECIDE ON WHETHER OR NOT WE HAVE NUMBER DATA BLOCKS FOR ALL SERVERS OR N-1 SERVER
         # Initialize server proxies
         for i in range(config.NUM_OF_SERVERS):
             self.proxy.append(xmlrpclib.ServerProxy("http://localhost:" + str(portNum + i) + "/"))
+
+
+    # CLIENT REQUEST TO INITIALIZE THE MEMORY SYSTEM
+    def Initialize(self):
+        for i in range(config.NUM_OF_SERVERS):
+            try:
+                serverRetVal, self.serverState[i] = self.proxy[i].Initialize()
+
+                if (self.serverState[i] == False) and (self.numServerFailures == 0):
+                    self.numServerFailures += 1
+                else:
+                    return 
+
+            except Exception as err:
+                # print error message
+                    print "Error in re-initializing the filesystem on server number:" + str(portNum + i)
+                    quit()
+
+
+    def getNumServerFailures(self):
+        return self.numServerFailures
 
 
     def locate_parity(self,address):
@@ -31,17 +59,7 @@ class raidController():
     def server_address_conversion(self,address):
         return address/(N-1)
 
-    # CLIENT REQUEST TO INITIALIZE THE MEMORY SYSTEM
-    def Initialize(self):
-        for i in range(config.NUM_OF_SERVERS):
-            try:
-                self.proxy[i].Initialize()
-            except Exception as err:
-                # print error message
-                    print "Error in re-initializing the filesystem on server number:" + str(portNum + i)
-                    quit()
-
-
+    
     #REQUEST TO FETCH THE INODE FROM INODE NUMBER FROM SERVER
     def inode_number_to_inode(self, inode_number):
         # Find the inode_number given and translate it to the server number and inode number for that server
