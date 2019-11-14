@@ -1,4 +1,4 @@
-import math, config, InodeOps
+import math, config
 
 portNum = 8000
 
@@ -23,6 +23,10 @@ class raidController():
         # Initialize server proxies
         for i in range(config.NUM_OF_SERVERS):
             self.proxy.append(xmlrpclib.ServerProxy("http://localhost:" + str(portNum + i) + "/"))
+        # Initialize a vNode table
+        self.vNodeTable = dict()
+        for i in range(config.MAX_NUM_INODES):
+            self.vNodeTable[i] = False
 
 
     # CLIENT REQUEST TO INITIALIZE THE MEMORY SYSTEM
@@ -64,15 +68,9 @@ class raidController():
     def inode_number_to_inode(self, inode_number):
         # Find the inode_number given and translate it to the server number and inode number for that server
         # Request that inode from that server using that inode number
-        inode_number = inode_number % config.MAX_NUM_INODES
-        inode_server = inode_number / config.MAX_NUM_INODES
-        try:
-            return pickle.loads(self.proxy[inode_server].inode_number_to_inode(pickle.dumps(inode_number)))
-        except xmlrpclib.Error as err:
-            print "A fault occurred in raidController.inode_number_to_inode()"
-            print "Fault code: %d" % err.faultCode
-            print "Fault string: %s" % err.faultString
-            quit()
+
+
+        
 
 
     #REQUEST THE DATA FROM THE SERVER
@@ -130,13 +128,7 @@ class raidController():
         # Request that inode from that server using that inode number
         inode_number = inode_number % config.MAX_NUM_INODES
         inode_server = inode_number / config.MAX_NUM_INODES
-        try:
-            return pickle.loads(self.proxy[inode_server].update_inode_table(pickle.dumps(inode), pickle.dumps(inode_number)))
-        except xmlrpclib.Error as err:
-            print "A fault occurred in client_stub.update_inode_table()"
-            print "Fault code: %d" % err.faultCode
-            print "Fault string: %s" % err.faultString
-            quit()
+        
 
 
     #REQUEST FOR THE STATUS OF FILE SYSTEM FROM SERVER
