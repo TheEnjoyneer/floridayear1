@@ -4,7 +4,7 @@ import xmlrpclib, config, pickle, os, sys, subprocess, time
 proxy = []
 #create servers
 # number of servers
-num_servers   	= sys.argv[1]
+num_servers   	= config.NUM_OF_SERVERS
 num_servers   	= int(num_servers)
 print(num_servers)
 portNum 		= 8000

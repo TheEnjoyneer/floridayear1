@@ -3,8 +3,11 @@ import math, config
 portNum = 8000
 
 class raidController():
-    max_server_data_blocks = (config.INODE_SIZE - 63 - config.MAX_FILE_NAME_SIZE) / 2
-    total_data_blocks = max_server_data_blocks * (config.NUM_OF_SERVERS - 1)
+    # Total number of blocks in our virtual memory is equal to the number of blocks per server
+    self.maxDataBlocks = (config.INODE_SIZE - 63 - config.MAX_FILE_NAME_SIZE) / 2
+    # Virtual data block size is equal to the size of an individual server's data block * (num_servers - 1)
+    self.virtBlockSize = config.BLOCK_SIZE * (config.NUM_OF_SERVERS - 1)
+
 
 
     def __init__(self):
