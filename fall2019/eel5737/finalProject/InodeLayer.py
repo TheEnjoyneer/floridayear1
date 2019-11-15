@@ -40,7 +40,8 @@ class InodeLayer():
         #PLACE CODE FROM HW2 HERE
         # Calculate maximum file size before doing anything
         maxFileBlocks = len(inode.blk_numbers)
-        maxFileSize = config.BLOCK_SIZE * maxFileBlocks
+        # COMMENT REMEMBERING TO COME BACK AND READ THIS COMMENT FOR FUTURE REFERENCE
+        maxFileSize = (config.BLOCK_SIZE * maxFileBlocks) # may need to adjust this
 
         # Error check for if inode is of type: file
         if inode.type != 0:

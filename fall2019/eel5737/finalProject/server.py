@@ -1,6 +1,9 @@
-# Cody Rigby
-# POCSD Final Project
-# Server Stub 00
+# client_stub.py
+# Christopher Brant
+# University of Florida
+# Fall 2019
+# EEL 5737 PoCSD
+# Final Project
 
 import xmlrpclib
 from SimpleXMLRPCServer import SimpleXMLRPCServer
