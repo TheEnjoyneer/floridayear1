@@ -1,4 +1,4 @@
-import math, config
+import math, config, functools, hashlib
 
 portNum = 8000
 maxDataBlocks = ((config.INODE_SIZE - 63 - config.MAX_FILE_NAME_SIZE) / 2) * (config.NUM_OF_SERVERS - 1)
@@ -107,12 +107,39 @@ class raidController():
             print "Fault string: %s" % err.faultString
             quit()
 
-
-    def update_virt_block(self, block_number):
+    # Given a block number and data string calculate a checksum value
+    # Append the checksum to the string and write it to a server
+    def update_virt_block(self, block_number, block_data):
         try:
-            # something
+            # Calculate checksum from block_data
+            new_block_data = self.data_to_checksum(block_data)
+
         except xmlrpclib.Error as err:
-            # something
+            print "A fault occurred in raidController.update_virt_block()"
+            print "Fault code: %d" % err.faultCode
+            print "Fault string: %s" % err.faultString
+            quit()
+
+
+    # Calculate checksum and append data string with it
+    def data_to_checksum(self, block_data):
+        checksum = hashlib.md5()
+        checksum.update(block_data)
+        checksumString = str(checksum.hexdigest().decode("hex"))
+        new_block_data = block_data + checksumString
+        return new_block_data
+
+    def checksum_to_data(self, block_data):
+        # Runs checksum check, if it is bad, returns a -1
+        old_block_data = block_data[:-16]
+        old_checksum = block_data[-16:]
+        checksum = hashlib.md5()
+        checksum.update(old_block_data)
+        new_checksum = str(checksum.hexdigest().decode("hex"))
+        if old_checksum != new_checksum:
+            return -1
+        else:
+            return old_block_data
 
 
     #REQUEST TO FETCH THE INODE FROM INODE NUMBER FROM SERVER
@@ -165,17 +192,38 @@ class raidController():
     def update_data_block(self, block_number, block_data):
         # Gather data
         server = self.vBlockTable[block_number].serverNum
-        block = self.vBlockTable[block_number].serverBlock
         parityBlock = self.vBlockTable[block_number].virtParityBlock
         
         # Check if server we are writing to has failed
         if self.serverStates[server] == False:
             # Do the recovery version of write
+            # vBlocks
 
+            start_location = N*((self.vBlockTable[block_number].virtParityBlock)/N)
 
-            
+            data =[]
+
+            for i in range(start_location,(start_location + N)):
+                if(self.vBlockTable[i].virtParityBlock != parityBlock):
+                    if(self.vBlocks[i].serverNum != server):
+                        data.append(self.get_virt_block(i))
+
+            # Determines parity of data
+            parity = functools.reduce((lambda x,y: x^y),data)
+
+            # Update only the parity block
+            self.update_virt_block(parityBlock, parity)
+
         # Do the normal version of write
         else:
+            # Read the existing virt_block data
+            oldData = self.get_virt_block(block_number)
+            oldParity = self.get_virt_block(parityBlock)
+            intData = oldData ^ block_data
+            newParity = intData ^ oldParity
+            # Update the virtual blocks
+            self.update_virt_block(block_number, block_data)
+            self.update_virt_block(parityBlock, newParity)
 
 
     #REQUEST TO UPDATE THE UPDATED INODE IN THE INODE TABLE FROM SERVER
