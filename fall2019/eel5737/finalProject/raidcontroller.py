@@ -184,7 +184,8 @@ class raidController():
 
     #REQUEST TO MAKE BLOCKS RESUABLE AGAIN FROM SERVER
     def free_data_block(self, block_number):
-        # Do something
+        # Possibly do some stuff to check for whether or not to free
+        # a parity block if necessary.  Could be difficult so prolly won't do it
         return self.free_virt_block(block_number)
 
 
@@ -231,16 +232,33 @@ class raidController():
         self.vNodeTable[inode_number] = inode
 
 
-    # #REQUEST FOR THE STATUS OF FILE SYSTEM FROM SERVER
-    # def status(self):
-    #     # Return the status string after marshalling the data
-    #     try:
-    #         return pickle.loads(self.proxy.status())
-    #     except xmlrpclib.Error as err:
-    #         print "A fault occurred in client_stub.status()"
-    #         print "Fault code: %d" % err.faultCode
-    #         print "Fault string: %s" % err.faultString
-    #         quit()
+    #REQUEST FOR THE STATUS OF FILE SYSTEM FROM SERVER
+    def status(self):
+        string += "\n\n----------INODE Blocks: ----------\n"
+        inode_number = 0
+        string += "Inode Table: \n"
+        for i in range(len(self.vNodeTable)):
+            string += "[" + str(i) + " : " + str(bool(self.vNodeTable[i])) + "]\n"
+        
+        string += "\n\n----------DATA Blocks: ----------\n  "
+        counter = 0
+        for i in range(len(self.vBlockTable)):
+            if counter == 25: 
+                string += "......Showing just part(25) data blocks\n"
+                break
+            string += (str(i) + " : " + "".join(self.get_data_block(self.vBlockTable[i].virt_block_number))) + "  "
+            counter += 1
+
+        string += "\n\n----------HIERARCHY: ------------\n"
+        for i in range(len(self.vNodeTable)):
+            inode = self.vNodeTable[i]
+            if inode and inode.type:
+                string += "\nDIRECTORY: " + inode.name + "\n"
+                for x in inode.blk_numbers: string += "".join(x[:config.MAX_FILE_NAME_SIZE]) + " || "
+                string += "\n"
+        
+        # Return the final string
+        return string
 
 
 # Main function for testing purposes
