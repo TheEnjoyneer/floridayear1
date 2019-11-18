@@ -351,3 +351,25 @@ class raidController():
         return string
 
 
+    # Statistics per server 
+    def serverStats(self):
+        serverReqs = [] * config.NUM_OF_SERVERS
+        serverStatString = ""
+        for i in range(config.NUM_OF_SERVERS):
+            try:
+                serverReqs[i], self.serverStates[i] = pickle.loads(self.proxy[i].serverStats())
+                serverStatString += "Server " + str(i) + ": completed " + str(serverReqs[i]) + " requests.\n"
+
+            except xmlrpclib.Error as err:
+            print "A fault occurred in raidController.get_virt_data_block()"
+            print "Fault code: %d" % err.faultCode
+            print "Fault string: %s" % err.faultString
+            self.serverStates[self.vBlockTable[block_number].serverNum] = False
+                if self.getNumServerFailures() > 1:
+                print("Error: Too many failed servers, Quitting now.\n")
+                quit()
+
+        print(serverStatString)
+
+
+
