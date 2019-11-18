@@ -15,40 +15,55 @@ global portNumber
 filesystem = Memory.Operations()
 
 state = True
+numReqs = 0
 
 def configure():
+	global numReqs
+	numReqs += 1
 	configuration = [config.TOTAL_NO_OF_BLOCKS, config.BLOCK_SIZE, config.MAX_NUM_INODES, config.INODE_SIZE, config.MAX_FILE_NAME_SIZE]
 	retVal        = pickle.dumps((configuration, state))
 	return retVal
 
 def Initialize():
+	global numReqs
+	numReqs += 1
 	retVal = Memory.Initialize()
 	retVal = pickle.dumps((retVal,state))
 	return retVal
 
 def addr_inode_table():
+	global numReqs
+	numReqs += 1
 	retVal = filesystem.addr_inode_table()
 	retVal = pickle.dumps((retVal,state))
 	return retVal
 
 def get_data_block(block_number):
+	global numReqs
+	numReqs += 1
 	passVal = pickle.loads(block_number)
 	retVal  = filesystem.get_data_block(passVal)
 	retVal  = pickle.dumps((retVal,state))
 	return retVal
 
-def get_valid_data_block():	
+def get_valid_data_block():
+	global numReqs
+	numReqs += 1
 	retVal = filesystem.get_valid_data_block()
 	retVal = pickle.dumps((retVal,state))
 	return retVal
 
-def free_data_block(block_number):  
+def free_data_block(block_number):
+	global numReqs 
+	numReqs += 1
 	passVal = pickle.loads(block_number)
 	retVal  = filesystem.free_data_block(passVal)
 	retVal  = pickle.dumps((retVal,state))
 	return retVal
 
-def update_data_block(block_number, block_data):	
+def update_data_block(block_number, block_data):
+	global numReqs
+	numReqs += 1
 	passVal1 = pickle.loads(block_number)
 	passVal2 = pickle.loads(block_data)
 	retVal 	 = filesystem.update_data_block(passVal1, passVal2)
@@ -56,6 +71,8 @@ def update_data_block(block_number, block_data):
 	return retVal
 
 def update_inode_table(inode, inode_number):
+	global numReqs
+	numReqs += 1
 	passVal1 = pickle.loads(inode)
 	passVal2 = pickle.loads(inode_number)
 	retVal 	 = filesystem.update_inode_table(passVal1, passVal2)
@@ -63,12 +80,16 @@ def update_inode_table(inode, inode_number):
 	return retVal
 
 def inode_number_to_inode(inode_number):
+	global numReqs
+	numReqs += 1
 	passVal = pickle.loads(inode_number)
 	retVal  = filesystem.inode_number_to_inode(passVal)
 	retVal  = pickle.dumps((retVal,state))
 	return retVal
 
 def status():
+	global numReqs
+	numReqs += 1
 	retVal = filesystem.status()
 	retVal = pickle.dumps((retVal,state))
 	return retVal
@@ -78,6 +99,9 @@ def corruptData():
 	state = False
 	retVal = pickle.dumps((retVal,state))
 	return retVal
+
+def serverStats():
+
 
 portNumber = int(sys.argv[1])
 #portNumber = 8000

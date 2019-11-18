@@ -16,14 +16,6 @@ class virtBlock():
 
 class raidController():
 
-
-    # ENSURE THAT CODE IS ADDED TO CHECK FOR SERVER FAILURES EVERY TIME A REQUEST IS SENT
-    # THIS IS IMPORTANT SO THAT WE HAVE AN ACCURATE REPRESENTATION IN SERVERSTATES AS WELL 
-    # AS AN ACCURATE NUMOFSERVERFAILURES SO THAT WE KNOW IF WE SHOULD BE TOLERATING 
-    # FAILURE OR JUST QUITTING EXECUTION
-
-
-
     def __init__(self):
         # Server state array to keep 
         self.serverStates = [True] * config.NUM_OF_SERVERS
@@ -55,8 +47,8 @@ class raidController():
                 print "Error initializing the filesystem on server number:" + str(portNum + i)
                 self.serverStates[i] = False
                 if self.getNumServerFailures() > 1:
-                print("Error: Too many failed servers, Quitting now.\n")
-                quit()
+                    print("Error: Too many failed servers, Quitting now.\n")
+                    quit()
 
 
     # Return number of server failures
@@ -68,11 +60,11 @@ class raidController():
         return numServerFailures
 
 
-    # Locate party
-    def locate_parity(self,address):
-        N = config.NUM_OF_SERVERS
-        parity = (N * (address / N)) + ((N - 1) - ((address / N) % N))
-        return parity
+    # # Locate party
+    # def locate_parity(self,address):
+    #     N = config.NUM_OF_SERVERS
+    #     parity = (N * (address / N)) + ((N - 1) - ((address / N) % N))
+    #     return parity
 
 
     # Given a virtual block number, go retrieve the data for just that block
@@ -359,11 +351,3 @@ class raidController():
         return string
 
 
-# Main function for testing purposes
-if __name__ == '__main__':
-
-    test = raidController()
-    for i in range(0,27):
-        #print test.locate_parity(i)
-        #print test.server_number_conversion(i)
-        print test.server_address_conversion(i)
