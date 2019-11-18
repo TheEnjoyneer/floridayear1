@@ -27,7 +27,6 @@ class raidController():
     def __init__(self):
         # Server state array to keep 
         self.serverStates = [True] * config.NUM_OF_SERVERS
-        self.numServerFailures = 0
         # Initialize server proxies
         for i in range(config.NUM_OF_SERVERS):
             self.proxy.append(xmlrpclib.ServerProxy("http://localhost:" + str(portNum + i) + "/"))
@@ -46,23 +45,27 @@ class raidController():
     def Initialize(self):
         for i in range(config.NUM_OF_SERVERS):
             try:
-                serverRetVal, self.serverState[i] = self.proxy[i].Initialize()
-
-                # COME BACK AND FINISH THIS
-                if (self.serverState[i] == False) and (self.numServerFailures == 0):
-                    self.numServerFailures += 1
-                else:
-                    return 
+                serverRetVal, self.serverStates[i] = self.proxy[i].Initialize()
+                if self.getNumServerFailures() > 1:
+                    print("Error: Too many failed servers, Quitting now.\n")
+                    quit()
 
             except Exception as err:
                 # print error message
-                    print "Error in re-initializing the filesystem on server number:" + str(portNum + i)
-                    quit()
+                print "Error initializing the filesystem on server number:" + str(portNum + i)
+                self.serverStates[i] = False
+                if self.getNumServerFailures() > 1:
+                print("Error: Too many failed servers, Quitting now.\n")
+                quit()
 
 
     # Return number of server failures
     def getNumServerFailures(self):
-        return self.numServerFailures
+        numServerFailures = 0
+        for i in range(config.NUM_OF_SERVERS):
+            if self.serverStates[i] == False:
+                numServerFailures += 1
+        return numServerFailures
 
 
     # Locate party
@@ -84,12 +87,22 @@ class raidController():
                 # Then we know that block must be computed from
                 # parity and other disk blocks
                 return -2
-            return pickle.loads(self.proxy[serverNum].get_valid_data_block())
+
+            retVal, self.serverStates[server] = pickle.loads(self.proxy[server].get_valid_data_block())
+            # Always print server failures if they exist
+            if self.serverStates[server] == False:
+                print("Warning: Server #" + str(server) + " has failed.\n")
+
+            return retVal
+
         except xmlrpclib.Error as err:
             print "A fault occurred in raidController.get_valid_virt_block()"
             print "Fault code: %d" % err.faultCode
             print "Fault string: %s" % err.faultString
-            quit()
+            self.serverStates[self.vBlockTable[block_number].serverNum] = False
+                if self.getNumServerFailures() > 1:
+                print("Error: Too many failed servers, Quitting now.\n")
+                quit()
 
 
     # Free an individual server's data block
@@ -101,11 +114,21 @@ class raidController():
             if self.serverStates[server] == True:
                 # Make sure this works correctly
                 retVal, self.serverStates[server] = pickle.loads(self.proxy[server].free_data_block(block))
+                # Always print server failures if they exist
+                if self.serverStates[server] == False:
+                print("Warning: Server #" + str(server) + " has failed.\n")
+
+                return retVal
+            else:
+                return -1
         except xmlrpclib.Error as err:
             print "A fault occurred in raidController.free_virt_block()"
             print "Fault code: %d" % err.faultCode
             print "Fault string: %s" % err.faultString
-            quit()
+            self.serverStates[self.vBlockTable[block_number].serverNum] = False
+                if self.getNumServerFailures() > 1:
+                print("Error: Too many failed servers, Quitting now.\n")
+                quit()
 
     # Given a block number and data string calculate a checksum value
     # Append the checksum to the string and write it to a server
@@ -113,12 +136,21 @@ class raidController():
         try:
             # Calculate checksum from block_data
             new_block_data = self.data_to_checksum(block_data)
+            server = self.vBlockTable[block_number].serverNum
+            retVal, self.serverStates[server] = pickle.loads(self.proxy[server].update_data_block(new_block_data))
+            if self.serverStates[server] == False:
+                print("Warning: Server #" + str(server) + " has failed.\n")
+
+            return retVal
 
         except xmlrpclib.Error as err:
             print "A fault occurred in raidController.update_virt_block()"
             print "Fault code: %d" % err.faultCode
             print "Fault string: %s" % err.faultString
-            quit()
+            self.serverStates[self.vBlockTable[block_number].serverNum] = False
+                if self.getNumServerFailures() > 1:
+                print("Error: Too many failed servers, Quitting now.\n")
+                quit()
 
 
     # This function is the lowest level function that will actually just run 
@@ -129,12 +161,19 @@ class raidController():
             server = self.vBlockTable[block_number].serverNum
             block = self.vBlockTable[block_number].serverBlock
             retVal, self.serverStates[server] = pickle.loads(self.proxy[server].get_data_block(block))
+            # Always print server failures if they exist
+            if self.serverStates[server] == False:
+                print("Warning: Server #" + str(server) + " has failed.\n")
+
             return retVal
         except xmlrpclib.Error as err:
             print "A fault occurred in raidController.get_virt_data_block()"
             print "Fault code: %d" % err.faultCode
             print "Fault string: %s" % err.faultString
-            quit()
+            self.serverStates[self.vBlockTable[block_number].serverNum] = False
+                if self.getNumServerFailures() > 1:
+                print("Error: Too many failed servers, Quitting now.\n")
+                quit()
 
 
     # Returns data that is re-created from the other disks/parity disk
@@ -206,7 +245,6 @@ class raidController():
             if self.serverStates[i] == False:
                 failedServer = i
         # Reads data from blocks and concatenates it to return to the caller
-        dataString = []
         server = self.vBlockTable[block_number].serverNum
         block = self.vBlockTable[block_number].serverBlock
 
@@ -267,7 +305,7 @@ class raidController():
             for i in range(start_location,(start_location + N)):
                 if(self.vBlockTable[i].virtParityBlock != parityBlock):
                     if(self.vBlocks[i].serverNum != server):
-                        data.append(self.get_virt_block(i))
+                        data.append(self.get_data_block(i))
 
             # Determines parity of data
             parity = functools.reduce((lambda x,y: x^y),data)
@@ -278,8 +316,8 @@ class raidController():
         # Do the normal version of write
         else:
             # Read the existing virt_block data
-            oldData = self.get_virt_block(block_number)
-            oldParity = self.get_virt_block(parityBlock)
+            oldData = self.get_data_block(block_number)
+            oldParity = self.get_data_block(parityBlock)
             intData = oldData ^ block_data
             newParity = intData ^ oldParity
             # Update the virtual blocks
