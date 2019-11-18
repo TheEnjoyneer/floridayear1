@@ -20,8 +20,7 @@ class SuperBlock():
 
 class Bitmap_Block():
     def __init__(self, BLOCK_SIZE):
-        # Added 16 bytes per block for checksums
-        self.block = [0]*(BLOCK_SIZE + 16)
+        self.block = [0]*BLOCK_SIZE
 
 class Inode_Block():
     def __init__(self, INODES_PER_BLOCK):
@@ -29,4 +28,5 @@ class Inode_Block():
 
 class Data_Block():
     def __init__(self, BLOCK_SIZE):                                 
-        self.block = ["\0"]*BLOCK_SIZE                                          #EMPTY BLOCK WILL CONTAIN NULL VALUES INITIALLY
+        # Added 16 bytes per block for checksums
+        self.block = ["\0"]*(BLOCK_SIZE + 16)                                          #EMPTY BLOCK WILL CONTAIN NULL VALUES INITIALLY
