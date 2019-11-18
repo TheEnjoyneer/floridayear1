@@ -40,7 +40,7 @@ def get_valid_data_block():
     if (interface.getNumServerFailures() > 1):
         print("Intolerable number of servers have failed. Quitting now.\n")
         quit()
-    return ( interface.get_valid_data_block() )
+    return (interface.get_valid_data_block())
 
 
 #REQUEST TO MAKE BLOCKS RESUABLE AGAIN FROM SERVER

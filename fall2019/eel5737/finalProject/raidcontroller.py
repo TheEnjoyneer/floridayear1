@@ -121,6 +121,57 @@ class raidController():
             quit()
 
 
+    # This function is the lowest level function that will actually just run 
+    # the request to get a data block from a server
+    # This function assumes the server has not failed
+    def get_virt_data_block(self, block_number):
+        try:
+            server = self.vBlockTable[block_number].serverNum
+            block = self.vBlockTable[block_number].serverBlock
+            retVal, self.serverStates[server] = pickle.loads(self.proxy[server].get_data_block(block))
+            return retVal
+        except xmlrpclib.Error as err:
+            print "A fault occurred in raidController.get_virt_data_block()"
+            print "Fault code: %d" % err.faultCode
+            print "Fault string: %s" % err.faultString
+            quit()
+
+
+    # Returns data that is re-created from the other disks/parity disk
+    def get_fixed_data_block(self, block_number, failed):
+        # Loop through and create list of blocks to read from to recreate 
+        # the data from a block number that is in a failed server
+        recoveryBlocks = []
+        recoveryData = []
+        base_block_number = (block_number / config.NUM_OF_SERVERS) * config.NUM_OF_SERVERS
+        for i in range(config.NUM_OF_SERVERS):
+            recoveryBlock = base_block_number + i
+            if recoveryBlock != block_number:
+                recoveryBlocks.append(base_block_number + i)
+
+        # Now request data from each server to operate on
+        for i in range(len(recoveryBlocks)):
+            recoveryData.append(self.get_virt_data_block(recoveryBlocks[i]))
+
+        blockData = [] * len(recoveryData)
+        # Check the checksum of each individual block
+        # And save the data to blockData
+        for i in range(len(recoveryData)):
+            blockData[i] = self.checksum_to_data(recoveryData[i]) 
+            if blockData[i] == "Checksum_Failed" and failed == True:
+                blockData[i] == self.get_fixed_data_block(recoveryBlocks[i], False)
+            elif blockData[i] == "Checksum_Failed" and failed == False:
+                print("Fatal Error: Trying to recreate data from a non-failed server while another server has failed.")
+                quit()
+
+        # Recreate the data
+        # Determines parity of data
+        fixedData = functools.reduce((lambda x,y: x^y), blockData)
+
+        # Return the data
+        return fixedData
+
+
     # Calculate checksum and append data string with it
     def data_to_checksum(self, block_data):
         checksum = hashlib.md5()
@@ -137,7 +188,7 @@ class raidController():
         checksum.update(old_block_data)
         new_checksum = str(checksum.hexdigest().decode("hex"))
         if old_checksum != new_checksum:
-            return -1
+            return "Checksum_Failed"
         else:
             return old_block_data
 
@@ -147,20 +198,29 @@ class raidController():
         return self.vNodeTable[inode_number]
 
 
-    # #REQUEST THE DATA FROM THE SERVER
-    # def get_data_block(self, block_number):
-    #     # Reads data from blocks and concatenates it to return to the caller
-    #     dataString = []
+    #REQUEST THE DATA FROM THE SERVER
+    def get_data_block(self, block_number):
+        # Find the failed server first
+        failedServer = -1
+        for i in range(config.NUM_OF_SERVERS):
+            if self.serverStates[i] == False:
+                failedServer = i
+        # Reads data from blocks and concatenates it to return to the caller
+        dataString = []
+        server = self.vBlockTable[block_number].serverNum
+        block = self.vBlockTable[block_number].serverBlock
 
+        # If server is failed, then call get_fixed_data_block()
+        if server == failedServer:
+            blockData = self.get_fixed_data_block(block_number, True)
+        else:
+            blockData = self.get_virt_data_block(block_number)
+            blockData = self.checksum_to_data(blockData)
+            if blockData == "Checksum_Failed":
+                blockData = self.get_fixed_data_block(block_number, True)
 
-
-    #     try:
-
-    #     except xmlrpclib.Error as err:
-    #         print "A fault occurred in client_stub.get_data_block()"
-    #         print "Fault code: %d" % err.faultCode
-    #         print "Fault string: %s" % err.faultString
-    #         quit()
+        # return the block data
+        return blockData
 
 
     #REQUESTS THE VALID BLOCK NUMBER FROM THE SERVER 
