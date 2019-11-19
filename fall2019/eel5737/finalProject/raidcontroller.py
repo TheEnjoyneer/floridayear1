@@ -1,4 +1,4 @@
-import xmlrpclib, math, config, functools, hashlib, time
+import xmlrpclib, math, config, functools, hashlib, time, pickle
 
 portNum = 8000
 maxDataBlocks = ((config.INODE_SIZE - 63 - config.MAX_FILE_NAME_SIZE) / 2) * (config.NUM_OF_SERVERS - 1)
