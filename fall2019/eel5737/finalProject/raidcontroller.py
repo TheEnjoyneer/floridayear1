@@ -20,6 +20,7 @@ class raidController():
         # Server state array to keep
         self.serverStates = [True] * config.NUM_OF_SERVERS
         # Initialize server proxies
+        self.proxy = []
         for i in range(config.NUM_OF_SERVERS):
             self.proxy.append(xmlrpclib.ServerProxy("http://localhost:" + str(portNum + i) + "/"))
         # Initialize a vNode table
