@@ -54,7 +54,7 @@ if __name__ == '__main__':
     my_object.status()
     #YOU MAY WRITE YOUR CODE AFTER HERE
 
-    timing_start = time.time()
+    #timing_start = time.time()
 
     print "Welcome to the redundant RISC V Filesystem by Nick Poindexter and Christopher Brant"
 
