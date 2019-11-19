@@ -16,19 +16,19 @@ class FileSystemOperations():
     #CREATE FILE
     def create(self, path):
         interface.new_entry(path, 0)
-        
+
 
     #WRITE TO FILE
     def write(self, path, data, offset=0):
         interface.write(path, offset, data)
-      
+
 
     #READ
     def read(self, path, offset=0, size=-1):
         read_buffer = interface.read(path, offset, size)
         if read_buffer != -1: print(path + " : " + read_buffer)
 
-    
+
     #DELETE
     def rm(self, path):
         interface.unlink(path)
@@ -47,7 +47,7 @@ class FileSystemOperations():
 
 if __name__ == '__main__':
     #DO NOT MODIFY THIS
-    
+
     Initialize_My_FileSystem()
     AbsolutePathNameLayer.AbsolutePathNameLayer().new_entry('/', 1)
     my_object = FileSystemOperations()
@@ -55,6 +55,8 @@ if __name__ == '__main__':
     #YOU MAY WRITE YOUR CODE AFTER HERE
 
     timing_start = time.time()
+
+    print "Welcome to the redundant RISC V Filesystem by Nick Poindexter and Christopher Brant"
 
     # my_object.mkdir("/A")
     # my_object.status()
@@ -102,7 +104,7 @@ if __name__ == '__main__':
 
     #my_object.read("/A/C/B/1.txt", 0, 5)
 
-    
+
     '''Examples:
     my_object.mkdir("/A")
     my_object.status()
@@ -117,4 +119,3 @@ if __name__ == '__main__':
     my_object.rm("A/1.txt")
     my_object.status()
     '''
-

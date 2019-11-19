@@ -1,5 +1,5 @@
 #Total blocks must be greater than block size
-#Inode size must be less than Block size 
+#Inode size must be less than Block size
 #Min size of file name is 5
 
 
@@ -9,7 +9,4 @@ MAX_NUM_INODES = 32
 INODE_SIZE = 128
 MAX_FILE_NAME_SIZE = 16
 NUM_OF_SERVERS = 4
-
-
-
-
+DELAY_LENGTH = 5

@@ -1,4 +1,4 @@
-import math, config, functools, hashlib
+import math, config, functools, hashlib, time
 
 portNum = 8000
 maxDataBlocks = ((config.INODE_SIZE - 63 - config.MAX_FILE_NAME_SIZE) / 2) * (config.NUM_OF_SERVERS - 1)
@@ -17,7 +17,7 @@ class virtBlock():
 class raidController():
 
     def __init__(self):
-        # Server state array to keep 
+        # Server state array to keep
         self.serverStates = [True] * config.NUM_OF_SERVERS
         # Initialize server proxies
         for i in range(config.NUM_OF_SERVERS):
@@ -92,13 +92,14 @@ class raidController():
             print "Fault code: %d" % err.faultCode
             print "Fault string: %s" % err.faultString
             self.serverStates[self.vBlockTable[block_number].serverNum] = False
-                if self.getNumServerFailures() > 1:
+            if self.getNumServerFailures() > 1:
                 print("Error: Too many failed servers, Quitting now.\n")
                 quit()
 
 
     # Free an individual server's data block
     def free_virt_block(self, block_number):
+        time.sleep(config.DELAY_LENGTH)
         try:
             server = self.vBlockTable[block_number].serverNum
             block = self.vBlockTable[block_number].serverBlock
@@ -108,9 +109,8 @@ class raidController():
                 retVal, self.serverStates[server] = pickle.loads(self.proxy[server].free_data_block(block))
                 # Always print server failures if they exist
                 if self.serverStates[server] == False:
-                print("Warning: Server #" + str(server) + " has failed.\n")
-
-                return retVal
+                    print("Warning: Server #" + str(server) + " has failed.\n")
+                    return retVal
             else:
                 return -1
         except xmlrpclib.Error as err:
@@ -118,7 +118,7 @@ class raidController():
             print "Fault code: %d" % err.faultCode
             print "Fault string: %s" % err.faultString
             self.serverStates[self.vBlockTable[block_number].serverNum] = False
-                if self.getNumServerFailures() > 1:
+            if self.getNumServerFailures() > 1:
                 print("Error: Too many failed servers, Quitting now.\n")
                 quit()
 
@@ -140,12 +140,12 @@ class raidController():
             print "Fault code: %d" % err.faultCode
             print "Fault string: %s" % err.faultString
             self.serverStates[self.vBlockTable[block_number].serverNum] = False
-                if self.getNumServerFailures() > 1:
+            if self.getNumServerFailures() > 1:
                 print("Error: Too many failed servers, Quitting now.\n")
                 quit()
 
 
-    # This function is the lowest level function that will actually just run 
+    # This function is the lowest level function that will actually just run
     # the request to get a data block from a server
     # This function assumes the server has not failed
     def get_virt_data_block(self, block_number):
@@ -163,14 +163,14 @@ class raidController():
             print "Fault code: %d" % err.faultCode
             print "Fault string: %s" % err.faultString
             self.serverStates[self.vBlockTable[block_number].serverNum] = False
-                if self.getNumServerFailures() > 1:
+            if self.getNumServerFailures() > 1:
                 print("Error: Too many failed servers, Quitting now.\n")
                 quit()
 
 
     # Returns data that is re-created from the other disks/parity disk
     def get_fixed_data_block(self, block_number, failed):
-        # Loop through and create list of blocks to read from to recreate 
+        # Loop through and create list of blocks to read from to recreate
         # the data from a block number that is in a failed server
         recoveryBlocks = []
         recoveryData = []
@@ -188,7 +188,7 @@ class raidController():
         # Check the checksum of each individual block
         # And save the data to blockData
         for i in range(len(recoveryData)):
-            blockData[i] = self.checksum_to_data(recoveryData[i]) 
+            blockData[i] = self.checksum_to_data(recoveryData[i])
             if blockData[i] == "Checksum_Failed" and failed == True:
                 blockData[i] == self.get_fixed_data_block(recoveryBlocks[i], False)
             elif blockData[i] == "Checksum_Failed" and failed == False:
@@ -244,6 +244,8 @@ class raidController():
         if server == failedServer:
             blockData = self.get_fixed_data_block(block_number, True)
         else:
+            print("Reading from server "), server
+            time.sleep(config.DELAY_LENGTH)
             blockData = self.get_virt_data_block(block_number)
             blockData = self.checksum_to_data(blockData)
             if blockData == "Checksum_Failed":
@@ -253,7 +255,7 @@ class raidController():
         return blockData
 
 
-    #REQUESTS THE VALID BLOCK NUMBER FROM THE SERVER 
+    #REQUESTS THE VALID BLOCK NUMBER FROM THE SERVER
     def get_valid_data_block(self):
         returnBlock = -1
         for i in range(maxdataBlocks):
@@ -264,7 +266,7 @@ class raidController():
                 parityBlock = self.vBlockTable[i].virtParityBlock
                 if self.vBlockTable[parityBlock].valid == -1:
                     self.vBlockTable[parityBlock].serverBlock = self.get_valid_virt_block(parityBlock)
-                # Still always get valid block    
+                # Still always get valid block
                 self.vBlockTable[returnBlock].serverBlock = self.get_valid_virt_block(returnBlock)
                 break
 
@@ -284,7 +286,7 @@ class raidController():
         # Gather data
         server = self.vBlockTable[block_number].serverNum
         parityBlock = self.vBlockTable[block_number].virtParityBlock
-        
+
         # Check if server we are writing to has failed
         if self.serverStates[server] == False:
             # Do the recovery version of write
@@ -304,6 +306,8 @@ class raidController():
 
             # Update only the parity block
             self.update_virt_block(parityBlock, parity)
+            print("Writing parity to server "), vBlockTable[parityBlock.virt_block_number].serverNum
+            time.sleep(config.DELAY_LENGTH)
 
         # Do the normal version of write
         else:
@@ -313,7 +317,11 @@ class raidController():
             intData = oldData ^ block_data
             newParity = intData ^ oldParity
             # Update the virtual blocks
+            print("Writing data to server number "),server
+            time.sleep(config.DELAY_LENGTH)
             self.update_virt_block(block_number, block_data)
+            print("Writing parity to server "), vBlockTable[parityBlock.virt_block_number].serverNum
+            time.sleep(config.DELAY_LENGTH)
             self.update_virt_block(parityBlock, newParity)
 
 
@@ -329,11 +337,11 @@ class raidController():
         string += "Inode Table: \n"
         for i in range(len(self.vNodeTable)):
             string += "[" + str(i) + " : " + str(bool(self.vNodeTable[i])) + "]\n"
-        
+
         string += "\n\n----------DATA Blocks: ----------\n  "
         counter = 0
         for i in range(len(self.vBlockTable)):
-            if counter == 25: 
+            if counter == 25:
                 string += "......Showing just part(25) data blocks\n"
                 break
             string += (str(i) + " : " + "".join(self.get_data_block(self.vBlockTable[i].virt_block_number))) + "  "
@@ -346,12 +354,12 @@ class raidController():
                 string += "\nDIRECTORY: " + inode.name + "\n"
                 for x in inode.blk_numbers: string += "".join(x[:config.MAX_FILE_NAME_SIZE]) + " || "
                 string += "\n"
-        
+
         # Return the final string
         return string
 
 
-    # Statistics per server 
+    # Statistics per server
     def serverStats(self):
         serverReqs = [] * config.NUM_OF_SERVERS
         serverStatString = ""
@@ -361,15 +369,12 @@ class raidController():
                 serverStatString += "Server " + str(i) + ": completed " + str(serverReqs[i]) + " requests.\n"
 
             except xmlrpclib.Error as err:
-            print "A fault occurred in raidController.get_virt_data_block()"
-            print "Fault code: %d" % err.faultCode
-            print "Fault string: %s" % err.faultString
-            self.serverStates[self.vBlockTable[block_number].serverNum] = False
+                print "A fault occurred in raidController.get_virt_data_block()"
+                print "Fault code: %d" % err.faultCode
+                print "Fault string: %s" % err.faultString
+                self.serverStates[self.vBlockTable[block_number].serverNum] = False
                 if self.getNumServerFailures() > 1:
-                print("Error: Too many failed servers, Quitting now.\n")
-                quit()
+                    print("Error: Too many failed servers, Quitting now.\n")
+                    quit()
 
         print(serverStatString)
-
-
-
