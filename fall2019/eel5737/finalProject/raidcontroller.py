@@ -335,6 +335,7 @@ class raidController():
 
     #REQUEST FOR THE STATUS OF FILE SYSTEM FROM SERVER
     def status(self):
+        string = ""
         string += "\n\n----------INODE Blocks: ----------\n"
         inode_number = 0
         string += "Inode Table: \n"
