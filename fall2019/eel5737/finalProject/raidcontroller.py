@@ -46,6 +46,8 @@ class raidController():
             except Exception as err:
                 # print error message
                 print "Error initializing the filesystem on server number:" + str(portNum + i)
+                print "Fault code: %d" % err.faultCode
+                print "Fault string: %s" % err.faultString
                 self.serverStates[i] = False
                 if self.getNumServerFailures() > 1:
                     print("Error: Too many failed servers, Quitting now.\n")
