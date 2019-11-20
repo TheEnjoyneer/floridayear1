@@ -3,6 +3,9 @@ import xmlrpclib, math, config, functools, hashlib, time, pickle
 portNum = 8000
 maxDataBlocks = ((config.INODE_SIZE - 63 - config.MAX_FILE_NAME_SIZE) / 2) * (config.NUM_OF_SERVERS - 1)
 
+def xor_strings(string1, string2):
+    return "".join(chr(ord(a)^ord(b)) for a,b in zip(string1, string2))
+
 class virtBlock():
 
     def __init__(self, block_number):
@@ -199,6 +202,9 @@ class raidController():
                 quit()
 
         # Recreate the data
+
+        # FIX PARITY CREATION STUFF
+
         # Determines parity of data
         fixedData = functools.reduce((lambda x,y: x^y), blockData)
 
@@ -310,6 +316,8 @@ class raidController():
                     if(self.vBlocks[i].serverNum != server):
                         data.append(self.get_data_block(i))
 
+
+            # COME BACK AND FIX THIS 
             # Determines parity of data
             parity = functools.reduce((lambda x,y: x^y),data)
 
@@ -321,15 +329,15 @@ class raidController():
         # Do the normal version of write
         else:
             # Read the existing virt_block data
-            #if self.vBlockTable[block_number].valid != 1:
-
             oldData = self.get_data_block(block_number)
             oldParity = self.get_data_block(parityBlock)
             block_data = "".join(block_data)
             print oldData
             print block_data
-            intData = oldData ^ block_data
-            newParity = intData ^ oldParity
+            #intData = oldData ^ block_data
+            #newParity = intData ^ oldParity
+            intData = xor_strings(oldData, block_data)
+            newParity = xor_strings(intData, oldParity)
             # Update the virtual blocks
             print("Writing data to server number "),server
             time.sleep(config.DELAY_LENGTH)
