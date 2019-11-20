@@ -227,8 +227,6 @@ class raidController():
             checksum = hashlib.md5()
             checksum.update(old_block_data)
             new_checksum = str(checksum.hexdigest().decode("hex"))
-            print old_checksum
-            print new_checksum
             if old_checksum != new_checksum:
                 return "Checksum_Failed"
             else:
@@ -252,7 +250,6 @@ class raidController():
         block = self.vBlockTable[block_number].serverBlock
 
         # If server is failed, then call get_fixed_data_block()
-        print self.serverStates
         if server == failedServer:
             blockData = self.get_fixed_data_block(block_number, True)
         else:
@@ -328,6 +325,8 @@ class raidController():
 
             oldData = self.get_data_block(block_number)
             oldParity = self.get_data_block(parityBlock)
+            print oldData
+            print block_data
             intData = oldData ^ block_data
             newParity = intData ^ oldParity
             # Update the virtual blocks
