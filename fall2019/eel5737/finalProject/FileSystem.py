@@ -56,7 +56,7 @@ if __name__ == '__main__':
 
     #timing_start = time.time()
 
-    print "Welcome to the redundant RISC V Filesystem by Nick Poindexter and Christopher Brant"
+    print "Welcome to the redundant RAID-5 Filesystem by Nick Poindexter and Christopher Brant"
 
     # my_object.mkdir("/A")
     # my_object.status()
