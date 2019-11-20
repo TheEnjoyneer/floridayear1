@@ -63,11 +63,6 @@ class InodeLayer():
                 initBlockNumLength = len(inode.blk_numbers) - inode.blk_numbers.count(-1)
                 newSize = offset
 
-                # for debugging
-                print offsetBlockIndex
-                print offsetByteIndex
-                print initBlockNumLength
-
                 # Warn if the length of the write is going to exceed the 
                 # maximum file size if all bytes are written
                 if (newSize + len(data)) > maxFileSize:
@@ -79,7 +74,6 @@ class InodeLayer():
                     offsetByteIndex %= config.BLOCK_SIZE
                     if newSize < maxFileSize:
                         # Check to see if we are still writing to existing blocks
-                        print "HELLO FUCKERS"
                         if offsetBlockIndex < initBlockNumLength:
                             currBlock = self.INDEX_TO_BLOCK_NUMBER(inode, offsetBlockIndex)
 
@@ -129,6 +123,7 @@ class InodeLayer():
                             newSize += 1
 
                 # Write the last block to memory
+                print newBlock
                 if newBlock != 0:
                     interface.update_data_block(newBlock, newBlockContents)
                 else:
