@@ -325,6 +325,7 @@ class raidController():
 
             oldData = self.get_data_block(block_number)
             oldParity = self.get_data_block(parityBlock)
+            block_data = "".join(block_data)
             print oldData
             print block_data
             intData = oldData ^ block_data
