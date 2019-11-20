@@ -363,7 +363,7 @@ class raidController():
             print inode.blk_numbers
             if inode and inode.type:
                 string += "\nDIRECTORY: " + inode.name + "\n"
-                for x in inode.blk_numbers: string += "".join(x[:config.MAX_FILE_NAME_SIZE]) + " || "
+                for x in inode.directory.keys(): string += "".join(x) + " || "
                 string += "\n"
 
         # Return the final string
