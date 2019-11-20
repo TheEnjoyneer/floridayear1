@@ -33,8 +33,9 @@ class InodeNumberLayer():
 	#UPDATES THE INODE TO THE INODE TABLE
 	def update_inode_table(self, table_inode, inode_number):
 		if table_inode: table_inode.time_modified = datetime.datetime.now()  #TIME OF MODIFICATION 
-		array_inode = InodeOps.InodeOperations().convert_table_to_array(table_inode)
-		MemoryInterface.update_inode_table(array_inode, inode_number)
+		#array_inode = InodeOps.InodeOperations().convert_table_to_array(table_inode)
+		#MemoryInterface.update_inode_table(array_inode, inode_number)
+		MemoryInterface.update_inode_table(table_inode, inode_number)
 
 
 	#PLEASE DO NOT MODIFY
