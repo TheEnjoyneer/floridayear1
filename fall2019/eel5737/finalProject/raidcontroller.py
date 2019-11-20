@@ -358,6 +358,7 @@ class raidController():
             counter += 1
 
         string += "\n\n----------HIERARCHY: ------------\n"
+        print self.vNodeTable
         for i in range(len(self.vNodeTable)):
             inode = self.vNodeTable[i]
             print inode
