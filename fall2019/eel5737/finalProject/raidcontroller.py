@@ -194,9 +194,9 @@ class raidController():
         # Check the checksum of each individual block
         # And save the data to blockData
         for i in range(len(recoveryData)):
-            blockData[i] = self.checksum_to_data(recoveryData[i])
+            blockData[i] = "".join(self.checksum_to_data(recoveryData[i]))
             if blockData[i] == "Checksum_Failed" and failed == True:
-                blockData[i] == self.get_fixed_data_block(recoveryBlocks[i], False)
+                blockData[i] == "".join(self.get_fixed_data_block(recoveryBlocks[i], False))
             elif blockData[i] == "Checksum_Failed" and failed == False:
                 print("Fatal Error: Trying to recreate data from a non-failed server while another server has failed.")
                 quit()
@@ -204,9 +204,11 @@ class raidController():
         # Recreate the data
 
         # FIX PARITY CREATION STUFF
-
+        fixedData = blockData[0]
+        for i in range(1, len(blockData)):
+            fixedData = xor_strings(fixedData, blockData[i])
         # Determines parity of data
-        fixedData = functools.reduce((lambda x,y: x^y), blockData)
+        #fixedData = functools.reduce((lambda x,y: x^y), blockData)
 
         # Return the data
         return fixedData
@@ -319,7 +321,10 @@ class raidController():
 
             # COME BACK AND FIX THIS 
             # Determines parity of data
-            parity = functools.reduce((lambda x,y: x^y),data)
+            parity = data[0]
+                for i in range(1, len(data)):
+                    parity = xor_strings(parity, data[i])
+            #parity = functools.reduce((lambda x,y: x^y),data)
 
             print("Writing parity to server "), self.vBlockTable[parityBlock].serverNum
             time.sleep(config.DELAY_LENGTH)
