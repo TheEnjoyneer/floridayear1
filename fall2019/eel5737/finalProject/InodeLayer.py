@@ -12,6 +12,7 @@ class InodeLayer():
     #RETURNS BLOCK NUMBER FROM RESPECTIVE INODE DIRECTORY
     def INDEX_TO_BLOCK_NUMBER(self, inode, index):
         if index == len(inode.blk_numbers): return -1
+        print inode.blk_numbers
         return inode.blk_numbers[index]
 
 
