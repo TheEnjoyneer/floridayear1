@@ -40,6 +40,7 @@ def addr_inode_table():
 
 def get_data_block(block_number):
 	global numReqs
+	print block_number
 	numReqs += 1
 	passVal = pickle.loads(block_number)
 	retVal  = filesystem.get_data_block(passVal)
