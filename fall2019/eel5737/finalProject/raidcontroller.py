@@ -221,6 +221,7 @@ class raidController():
         old_block_data = block_data[:-16]
         old_checksum = block_data[-16:]
         checksum = hashlib.md5()
+        print old_block_data
         checksum.update(old_block_data)
         new_checksum = str(checksum.hexdigest().decode("hex"))
         if old_checksum != new_checksum:
