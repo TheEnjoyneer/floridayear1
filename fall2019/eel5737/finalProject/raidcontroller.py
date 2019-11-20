@@ -362,15 +362,19 @@ class raidController():
         string = ""
         string += "\n\n----------VIRTUAL INODE TABLE----------\n"
         inode_number = 0
+        counter = 0
         string += "Inode Table: \n"
         for i in range(len(self.vNodeTable)):
+            if counter == 25:
+                string += "......Showing just part(25) virtual inodes\n"
+                break
             string += "[" + str(i) + " : " + str(bool(self.vNodeTable[i])) + "]\n"
 
         string += "\n\n----------VIRTUAL DATA BLOCK TABLE----------\n  "
         counter = 0
         for i in range(len(self.vBlockTable)):
             if counter == 25:
-                string += "......Showing just part(25) data blocks\n"
+                string += "......Showing just part(25) virtual data blocks\n"
                 break
             if self.vBlockTable[i].valid == -1:
                 blockData = ""
