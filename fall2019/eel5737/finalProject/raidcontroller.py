@@ -359,6 +359,7 @@ class raidController():
         string += "\n\n----------HIERARCHY: ------------\n"
         for i in range(len(self.vNodeTable)):
             inode = self.vNodeTable[i]
+            print inode
             if inode:
                 if inode.type:
                     string += "\nDIRECTORY: " + inode.name + "\n"
