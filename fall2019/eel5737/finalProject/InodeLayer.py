@@ -81,6 +81,7 @@ class InodeLayer():
                     offsetByteIndex %= config.BLOCK_SIZE
                     if newSize < maxFileSize:
                         # Check to see if we are still writing to existing blocks
+                        print "HELLO FUCKERS"
                         if offsetBlockIndex < initBlockNumLength:
                             currBlock = self.INDEX_TO_BLOCK_NUMBER(inode, offsetBlockIndex)
 
