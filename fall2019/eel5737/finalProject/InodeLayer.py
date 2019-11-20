@@ -65,6 +65,11 @@ class InodeLayer():
                 initBlockNumLength = len(inode.blk_numbers) - inode.blk_numbers.count(-1)
                 newSize = offset
 
+                # for debugging
+                print offsetBlockIndex
+                print offsetByteIndex
+                print initBlockNumLength
+
                 # Warn if the length of the write is going to exceed the 
                 # maximum file size if all bytes are written
                 if (newSize + len(data)) > maxFileSize:
