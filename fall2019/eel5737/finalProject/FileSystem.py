@@ -10,7 +10,7 @@ interface = AbsolutePathNameLayer.AbsolutePathNameLayer()
 
 class MyPrompt(Cmd):
     prompt = '$ '
-    intro = 'Welcome to the redundant RAID-5 Filesystem by Nick Poindexter and Christopher Brant'
+    intro = 'Welcome to the RAID-5 Filesystem by Nick Poindexter and Christopher Brant'
 
     def do_create(self, inp):
         if inp == "":
