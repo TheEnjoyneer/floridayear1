@@ -131,7 +131,8 @@ class raidController():
             # Calculate checksum from block_data
             new_block_data = self.data_to_checksum(block_data)
             server = self.vBlockTable[block_number].serverNum
-            retVal, self.serverStates[server] = pickle.loads(self.proxy[server].update_data_block(pickle.dumps(new_block_data)))
+            block = self.vBlockTable[block_number].serverBlock
+            retVal, self.serverStates[server] = pickle.loads(self.proxy[server].update_data_block(pickle.dumps(block), pickle.dumps(new_block_data)))
             if self.serverStates[server] == False:
                 print("Warning: Server #" + str(server) + " has failed.\n")
 
@@ -258,6 +259,8 @@ class raidController():
             if blockData == "Checksum_Failed":
                 print "Checksum Failed"
                 blockData = self.get_fixed_data_block(block_number, True)
+
+        return blockData
 
 
     #REQUESTS THE VALID BLOCK NUMBER FROM THE SERVER
