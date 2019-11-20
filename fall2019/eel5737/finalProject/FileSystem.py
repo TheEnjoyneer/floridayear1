@@ -91,7 +91,7 @@ if __name__ == '__main__':
     #print "Welcome to the redundant RAID-5 Filesystem by Nick Poindexter and Christopher Brant"
 
 
-    MyPrompt().cmdloop(my_object)
+    MyPrompt().cmdloop()
 
 
     # my_object.mkdir("/A")
