@@ -361,11 +361,10 @@ class raidController():
         for i in range(len(self.vNodeTable)):
             inode = self.vNodeTable[i]
             print inode
-            if inode:
-                if inode.type:
-                    string += "\nDIRECTORY: " + inode.name + "\n"
-                    for x in inode.blk_numbers: string += "".join(x[:config.MAX_FILE_NAME_SIZE]) + " || "
-                    string += "\n"
+            if inode and inode.type:
+                string += "\nDIRECTORY: " + inode.name + "\n"
+                for x in inode.blk_numbers: string += "".join(x[:config.MAX_FILE_NAME_SIZE]) + " || "
+                string += "\n"
 
         # Return the final string
         return string

@@ -8,6 +8,8 @@ import InodeLayer, config, MemoryInterface, datetime, InodeOps, MemoryInterface
 #HANDLE OF INODE LAYER
 interface = InodeLayer.InodeLayer()
 
+max_num_vnodes = config.MAX_NUM_INODES * (config.NUM_OF_SERVERS - 1)
+
 class InodeNumberLayer():
 
 	#PLEASE DO NOT MODIFY
@@ -46,12 +48,12 @@ class InodeNumberLayer():
 			if not parent_inode:
 				print("Error InodeNumberLayer: Incorrect Parent Inode")
 				return -1
-			entry_size = config.MAX_FILE_NAME_SIZE + len(str(config.MAX_NUM_INODES))
+			entry_size = config.MAX_FILE_NAME_SIZE + len(str(max_num_vnodes))
 			max_entries = (config.INODE_SIZE - 79 ) / entry_size
 			if len(parent_inode.directory) == max_entries:
 				print("Error InodeNumberLayer: Maximum inodes allowed per directory reached!")
 				return -1
-		for i in range(0, config.MAX_NUM_INODES):
+		for i in range(0, max_num_vnodes):
 			if self.INODE_NUMBER_TO_INODE(i) == False: #FALSE INDICTES UNOCCUPIED INODE ENTRY HENCE, FREEUMBER
 				inode = interface.new_inode(type)
 				inode.name = name
