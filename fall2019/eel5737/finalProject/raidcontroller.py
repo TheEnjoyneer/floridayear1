@@ -257,6 +257,8 @@ class raidController():
                 blockData = self.get_fixed_data_block(block_number, True)
 
         # return the block data
+        print("block returned is: ")
+        print blockData
         return blockData
 
 
@@ -317,6 +319,8 @@ class raidController():
         # Do the normal version of write
         else:
             # Read the existing virt_block data
+            #if self.vBlockTable[block_number].valid != 1:
+
             oldData = self.get_data_block(block_number)
             oldParity = self.get_data_block(parityBlock)
             intData = oldData ^ block_data
