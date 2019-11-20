@@ -360,7 +360,6 @@ class raidController():
         string += "\n\n----------HIERARCHY: ------------\n"
         for i in range(len(self.vNodeTable)):
             inode = self.vNodeTable[i]
-            print inode.blk_numbers
             if inode and inode.type:
                 string += "\nDIRECTORY: " + inode.name + "\n"
                 for x in inode.directory.keys(): string += "".join(x) + " || "
