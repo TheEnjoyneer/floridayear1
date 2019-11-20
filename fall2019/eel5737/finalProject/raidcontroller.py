@@ -27,7 +27,7 @@ class raidController():
         self.vNodeTable = [False] * (config.MAX_NUM_INODES * (config.NUM_OF_SERVERS - 1))
         # VirtBlocks split into (num_of_servers - 1) blocks
         # and have the parity for that data stored in a block on a server as well
-        self.vBlockTable = [] * maxDataBlocks
+        self.vBlockTable = [""] * maxDataBlocks
         for i in range(maxDataBlocks):
             self.vBlockTable[i] = virtBlock(i)
 
