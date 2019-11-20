@@ -215,14 +215,12 @@ class raidController():
 
     def checksum_to_data(self, block_data):
         # Runs checksum check, if it is bad, returns a -1
-        print block_data
         if block_data == None:
             return ""
         old_block_data = block_data[:-16]
         old_checksum = block_data[-16:]
         checksum = hashlib.md5()
-        print old_block_data
-        checksum.update(old_block_data)
+        checksum.update("".join(old_block_data))
         new_checksum = str(checksum.hexdigest().decode("hex"))
         if old_checksum != new_checksum:
             return "Checksum_Failed"
