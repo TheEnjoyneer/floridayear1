@@ -29,4 +29,4 @@ class Inode_Block():
 class Data_Block():
     def __init__(self, BLOCK_SIZE):                                 
         # Added 16 bytes per block for checksums
-        self.block = ["\0"]*(BLOCK_SIZE + 16)                                          #EMPTY BLOCK WILL CONTAIN NULL VALUES INITIALLY
+        self.block = [""]*(BLOCK_SIZE + 16)                                          #EMPTY BLOCK WILL CONTAIN NULL VALUES INITIALLY
