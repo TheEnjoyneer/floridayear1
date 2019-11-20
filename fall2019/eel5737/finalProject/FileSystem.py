@@ -58,10 +58,10 @@ if __name__ == '__main__':
 
     print "Welcome to the redundant RAID-5 Filesystem by Nick Poindexter and Christopher Brant"
 
-    # my_object.mkdir("/A")
-    # my_object.status()
-    # my_object.mkdir("/B")
-    # my_object.status()
+    my_object.mkdir("/A")
+    my_object.status()
+    my_object.mkdir("/B")
+    my_object.status()
     # my_object.create("/A/1.txt")#, as A is already there we can create file in A
     # my_object.status()
     # my_object.write("/A/1.txt", "POCSD", 0)#, as 1.txt is already created now, we can write to it.
