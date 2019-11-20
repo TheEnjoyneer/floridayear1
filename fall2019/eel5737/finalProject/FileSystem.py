@@ -13,26 +13,45 @@ class MyPrompt(Cmd):
     intro = 'Welcome to the redundant RAID-5 Filesystem by Nick Poindexter and Christopher Brant'
 
     def do_create(self, inp):
+        if inp == "":
+            print "Bad Syntax, Nice Try Cody!!"
+            return
         my_object.create(inp)
 
     def do_rm(self, inp):
+        if inp == "":
+            print "Bad Syntax, Nice Try Cody!!"
+            return
         my_object.rm(inp)
 
     def do_mv(self,inp):
+        if inp == "":
+            print "Bad Syntax, Nice Try Cody!!"
+            return
         input = inp.split()
+        if len(input) > 2:
+            print "Bad Syntax, Nice Try Cody!!"
+            return
         my_object.mv(input[0],input[1])
 
     def do_mkdir(self,inp):
+        if inp == "":
+            print "Bad Syntax, Nice Try Cody!!"
+            return
         my_object.mkdir(inp)
 
     def do_status(self,inp):
         my_object.status()
 
     def do_write(self,inp):
+        inp = inp.replace('"', '')
         input = inp.split()
-        my_object.write(input[0],input[1],int(input[2]))
+        my_object.write(input[0],inp[len(input[0]):(-(1+len(input[-1])))],int(input[-1]))
 
     def do_read(self,inp):
+        if inp == "":
+            print "Bad Syntax, Nice Try Cody!!"
+            return
         input = inp.split()
         return_data = my_object.read(input[0],int(input[1]),int(input[2]))
 
