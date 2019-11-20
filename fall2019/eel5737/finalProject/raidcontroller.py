@@ -321,7 +321,7 @@ class raidController():
             # Determines parity of data
             parity = functools.reduce((lambda x,y: x^y),data)
 
-            print("Writing parity to server "), self.vBlockTable[parityBlock.virt_block_number].serverNum
+            print("Writing parity to server "), self.vBlockTable[parityBlock].serverNum
             time.sleep(config.DELAY_LENGTH)
             # Update only the parity block
             self.update_virt_block(parityBlock, parity)
@@ -342,7 +342,7 @@ class raidController():
             print("Writing data to server number "),server
             time.sleep(config.DELAY_LENGTH)
             self.update_virt_block(block_number, block_data)
-            print("Writing parity to server "), self.vBlockTable[parityBlock.virt_block_number].serverNum
+            print("Writing parity to server "), self.vBlockTable[parityBlock].serverNum
             time.sleep(config.DELAY_LENGTH)
             self.update_virt_block(parityBlock, newParity)
 
