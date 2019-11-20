@@ -1,4 +1,5 @@
 import MemoryInterface, AbsolutePathNameLayer, time
+from cmd import Cmd
 
 def Initialize_My_FileSystem():
     MemoryInterface.Initialize_My_FileSystem()
@@ -6,6 +7,39 @@ def Initialize_My_FileSystem():
 
 #HANDLE TO ABSOLUTE PATH NAME LAYER
 interface = AbsolutePathNameLayer.AbsolutePathNameLayer()
+
+class MyPrompt(Cmd):
+    prompt = '$ '
+    intro = 'Welcome to the redundant RAID-5 Filesystem by Nick Poindexter and Christopher Brant'
+
+    def do_create(self, inp):
+        my_object.create(inp)
+
+    def do_rm(self, inp):
+        my_object.rm(inp)
+
+    def do_mv(self,inp):
+        input = inp.split()
+        my_object.mv(input[0],input[1])
+
+    def do_mkdir(self,inp):
+        my_object.mkdir(inp)
+
+    def do_status(self,inp):
+        my_object.status()
+
+    def do_write(self,inp):
+        input = inp.split()
+        my_object.write(input[0],input[1],int(input[2]))
+
+    def do_read(self,inp):
+        input = inp.split()
+        return_data = my_object.read(input[0],int(input[1]),int(input[2]))
+
+    def do_exit(self, inp):
+        print("Why are you leaving me just like my father did?")
+        return True
+
 
 class FileSystemOperations():
 
@@ -43,20 +77,22 @@ class FileSystemOperations():
     def status(self):
         print(MemoryInterface.status())
 
-
-
 if __name__ == '__main__':
     #DO NOT MODIFY THIS
 
     Initialize_My_FileSystem()
     AbsolutePathNameLayer.AbsolutePathNameLayer().new_entry('/', 1)
     my_object = FileSystemOperations()
-    my_object.status()
+    #my_object.status()
     #YOU MAY WRITE YOUR CODE AFTER HERE
 
     #timing_start = time.time()
 
-    print "Welcome to the redundant RAID-5 Filesystem by Nick Poindexter and Christopher Brant"
+    #print "Welcome to the redundant RAID-5 Filesystem by Nick Poindexter and Christopher Brant"
+
+
+    MyPrompt().cmdloop(my_object)
+
 
     # my_object.mkdir("/A")
     # my_object.status()
