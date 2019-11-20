@@ -249,6 +249,7 @@ class raidController():
         block = self.vBlockTable[block_number].serverBlock
 
         # If server is failed, then call get_fixed_data_block()
+        print self.serverStates
         if server == failedServer:
             blockData = self.get_fixed_data_block(block_number, True)
         else:
