@@ -216,20 +216,23 @@ class raidController():
 
     def checksum_to_data(self, block_data):
         # Runs checksum check, if it is bad, returns a -1
-        print block_data
         if block_data == None:
             return ""
-        old_block_data = block_data[:-16]
-        old_checksum = block_data[-16:]
-        checksum = hashlib.md5()
-        checksum.update("".join(old_block_data))
-        new_checksum = str(checksum.hexdigest().decode("hex"))
-        print old_checksum
-        print new_checksum
-        if old_checksum != new_checksum:
-            return "Checksum_Failed"
+        block_data = "".join(block_data)
+        if block_data == "":
+            return ""
         else:
-            return old_block_data
+            old_block_data = block_data[:-16]
+            old_checksum = block_data[-16:]
+            checksum = hashlib.md5()
+            checksum.update(old_block_data)
+            new_checksum = str(checksum.hexdigest().decode("hex"))
+            print old_checksum
+            print new_checksum
+            if old_checksum != new_checksum:
+                return "Checksum_Failed"
+            else:
+                return old_block_data
 
 
     #REQUEST TO FETCH THE INODE FROM INODE NUMBER FROM SERVER
