@@ -57,7 +57,7 @@ class InodeLayer():
                 print "\nError: offset for write() is greater than file size\n"
                 return -1
             else:
-                newBlock = 0
+                newBlock = -1
                 newBlockContents = [""] * config.BLOCK_SIZE
                 initCheck = 1
                 offsetBlockIndex = offset / config.BLOCK_SIZE
@@ -108,7 +108,7 @@ class InodeLayer():
                         else:
                             # If this is the first byte index grab a new block.
                             if offsetByteIndex == 0:
-                                if newBlock != 0:
+                                if newBlock != -1:
                                     # Update the data block
                                     offsetBlockIndex += 1
                                     inode.size = newSize
@@ -126,7 +126,7 @@ class InodeLayer():
 
                 # Write the last block to memory
                 print newBlock
-                if newBlock != 0:
+                if newBlock != -1:
                     interface.update_data_block(newBlock, newBlockContents)
                 else:
                     # loop through next stuff and add empty characters after write
