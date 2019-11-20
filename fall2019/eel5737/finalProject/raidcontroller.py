@@ -322,8 +322,8 @@ class raidController():
             # COME BACK AND FIX THIS 
             # Determines parity of data
             parity = data[0]
-                for i in range(1, len(data)):
-                    parity = xor_strings(parity, data[i])
+            for i in range(1, len(data)):
+                parity = xor_strings(parity, data[i])
             #parity = functools.reduce((lambda x,y: x^y),data)
 
             print("Writing parity to server "), self.vBlockTable[parityBlock].serverNum
