@@ -338,13 +338,13 @@ class raidController():
     #REQUEST FOR THE STATUS OF FILE SYSTEM FROM SERVER
     def status(self):
         string = ""
-        string += "\n\n----------INODE Blocks: ----------\n"
+        string += "\n\n----------VIRTUAL INODE TABLE----------\n"
         inode_number = 0
         string += "Inode Table: \n"
         for i in range(len(self.vNodeTable)):
             string += "[" + str(i) + " : " + str(bool(self.vNodeTable[i])) + "]\n"
 
-        string += "\n\n----------DATA Blocks: ----------\n  "
+        string += "\n\n----------VIRTUAL DATA BLOCK TABLE----------\n  "
         counter = 0
         for i in range(len(self.vBlockTable)):
             if counter == 25:
@@ -357,12 +357,19 @@ class raidController():
             string += (str(i) + " : " + "".join(blockData)) + "  "
             counter += 1
 
-        string += "\n\n----------HIERARCHY: ------------\n"
+        string += "\n\n----------HIERARCHY------------\n"
         for i in range(len(self.vNodeTable)):
             inode = self.vNodeTable[i]
+            max_num_vnodes = config.MAX_NUM_INODES * (config.NUM_OF_SERVERS - 1)
+            entry_size = config.MAX_FILE_NAME_SIZE + len(str(max_num_vnodes))
+            max_entries = (config.INODE_SIZE - 79 ) / entry_size
             if inode and inode.type:
                 string += "\nDIRECTORY: " + inode.name + "\n"
-                for x in inode.directory.keys(): string += "".join(x) + " || "
+                for x in range(max_entries)
+                    if x < len(inode.directory.keys())
+                        string += "".join(inode.directory.keys()[x]) + " || "
+                    else:
+                        string += " || "
                 string += "\n"
 
         # Return the final string
