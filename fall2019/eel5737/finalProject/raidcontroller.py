@@ -358,10 +358,9 @@ class raidController():
             counter += 1
 
         string += "\n\n----------HIERARCHY: ------------\n"
-        print self.vNodeTable
         for i in range(len(self.vNodeTable)):
             inode = self.vNodeTable[i]
-            print inode
+            print inode.blk_numbers
             if inode and inode.type:
                 string += "\nDIRECTORY: " + inode.name + "\n"
                 for x in inode.blk_numbers: string += "".join(x[:config.MAX_FILE_NAME_SIZE]) + " || "
