@@ -226,7 +226,6 @@ class raidController():
         # Runs checksum check, if it is bad, returns a -1
         if block_data == None:
             return ""
-        block_data = "".join(block_data)
         if block_data == "":
             return ""
         else:
