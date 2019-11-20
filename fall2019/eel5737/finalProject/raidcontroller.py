@@ -365,8 +365,8 @@ class raidController():
             max_entries = (config.INODE_SIZE - 79 ) / entry_size
             if inode and inode.type:
                 string += "\nDIRECTORY: " + inode.name + "\n"
-                for x in range(max_entries)
-                    if x < len(inode.directory.keys())
+                for x in range(max_entries):
+                    if x < len(inode.directory.keys()):
                         string += "".join(inode.directory.keys()[x]) + " || "
                     else:
                         string += " || "
