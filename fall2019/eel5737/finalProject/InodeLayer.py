@@ -12,7 +12,6 @@ class InodeLayer():
     #RETURNS BLOCK NUMBER FROM RESPECTIVE INODE DIRECTORY
     def INDEX_TO_BLOCK_NUMBER(self, inode, index):
         if index == len(inode.blk_numbers): return -1
-        print inode.blk_numbers
         return inode.blk_numbers[index]
 
 
@@ -125,7 +124,6 @@ class InodeLayer():
                             newSize += 1
 
                 # Write the last block to memory
-                print newBlock
                 if newBlock != -1:
                     interface.update_data_block(newBlock, newBlockContents)
                 else:

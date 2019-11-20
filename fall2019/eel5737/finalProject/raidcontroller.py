@@ -256,11 +256,6 @@ class raidController():
             if blockData == "Checksum_Failed":
                 blockData = self.get_fixed_data_block(block_number, True)
 
-        # return the block data
-        print("block returned is: ")
-        print blockData
-        return blockData
-
 
     #REQUESTS THE VALID BLOCK NUMBER FROM THE SERVER
     def get_valid_data_block(self):

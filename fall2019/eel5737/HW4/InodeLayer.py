@@ -123,7 +123,6 @@ class InodeLayer():
                             newSize += 1
 
                 # Write the last block to memory
-                print newBlock
                 if newBlock != -1:
                     interface.update_data_block(newBlock, newBlockContents)
                 else:
