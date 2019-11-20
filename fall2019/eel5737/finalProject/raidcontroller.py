@@ -351,7 +351,11 @@ class raidController():
             if counter == 25:
                 string += "......Showing just part(25) data blocks\n"
                 break
-            string += (str(i) + " : " + "".join(self.get_data_block(self.vBlockTable[i].virt_block_number))) + "  "
+            if self.vBlockTable[i].valid == -1:
+                blockData = ""
+            else:
+                blockData = self.get_data_block(self.vBlockTable[i].virt_block_number)
+            string += (str(i) + " : " + "".join(blockData)) + "  "
             counter += 1
 
         string += "\n\n----------HIERARCHY: ------------\n"
