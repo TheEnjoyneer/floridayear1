@@ -133,6 +133,7 @@ class InodeLayer():
                             newBlockContents[i] = ""
                     # update the block
                     if offsetByteIndex != config.BLOCK_SIZE:
+                        print newBlockContents
                         interface.update_data_block(currBlock, newBlockContents)
                         self.free_data_block(inode, (newSize / config.BLOCK_SIZE) + 1)
                     else:
