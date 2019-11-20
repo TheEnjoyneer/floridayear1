@@ -24,7 +24,8 @@ class raidController():
         for i in range(config.NUM_OF_SERVERS):
             self.proxy.append(xmlrpclib.ServerProxy("http://localhost:" + str(portNum + i) + "/"))
         # Initialize a vNode table
-        self.vNodeTable = [False] * (config.MAX_NUM_INODES * (config.NUM_OF_SERVERS - 1))
+        num_inodes = (config.MAX_NUM_INODES * (config.NUM_OF_SERVERS - 1))
+        self.vNodeTable = [False] * num_inodes
         # VirtBlocks split into (num_of_servers - 1) blocks
         # and have the parity for that data stored in a block on a server as well
         self.vBlockTable = [""] * maxDataBlocks
