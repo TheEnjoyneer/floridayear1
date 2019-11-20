@@ -263,7 +263,7 @@ class raidController():
     #REQUESTS THE VALID BLOCK NUMBER FROM THE SERVER
     def get_valid_data_block(self):
         returnBlock = -1
-        for i in range(maxdataBlocks):
+        for i in range(maxDataBlocks):
             if self.vBlockTable[i].valid == -1:
                 # Set returnBlock block number
                 returnBlock = self.vBlockTable[i].virt_block_number
