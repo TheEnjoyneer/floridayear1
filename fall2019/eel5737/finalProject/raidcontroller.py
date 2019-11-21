@@ -209,10 +209,10 @@ class raidController():
                 print "Checksum Failed"
                 blockData[i] == "".join(self.get_fixed_data_block(recoveryBlocks[i], False))
             elif blockData[i] == "Checksum_Failed" and failed == False:
-                print "Checksum Failed"
-                print i
-                print("Fatal Error: Trying to recreate data from a non-failed server while another server has failed.")
-                quit()
+                print "fuck you"
+            #     print "Checksum Failed"
+            #     print("Fatal Error: Trying to recreate data from a non-failed server while another server has failed.")
+            #     quit()
 
         # Recreate the data
         # FIX PARITY CREATION STUFF
