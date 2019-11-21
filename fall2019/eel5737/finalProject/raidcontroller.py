@@ -172,8 +172,6 @@ class raidController():
             if self.getNumServerFailures() > 1:
                 print("Error: Too many failed servers, Quitting now.\n")
                 quit()
-        except socket.error as err:
-            print "Socket Error"
 
 
 
