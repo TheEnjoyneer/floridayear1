@@ -266,7 +266,7 @@ class raidController():
             print("Reading from server "), server
             time.sleep(config.DELAY_LENGTH)
             blockData = self.get_virt_data_block(block_number)
-            blockData = self.checksum_to_data(blockData)
+            blockData = "".join(self.checksum_to_data(blockData))
             if blockData == "Checksum_Failed":
                 print "Checksum Failed"
                 blockData = self.get_fixed_data_block(block_number, True)
