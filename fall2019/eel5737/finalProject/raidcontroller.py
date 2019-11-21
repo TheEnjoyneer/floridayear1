@@ -170,7 +170,7 @@ class raidController():
             if self.serverStates[server] == False:
                 print("Warning: Server #" + str(server) + " has failed.\n")
 
-            return retVal
+            return "".join(retVal)
         except xmlrpclib.Error as err:
             print "A fault occurred in raidController.get_virt_data_block()"
             print "Fault code: %d" % err.faultCode
@@ -273,7 +273,7 @@ class raidController():
             print("Reading from server "), server
             time.sleep(config.DELAY_LENGTH)
             blockData = self.get_virt_data_block(block_number)
-            blockData = "".join(self.checksum_to_data(blockData))
+            blockData = self.checksum_to_data(blockData)
             if blockData == "Checksum_Failed":
                 print "Checksum Failed"
                 blockData = self.get_fixed_data_block(block_number, True)
