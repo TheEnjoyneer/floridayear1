@@ -172,6 +172,9 @@ class raidController():
             if self.getNumServerFailures() > 1:
                 print("Error: Too many failed servers, Quitting now.\n")
                 quit()
+        except socket.error as err:
+            print "Socket Error"
+
 
 
     # Returns data that is re-created from the other disks/parity disk
@@ -320,7 +323,7 @@ class raidController():
                         data.append(self.get_data_block(i))
 
 
-            # COME BACK AND FIX THIS 
+            # COME BACK AND FIX THIS
             # Determines parity of data
             parity = data[0]
             for i in range(1, len(data)):
