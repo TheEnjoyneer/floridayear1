@@ -330,7 +330,6 @@ class raidController():
             start_location = N*((self.vBlockTable[block_number].virtParityBlock)/N)
 
             data = []
-
             recoveryBlocks = []
             for i in range(start_location,(start_location + N)):
                 if(self.vBlockTable[i].virt_block_number != parityBlock):
@@ -343,10 +342,8 @@ class raidController():
                 else:
                     data.append(self.get_virt_data_block(i))
 
-            print data
-
             # Determines parity of data
-            parity = block_data
+            parity = "".join(block_data)
             for i in range(len(data)):
                 parity = xor_strings(parity, data[i])
             #parity = functools.reduce((lambda x,y: x^y),data)
