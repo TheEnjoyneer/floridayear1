@@ -349,13 +349,11 @@ class raidController():
             oldData = self.get_data_block(block_number)
             oldParity = self.get_data_block(parityBlock)
             block_data = "".join(block_data)
-            print oldData
-            print block_data
             #intData = oldData ^ block_data
             #newParity = intData ^ oldParity
             intData = xor_strings(oldData, block_data)
             newParity = xor_strings(intData, oldParity)
-            print newParity
+            print "newParity: " + newParity + ":end"
             # Update the virtual blocks
             print("Writing data to server number "),server
             time.sleep(config.DELAY_LENGTH)
