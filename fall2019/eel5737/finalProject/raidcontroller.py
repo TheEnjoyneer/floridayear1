@@ -154,8 +154,8 @@ class raidController():
             print retVal
             tempVal = "".join(retVal)
             print tempVal
-            print "data: " + tempVal[:-16]
-            print "checksum: " + tempVal[-16:]
+            print "data: '" + tempVal[:-16] + "'"
+            print "checksum: '" + tempVal[-16:] + "'"
             # Always print server failures if they exist
             if self.serverStates[server] == False:
                 print("Warning: Server #" + str(server) + " has failed.\n")
