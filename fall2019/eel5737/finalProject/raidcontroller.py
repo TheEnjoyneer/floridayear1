@@ -169,7 +169,7 @@ class raidController():
             # Always print server failures if they exist
             if self.serverStates[server] == False:
                 print("Warning: Server #" + str(server) + " has failed.\n")
-
+            print retVal
             return "".join(retVal)
         except xmlrpclib.Error as err:
             print "A fault occurred in raidController.get_virt_data_block()"
