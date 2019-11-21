@@ -41,10 +41,7 @@ class raidController():
         for i in range(config.NUM_OF_SERVERS):
             try:
                 serverRetVal, self.serverStates[i] = pickle.loads(self.proxy[i].Initialize())
-                if self.getNumServerFailures() > 1:
-                    print("Error: Too many failed servers, Quitting now.\n")
-                    quit()
-
+                
             except xmlrpclib.Error as err:
                 # print error message
                 print "Error initializing the filesystem on server number:" + str(portNum + i)
