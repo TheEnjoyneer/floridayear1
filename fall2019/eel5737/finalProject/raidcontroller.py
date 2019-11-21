@@ -191,6 +191,7 @@ class raidController():
                 recoveryData.append(self.get_virt_data_block(recoveryBlocks[i]))
 
         blockData = [] * len(recoveryData)
+        print recoveryData
         # Check the checksum of each individual block
         # And save the data to blockData
         for i in range(len(recoveryData)):
@@ -432,4 +433,3 @@ class raidController():
                     quit()
 
         print(serverStatString)
-
