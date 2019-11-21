@@ -185,7 +185,7 @@ class raidController():
 
         # Now request data from each server to operate on
         for i in range(len(recoveryBlocks)):
-            if recoveryBlocks[i].valid == -1:
+            if self.vBlockTable[recoveryBlocks[i]].valid == -1:
                 recoveryData.append("")
             else:
                 recoveryData.append(self.get_virt_data_block(recoveryBlocks[i]))
@@ -294,7 +294,10 @@ class raidController():
 
     #REQUEST TO MAKE BLOCKS RESUABLE AGAIN FROM SERVER
     def free_data_block(self, block_number):
-        # 
+        # Get parity for this block number
+        #parityBlock = self.vBlockTable[block_number].parityBlock
+        # Read old parity data
+        #oldParity = self.checksum_to_data(self.get_virt_data_block())
         return self.free_virt_block(block_number)
 
 
