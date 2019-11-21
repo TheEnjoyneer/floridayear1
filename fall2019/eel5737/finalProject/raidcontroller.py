@@ -203,14 +203,14 @@ class raidController():
                 quit()
 
         # Recreate the data
-
+        print blockData
         # FIX PARITY CREATION STUFF
         fixedData = blockData[0]
         for i in range(1, len(blockData)):
             fixedData = xor_strings(fixedData, blockData[i])
         # Determines parity of data
         #fixedData = functools.reduce((lambda x,y: x^y), blockData)
-
+        print fixedData
         # Return the data
         return fixedData
 
@@ -261,7 +261,7 @@ class raidController():
 
         # If server is failed, then call get_fixed_data_block()
         if server == failedServer:
-            blockData = self.get_fixed_data_block(block_number, True)
+            blockData = self.get_fixed_data_block(block_number, False)
         else:
             print("Reading from server "), server
             time.sleep(config.DELAY_LENGTH)
