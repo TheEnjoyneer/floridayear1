@@ -332,11 +332,17 @@ class raidController():
             data = []
             print start_location
 
+            recoveryBlocks = []
             for i in range(start_location,(start_location + N)):
                 if(self.vBlockTable[i].virt_block_number != parityBlock):
                     if(self.vBlockTable[i].serverNum != server):
-                        print i
-                        data.append(self.get_virt_data_block(i))
+                        recoveryBlocks.append(self.vBlockTable[i].virt_block_number)
+                        
+            for i in range(len(recoveryBlocks)):
+                if self.vBlockTable[recoveryBlocks[i]].valid == -1:
+                    data.append("")
+                else:
+                    data.append(self.get_virt_data_block(i))
 
             print data
 
