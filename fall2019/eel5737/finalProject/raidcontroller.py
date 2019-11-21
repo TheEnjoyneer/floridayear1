@@ -169,7 +169,6 @@ class raidController():
             # Always print server failures if they exist
             if self.serverStates[server] == False:
                 print("Warning: Server #" + str(server) + " has failed.\n")
-            print retVal
             return "".join(retVal)
         except xmlrpclib.Error as err:
             print "A fault occurred in raidController.get_virt_data_block()"
@@ -337,7 +336,7 @@ class raidController():
             for i in range(start_location,(start_location + N)):
                 if(self.vBlockTable[i].virt_block_number != parityBlock):
                     if(self.vBlockTable[i].serverNum != server):
-                        data.append(self.get_data_block(i))
+                        data.append(self.get_virt_data_block(i))
 
             print data
 
