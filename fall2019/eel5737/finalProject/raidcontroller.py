@@ -151,7 +151,6 @@ class raidController():
             server = self.vBlockTable[block_number].serverNum
             block = self.vBlockTable[block_number].serverBlock
             retVal, self.serverStates[server] = pickle.loads(self.proxy[server].get_data_block(pickle.dumps(block)))
-            print retVal
             tempVal = "".join(retVal)
             print tempVal
             print "data: '" + tempVal[:-16] + "'"
