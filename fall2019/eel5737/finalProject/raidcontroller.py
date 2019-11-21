@@ -219,7 +219,7 @@ class raidController():
             fixedData = xor_strings(fixedData, blockData[i])
         # Determines parity of data
         #fixedData = functools.reduce((lambda x,y: x^y), blockData)
-        
+
         # Return the data
         return fixedData
 
@@ -280,7 +280,6 @@ class raidController():
                 print "Checksum Failed"
                 blockData = self.get_fixed_data_block(block_number, True)
 
-        print "here dummy " + blockData + ":end"
         return blockData
 
 
