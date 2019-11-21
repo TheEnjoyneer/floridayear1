@@ -367,9 +367,10 @@ class raidController():
             print("Writing data to server number "),server
             time.sleep(config.DELAY_LENGTH)
             self.update_virt_block(block_number, block_data)
-            print("Writing parity to server "), self.vBlockTable[parityBlock].serverNum
-            time.sleep(config.DELAY_LENGTH)
-            self.update_virt_block(parityBlock, newParity)
+            if self.serverStates[self.vBlockTable[parityBlock].serverNum] == True:
+                print("Writing parity to server "), self.vBlockTable[parityBlock].serverNum
+                time.sleep(config.DELAY_LENGTH)
+                self.update_virt_block(parityBlock, newParity)
 
 
     #REQUEST TO UPDATE THE UPDATED INODE IN THE INODE TABLE FROM SERVER
