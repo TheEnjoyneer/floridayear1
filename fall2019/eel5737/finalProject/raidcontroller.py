@@ -166,10 +166,6 @@ class raidController():
             server = self.vBlockTable[block_number].serverNum
             block = self.vBlockTable[block_number].serverBlock
             retVal, self.serverStates[server] = pickle.loads(self.proxy[server].get_data_block(pickle.dumps(block)))
-            tempVal = "".join(retVal)
-            print tempVal
-            print "data: '" + tempVal[:-16] + "'"
-            print "checksum: '" + tempVal[-16:] + "'"
             # Always print server failures if they exist
             if self.serverStates[server] == False:
                 print("Warning: Server #" + str(server) + " has failed.\n")
@@ -206,7 +202,6 @@ class raidController():
                 recoveryData.append(self.get_virt_data_block(recoveryBlocks[i]))
 
         blockData = []
-        print recoveryData
         # Check the checksum of each individual block
         # And save the data to blockData
         for i in range(len(recoveryData)):
@@ -218,14 +213,13 @@ class raidController():
                 quit()
 
         # Recreate the data
-        print blockData
         # FIX PARITY CREATION STUFF
         fixedData = blockData[0]
         for i in range(1, len(blockData)):
             fixedData = xor_strings(fixedData, blockData[i])
         # Determines parity of data
         #fixedData = functools.reduce((lambda x,y: x^y), blockData)
-        print fixedData
+        
         # Return the data
         return fixedData
 

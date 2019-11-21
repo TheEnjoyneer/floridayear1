@@ -42,7 +42,6 @@ def get_data_block(block_number):
 	global numReqs
 	numReqs += 1
 	passVal = pickle.loads(block_number)
-	print passVal
 	retVal  = filesystem.get_data_block(passVal)
 	retVal  = pickle.dumps((retVal,state))
 	return retVal
