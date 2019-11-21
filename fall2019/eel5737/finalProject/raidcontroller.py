@@ -206,8 +206,10 @@ class raidController():
         for i in range(len(recoveryData)):
             blockData.append("".join(self.checksum_to_data(recoveryData[i])))
             if blockData[i] == "Checksum_Failed" and failed == True:
+                print "Checksum Failed"
                 blockData[i] == "".join(self.get_fixed_data_block(recoveryBlocks[i], False))
             elif blockData[i] == "Checksum_Failed" and failed == False:
+                print "Checksum Failed"
                 print i
                 print("Fatal Error: Trying to recreate data from a non-failed server while another server has failed.")
                 quit()
@@ -334,7 +336,7 @@ class raidController():
                 if(self.vBlockTable[i].virt_block_number != parityBlock):
                     if(self.vBlockTable[i].serverNum != server):
                         recoveryBlocks.append(self.vBlockTable[i].virt_block_number)
-                        
+
             for i in range(len(recoveryBlocks)):
                 if self.vBlockTable[recoveryBlocks[i]].valid == -1:
                     data.append("")
