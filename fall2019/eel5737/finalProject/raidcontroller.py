@@ -339,8 +339,7 @@ class raidController():
                     if(self.vBlocks[i].serverNum != server):
                         data.append(self.get_data_block(i))
 
-
-            # COME BACK AND FIX THIS
+            print data
             # Determines parity of data
             parity = data[0]
             for i in range(1, len(data)):
