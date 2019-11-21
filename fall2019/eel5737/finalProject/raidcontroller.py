@@ -305,7 +305,7 @@ class raidController():
     #REQUEST TO MAKE BLOCKS RESUABLE AGAIN FROM SERVER
     def free_data_block(self, block_number):
         # Get parity for this block number
-        parityBlock = self.vBlockTable[block_number].parityBlock
+        parityBlock = self.vBlockTable[block_number].virtParityBlock
         # Read old parity data
         oldBlockData = self.checksum_to_data(self.get_virt_data_block(block_number))
         oldParity = self.checksum_to_data(self.get_virt_data_block(parityBlock))
