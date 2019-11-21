@@ -208,6 +208,7 @@ class raidController():
             if blockData[i] == "Checksum_Failed" and failed == True:
                 blockData[i] == "".join(self.get_fixed_data_block(recoveryBlocks[i], False))
             elif blockData[i] == "Checksum_Failed" and failed == False:
+                print i
                 print("Fatal Error: Trying to recreate data from a non-failed server while another server has failed.")
                 quit()
 
@@ -216,8 +217,6 @@ class raidController():
         fixedData = blockData[0]
         for i in range(1, len(blockData)):
             fixedData = xor_strings(fixedData, blockData[i])
-        # Determines parity of data
-        #fixedData = functools.reduce((lambda x,y: x^y), blockData)
 
         # Return the data
         return fixedData
