@@ -64,13 +64,6 @@ class raidController():
         return numServerFailures
 
 
-    # # Locate party
-    # def locate_parity(self,address):
-    #     N = config.NUM_OF_SERVERS
-    #     parity = (N * (address / N)) + ((N - 1) - ((address / N) % N))
-    #     return parity
-
-
     # Given a virtual block number, go retrieve the data for just that block
     # This function does not handle checks on data, it only runs the server read request
     def get_valid_virt_block(self, block_number):
@@ -159,6 +152,10 @@ class raidController():
             block = self.vBlockTable[block_number].serverBlock
             retVal, self.serverStates[server] = pickle.loads(self.proxy[server].get_data_block(pickle.dumps(block)))
             print retVal
+            tempVal = "".join(retVal)
+            print tempVal
+            print "data: " + tempVal[:-16]
+            print "checksum " + tempVal[-16:]
             # Always print server failures if they exist
             if self.serverStates[server] == False:
                 print("Warning: Server #" + str(server) + " has failed.\n")
