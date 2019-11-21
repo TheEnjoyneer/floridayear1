@@ -373,7 +373,7 @@ class raidController():
             string += "[" + str(i) + " : " + str(bool(self.vNodeTable[i])) + "]\n"
             counter += 1
 
-        string += "\n\n----------VIRTUAL DATA BLOCK TABLE----------\n  "
+        string += "\n\n----------VIRTUAL DATA BLOCK TABLE----------\n"
         counter = 0
         for i in range(len(self.vBlockTable)):
             if counter == 25:
