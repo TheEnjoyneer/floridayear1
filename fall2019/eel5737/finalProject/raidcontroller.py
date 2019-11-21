@@ -41,7 +41,9 @@ class raidController():
         for i in range(config.NUM_OF_SERVERS):
             try:
                 serverRetVal, self.serverStates[i] = pickle.loads(self.proxy[i].Initialize())
-                
+                if self.serverStates[i] == False:
+                    print("Warning: Failed to initialize server " + str(i))
+
             except xmlrpclib.Error as err:
                 # print error message
                 print "Error initializing the filesystem on server number:" + str(portNum + i)
@@ -57,14 +59,8 @@ class raidController():
     def getNumServerFailures(self):
         numServerFailures = 0
         for i in range(config.NUM_OF_SERVERS):
-            try:
-                self.serverStates[i] = pickle.loads(self.proxy[i].getServerState())   
-            except xmlrpclib.Error as err:
-                print "Error in retrieving state info from server " + str(i)
-
             if self.serverStates[i] == False:
                 numServerFailures += 1
-
         return numServerFailures
 
 
