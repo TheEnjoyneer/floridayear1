@@ -1,10 +1,25 @@
-import xmlrpclib, math, config, functools, hashlib, time, pickle
+import xmlrpclib, math, config, functools, hashlib, time, pickle, array
 
 portNum = 8000
 maxDataBlocks = ((config.INODE_SIZE - 63 - config.MAX_FILE_NAME_SIZE) / 2) * (config.NUM_OF_SERVERS - 1)
 
 def xor_strings(string1, string2):
-    return "".join(chr(ord(a)^ord(b)) for a,b in zip(string1, string2))
+    s1 = bytearray(string1, encoding="utf-8")
+    s2 = bytearray(string2, encoding="utf-8")
+    while len(s1) != len(s2):
+        if len(s1) < len(s2):
+            s1.append(0x00)
+        if len(s2) < len(s1):
+            s2.append(0x00)
+    # Once they are the same length
+    xor_response = bytearray(len(s1), encoding="utf-8")
+    for i in range(len(s1)):
+        xor_response[i] = s1[i] ^ s2[i]
+    # Decode the response
+    retString = xor_response.decode()
+    return retString
+
+    #return "".join(chr(ord(a) ^ ord(b)) for a,b in zip(string1, string2))
 
 class virtBlock():
 
