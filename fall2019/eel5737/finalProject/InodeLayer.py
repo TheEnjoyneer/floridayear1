@@ -62,6 +62,7 @@ class InodeLayer():
                 offsetBlockIndex = offset / config.BLOCK_SIZE
                 offsetByteIndex = offset % config.BLOCK_SIZE
                 initBlockNumLength = len(inode.blk_numbers) - inode.blk_numbers.count(-1)
+                initSize = inode.size
                 newSize = offset
 
                 # Warn if the length of the write is going to exceed the 
@@ -134,7 +135,8 @@ class InodeLayer():
                     # update the block
                     if offsetByteIndex != config.BLOCK_SIZE:
                         interface.update_data_block(currBlock, newBlockContents)
-                        self.free_data_block(inode, (newSize / config.BLOCK_SIZE) + 1)
+                        if newSize > initSize:
+                            self.free_data_block(inode, (newSize / config.BLOCK_SIZE) + 1)
                     else:
                         self.free_data_block(inode, (newSize / config.BLOCK_SIZE))
                     
