@@ -335,11 +335,12 @@ class raidController():
             print start_location
 
             for i in range(start_location,(start_location + N)):
-                if(self.vBlockTable[i].virtParityBlock != parityBlock):
+                if(self.vBlockTable[i].virt_block_number != parityBlock):
                     if(self.vBlocks[i].serverNum != server):
                         data.append(self.get_data_block(i))
 
             print data
+
             # Determines parity of data
             parity = data[0]
             for i in range(1, len(data)):
