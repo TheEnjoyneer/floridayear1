@@ -302,16 +302,17 @@ class raidController():
     #REQUEST TO MAKE BLOCKS RESUABLE AGAIN FROM SERVER
     def free_data_block(self, block_number):
         # Get parity for this block number
-        parityBlock = self.vBlockTable[block_number].virtParityBlock
-        # Read old parity data
-        oldBlockData = self.checksum_to_data(self.get_virt_data_block(block_number))
-        oldParity = self.checksum_to_data(self.get_virt_data_block(parityBlock))
-        # Calc new parity
-        newParity = xor_strings(oldBlockData, oldParity)
-        # Write new parity block
-        errorVal = self.update_virt_block(parityBlock, newParity)
-        # Return the data
-        return self.free_virt_block(block_number)
+        if self.vBlockTable[block_number].valid != -1:
+            parityBlock = self.vBlockTable[block_number].virtParityBlock
+            # Read old parity data
+            oldBlockData = self.checksum_to_data(self.get_virt_data_block(block_number))
+            oldParity = self.checksum_to_data(self.get_virt_data_block(parityBlock))
+            # Calc new parity
+            newParity = xor_strings(oldBlockData, oldParity)
+            # Write new parity block
+            errorVal = self.update_virt_block(parityBlock, newParity)
+            # Return the data
+            self.free_virt_block(block_number)
 
 
     #REQUEST TO WRITE DATA ON THE THE SERVER
