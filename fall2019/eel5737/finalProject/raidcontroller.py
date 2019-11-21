@@ -190,12 +190,12 @@ class raidController():
             else:
                 recoveryData.append(self.get_virt_data_block(recoveryBlocks[i]))
 
-        blockData = [] * len(recoveryData)
+        blockData = []
         print recoveryData
         # Check the checksum of each individual block
         # And save the data to blockData
         for i in range(len(recoveryData)):
-            blockData[i] = "".join(self.checksum_to_data(recoveryData[i]))
+            blockData.append("".join(self.checksum_to_data(recoveryData[i])))
             if blockData[i] == "Checksum_Failed" and failed == True:
                 blockData[i] == "".join(self.get_fixed_data_block(recoveryBlocks[i], False))
             elif blockData[i] == "Checksum_Failed" and failed == False:
