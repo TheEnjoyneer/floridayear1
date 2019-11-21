@@ -331,7 +331,8 @@ class raidController():
 
             start_location = N*((self.vBlockTable[block_number].virtParityBlock)/N)
 
-            data =[]
+            data = []
+            print start_location
 
             for i in range(start_location,(start_location + N)):
                 if(self.vBlockTable[i].virtParityBlock != parityBlock):
