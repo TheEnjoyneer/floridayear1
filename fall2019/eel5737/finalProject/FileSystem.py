@@ -46,7 +46,7 @@ class MyPrompt(Cmd):
     def do_write(self,inp):
         inp = inp.replace('"', '')
         input = inp.split()
-        my_object.write(input[0],inp[len(input[0]+1):(-(1+len(input[-1])))],int(input[-1]))
+        my_object.write(input[0],inp[1+len(input[0]):(-(1+len(input[-1])))],int(input[-1]))
 
     def do_read(self,inp):
         if inp == "":
