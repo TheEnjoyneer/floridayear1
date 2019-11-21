@@ -17,7 +17,7 @@ def xor_strings(string1, string2):
         xor_response[i] = s1[i] ^ s2[i]
     # Decode the response
     retString = xor_response.decode()
-    return retString
+    return str(retString)
 
     #return "".join(chr(ord(a) ^ ord(b)) for a,b in zip(string1, string2))
 
