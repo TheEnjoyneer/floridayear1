@@ -159,6 +159,7 @@ class raidController():
             server = self.vBlockTable[block_number].serverNum
             block = self.vBlockTable[block_number].serverBlock
             retVal, self.serverStates[server] = pickle.loads(self.proxy[server].get_data_block(pickle.dumps(block)))
+            print retVal
             # Always print server failures if they exist
             if self.serverStates[server] == False:
                 print("Warning: Server #" + str(server) + " has failed.\n")
