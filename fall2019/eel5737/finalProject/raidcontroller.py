@@ -271,6 +271,7 @@ class raidController():
                 print "Checksum Failed"
                 blockData = self.get_fixed_data_block(block_number, True)
 
+        print blockData
         return blockData
 
 

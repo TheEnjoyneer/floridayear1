@@ -178,7 +178,6 @@ class InodeLayer():
                         offsetByteIndex %= config.BLOCK_SIZE
 
                         # Read byte to retData array and then increment bytesRead and offsetByteIndex
-                        print currBlockContents
                         retData.append(currBlockContents[offsetByteIndex])
                         bytesRead += 1
                         offsetByteIndex += 1
