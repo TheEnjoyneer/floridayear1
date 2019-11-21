@@ -12,7 +12,7 @@ def xor_strings(string1, string2):
         if len(s2) < len(s1):
             s2.append(0x00)
     # Once they are the same length
-    xor_response = bytearray(len(s1), encoding="utf-8")
+    xor_response = bytearray(len(s1))
     for i in range(len(s1)):
         xor_response[i] = s1[i] ^ s2[i]
     # Decode the response
