@@ -246,6 +246,10 @@ class raidController():
             checksum = hashlib.md5()
             checksum.update(old_block_data)
             new_checksum = str(checksum.hexdigest().decode("hex"))
+            print old_block_data
+            print block_data
+            print old_checksum
+            print new_checksum
             if old_checksum != new_checksum:
                 return "Checksum_Failed"
             else:
