@@ -140,11 +140,11 @@ class FileNameLayer():
 				new_link_parent_inode_number = new_link_grandparent_inode_number
 				if child_inode.type != 1 and new_link_name != "":
 					child_name = new_link_name
-			else:
-				print "\nWarning: Attempted to rename a directory upon moving it."
-				print "Our system does not allow this as we save directory names in the inode."
-				print "And this becomes a complex issue of how to know when to rename the inode within"
-				print "the framework we are working in.\n"
+			# else:
+			# 	print "\nWarning: Attempted to rename a directory upon moving it."
+			# 	print "Our system does not allow this as we save directory names in the inode."
+			# 	print "And this becomes a complex issue of how to know when to rename the inode within"
+			# 	print "the framework we are working in.\n"
 
 			if child_name == "":
 				print "\nWarning: Invalid name to link to: [blank name].  Moving with same name."
