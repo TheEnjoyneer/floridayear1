@@ -108,6 +108,12 @@ def serverStats():
 	retVal = pickle.dumps((retVal, state))
 	return retVal
 
+def getServerState():
+	global state
+	retVal = 'Failure in server ' + str(portNumber)
+	retVal = pickle.dumps(state)
+	return retVal
+
 
 portNumber = int(sys.argv[1])
 #portNumber = 8000
@@ -126,4 +132,5 @@ server.register_function(update_inode_table, 	"update_inode_table")
 server.register_function(inode_number_to_inode, "inode_number_to_inode")
 server.register_function(status, 				"status")
 server.register_function(serverStats,			"serverStats")
+server.register_function(getServerState,		"getServerState")
 server.serve_forever()

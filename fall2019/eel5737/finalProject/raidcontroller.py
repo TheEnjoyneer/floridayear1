@@ -60,8 +60,14 @@ class raidController():
     def getNumServerFailures(self):
         numServerFailures = 0
         for i in range(config.NUM_OF_SERVERS):
+            try:
+                self.serverStates[i] = pickle.loads(self.proxy[i].getServerState())   
+            except xmlrpclib.Error as err:
+                print "Error in retrieving state info from server " + str(i)
+
             if self.serverStates[i] == False:
                 numServerFailures += 1
+
         return numServerFailures
 
 
@@ -306,6 +312,7 @@ class raidController():
         # Gather data
         server = self.vBlockTable[block_number].serverNum
         parityBlock = self.vBlockTable[block_number].virtParityBlock
+        N = config.NUM_OF_SERVERS
 
         # Check if server we are writing to has failed
         if self.serverStates[server] == False:
@@ -425,3 +432,4 @@ class raidController():
                     quit()
 
         print(serverStatString)
+
