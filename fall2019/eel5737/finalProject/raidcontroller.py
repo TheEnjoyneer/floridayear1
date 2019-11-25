@@ -344,7 +344,7 @@ class raidController():
                 if self.vBlockTable[recoveryBlocks[i]].valid == -1:
                     data.append("")
                 else:
-                    data.append(self.get_virt_data_block(i))
+                    data.append(self.checksum_to_data(self.get_virt_data_block(i)))
 
             # Determines parity of data
             parity = "".join(block_data)
