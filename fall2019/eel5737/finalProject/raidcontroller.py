@@ -356,7 +356,7 @@ class raidController():
             for i in range(len(data)):
                 parity = xor_strings(parity, data[i])
             #parity = functools.reduce((lambda x,y: x^y),data)
-            for i in range ((len(data) - 1), config.BLOCK_SIZE):
+            while len(parity) < config.BLOCK_SIZE:
                 parity += " "
             print("Writing parity to server "), self.vBlockTable[parityBlock].serverNum
             time.sleep(config.DELAY_LENGTH)
