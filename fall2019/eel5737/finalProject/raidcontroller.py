@@ -16,7 +16,7 @@ def xor_strings(string1, string2):
     for i in range(len(s1)):
         xor_response[i] = s1[i] ^ s2[i]
     # Decode the response
-    retString = xor_response.decode()
+    retString = xor_response.decode("utf-8")
     return str(retString)
 
 
