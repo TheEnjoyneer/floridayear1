@@ -210,7 +210,7 @@ class raidController():
             elif blockData[i] == "Checksum_Failed" and failed == False:
                 print "Checksum Failed"
                 print("Fatal Error: Trying to recreate data from a non-failed server while another server has failed.")
-                quit()
+                #quit()
 
         # Recreate the data
         fixedData = blockData[0]
@@ -243,6 +243,9 @@ class raidController():
             checksum = hashlib.md5()
             checksum.update(old_block_data)
             new_checksum = str(checksum.hexdigest().decode("hex"))
+            print "data: '" + old_block_data + "'"
+            print "old checksum: '" + old_checksum + "'"
+            print "new checksum: '" + new_checksum + "'"
             if old_checksum != new_checksum:
                 return "Checksum_Failed"
             else:
@@ -363,8 +366,6 @@ class raidController():
             oldData = self.get_data_block(block_number)
             oldParity = self.get_data_block(parityBlock)
             block_data = "".join(block_data)
-            #intData = oldData ^ block_data
-            #newParity = intData ^ oldParity
             intData = xor_strings(oldData, block_data)
             newParity = xor_strings(intData, oldParity)
             # Update the virtual blocks
