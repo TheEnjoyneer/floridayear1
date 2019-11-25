@@ -141,6 +141,11 @@ class raidController():
             new_block_data = self.data_to_checksum(block_data)
             server = self.vBlockTable[block_number].serverNum
             block = self.vBlockTable[block_number].serverBlock
+
+
+            pickle.loads(self.proxy[server].free_data_block(pickle.dumps(block)))
+            
+
             retVal, self.serverStates[server] = pickle.loads(self.proxy[server].update_data_block(pickle.dumps(block), pickle.dumps(new_block_data)))
             if self.serverStates[server] == False:
                 print("Warning: Server #" + str(server) + " has failed.\n")
@@ -345,8 +350,8 @@ class raidController():
                     data.append(self.get_virt_data_block(i))
 
             # Determines parity of data
-            zeros = [" "] * config.BLOCK_SIZE
-            zeros = "".join(zeros)
+            # zeros = ['\0'] * config.BLOCK_SIZE
+            # zeros = "".join(zeros)
             parity = "".join(block_data)
             # Have to initially xor with an all zero array for the math to work out
             parity = xor_strings(parity, "")
@@ -357,7 +362,7 @@ class raidController():
             print("Writing parity to server "), self.vBlockTable[parityBlock].serverNum
             time.sleep(config.DELAY_LENGTH)
             # Update only the parity block
-            self.update_virt_block(parityBlock, zeros)
+            # self.update_virt_block(parityBlock, zeros)
             self.update_virt_block(parityBlock, parity)
 
         # Do the normal version of write

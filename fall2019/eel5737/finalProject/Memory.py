@@ -67,7 +67,7 @@ class Operations():
 		if block_number > 0:
 			sblock.ADDR_BITMAP_BLOCKS[block_number / sblock.BLOCK_SIZE].block[block_number % sblock.BLOCK_SIZE] = 0
 			b = sblock.ADDR_DATA_BLOCKS[block_number - sblock.DATA_BLOCKS_OFFSET].block
-			for i in range(0, sblock.BLOCK_SIZE): b[i] = '\0'
+			for i in range(0, sblock.BLOCK_SIZE): b[i] = ""
 
 
 	#WRITES TO THE DATA BLOCK
