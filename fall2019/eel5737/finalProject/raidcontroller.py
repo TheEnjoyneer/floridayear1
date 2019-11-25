@@ -4,11 +4,6 @@ portNum = 8000
 maxDataBlocks = ((config.INODE_SIZE - 63 - config.MAX_FILE_NAME_SIZE) / 2) * (config.NUM_OF_SERVERS - 1)
 
 def xor_strings(string1, string2):
-    # while len(string1) != len(string2):
-    #     if len(string1) < len(string2):
-    #         string1 += " "
-    #     if len(string2) < len(string1):
-    #         string2 += " "
     s1 = bytearray(string1, encoding="utf-8")
     s2 = bytearray(string2, encoding="utf-8")
     while len(s1) != len(s2):
@@ -24,7 +19,6 @@ def xor_strings(string1, string2):
     retString = xor_response.decode()
     return str(retString)
 
-    #return "".join(chr(ord(a) ^ ord(b)) for a,b in zip(string1, string2))
 
 class virtBlock():
 
@@ -216,10 +210,9 @@ class raidController():
             elif blockData[i] == "Checksum_Failed" and failed == False:
                 print "Checksum Failed"
                 print("Fatal Error: Trying to recreate data from a non-failed server while another server has failed.")
-            #     quit()
+                quit()
 
         # Recreate the data
-        # FIX PARITY CREATION STUFF
         fixedData = blockData[0]
         for i in range(1, len(blockData)):
             fixedData = xor_strings(fixedData, blockData[i])
@@ -250,9 +243,6 @@ class raidController():
             checksum = hashlib.md5()
             checksum.update(old_block_data)
             new_checksum = str(checksum.hexdigest().decode("hex"))
-            print "data: " + old_block_data
-            print "old sum: " + old_checksum
-            print "new sum: " + new_checksum
             if old_checksum != new_checksum:
                 return "Checksum_Failed"
             else:
@@ -353,10 +343,10 @@ class raidController():
 
             # Determines parity of data
             parity = "".join(block_data)
+            # Have to initially xor with an all zero array for the math to work out
             parity = xor_strings(parity, "")
             for i in range(len(data)):
                 parity = xor_strings(parity, data[i])
-            #parity = functools.reduce((lambda x,y: x^y),data)
             while len(parity) < config.BLOCK_SIZE:
                 parity += " "
             print("Writing parity to server "), self.vBlockTable[parityBlock].serverNum
