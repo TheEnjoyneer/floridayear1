@@ -4,13 +4,18 @@ portNum = 8000
 maxDataBlocks = ((config.INODE_SIZE - 63 - config.MAX_FILE_NAME_SIZE) / 2) * (config.NUM_OF_SERVERS - 1)
 
 def xor_strings(string1, string2):
-    s1 = bytearray(string1, encoding="utf-8")
-    s2 = bytearray(string2, encoding="utf-8")
     while len(s1) != len(s2):
         if len(s1) < len(s2):
-            s1.append(0x00)
+            s1.append(" ")
         if len(s2) < len(s1):
-            s2.append(0x00)
+            s2.append(" ")
+    s1 = bytearray(string1, encoding="utf-8")
+    s2 = bytearray(string2, encoding="utf-8")
+    # while len(s1) != len(s2):
+    #     if len(s1) < len(s2):
+    #         s1.append(0x00)
+    #     if len(s2) < len(s1):
+    #         s2.append(0x00)
     # Once they are the same length
     xor_response = bytearray(len(s1))
     for i in range(len(s1)):
@@ -342,7 +347,7 @@ class raidController():
 
             for i in range(len(recoveryBlocks)):
                 if self.vBlockTable[recoveryBlocks[i]].valid == -1:
-                    data.append(" ")
+                    data.append("")
                 else:
                     data.append(self.get_virt_data_block(i))
 
