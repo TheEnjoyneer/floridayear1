@@ -248,9 +248,6 @@ class raidController():
             checksum = hashlib.md5()
             checksum.update(old_block_data)
             new_checksum = str(checksum.hexdigest().decode("hex"))
-            print "data: '" + old_block_data + "'"
-            print "old checksum: '" + old_checksum + "'"
-            print "new checksum: '" + new_checksum + "'"
             if old_checksum != new_checksum:
                 return "Checksum_Failed"
             else:
@@ -350,8 +347,6 @@ class raidController():
                     data.append(self.get_virt_data_block(i))
 
             # Determines parity of data
-            # zeros = ['\0'] * config.BLOCK_SIZE
-            # zeros = "".join(zeros)
             parity = "".join(block_data)
             # Have to initially xor with an all zero array for the math to work out
             parity = xor_strings(parity, "")
@@ -362,7 +357,6 @@ class raidController():
             print("Writing parity to server "), self.vBlockTable[parityBlock].serverNum
             time.sleep(config.DELAY_LENGTH)
             # Update only the parity block
-            # self.update_virt_block(parityBlock, zeros)
             self.update_virt_block(parityBlock, parity)
 
         # Do the normal version of write
