@@ -13,9 +13,9 @@ def xor_strings(string1, string2):
     s2 = bytearray(string2, encoding="utf-8")
     while len(s1) != len(s2):
         if len(s1) < len(s2):
-            s1.append(0x20)
+            s1.append(0x00)
         if len(s2) < len(s1):
-            s2.append(0x20)
+            s2.append(0x00)
     # Once they are the same length
     xor_response = bytearray(len(s1))
     for i in range(len(s1)):
