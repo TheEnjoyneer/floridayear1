@@ -4,18 +4,18 @@ portNum = 8000
 maxDataBlocks = ((config.INODE_SIZE - 63 - config.MAX_FILE_NAME_SIZE) / 2) * (config.NUM_OF_SERVERS - 1)
 
 def xor_strings(string1, string2):
-    while len(string1) != len(string2):
-        if len(string1) < len(string2):
-            string1 += " "
-        if len(string2) < len(string1):
-            string2 += " "
-    s1 = bytearray(string1)
-    s2 = bytearray(string2)
-    # while len(s1) != len(s2):
-    #     if len(s1) < len(s2):
-    #         s1.append(0x00)
-    #     if len(s2) < len(s1):
-    #         s2.append(0x00)
+    # while len(string1) != len(string2):
+    #     if len(string1) < len(string2):
+    #         string1 += " "
+    #     if len(string2) < len(string1):
+    #         string2 += " "
+    s1 = bytearray(string1, encoding="utf-8")
+    s2 = bytearray(string2, encoding="utf-8")
+    while len(s1) != len(s2):
+        if len(s1) < len(s2):
+            s1.append(0x20)
+        if len(s2) < len(s1):
+            s2.append(0x20)
     # Once they are the same length
     xor_response = bytearray(len(s1))
     for i in range(len(s1)):
