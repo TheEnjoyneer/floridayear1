@@ -342,7 +342,7 @@ class raidController():
 
             for i in range(len(recoveryBlocks)):
                 if self.vBlockTable[recoveryBlocks[i]].valid == -1:
-                    data.append("")
+                    data.append(" ")
                 else:
                     data.append(self.get_virt_data_block(i))
 
