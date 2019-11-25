@@ -6,9 +6,9 @@ maxDataBlocks = ((config.INODE_SIZE - 63 - config.MAX_FILE_NAME_SIZE) / 2) * (co
 def xor_strings(string1, string2):
     while len(string1) != len(string2):
         if len(string1) < len(string2):
-            string1.append(" ")
+            string1 += " "
         if len(string2) < len(string1):
-            string2.append(" ")
+            string2 += " "
     s1 = bytearray(string1, encoding="utf-8")
     s2 = bytearray(string2, encoding="utf-8")
     # while len(s1) != len(s2):
