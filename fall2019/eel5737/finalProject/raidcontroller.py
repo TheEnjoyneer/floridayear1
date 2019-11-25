@@ -350,10 +350,13 @@ class raidController():
             parity = "".join(block_data)
             # Have to initially xor with an all zero array for the math to work out
             parity = xor_strings(parity, "")
+
             for i in range(len(data)):
+                print parity
+                print i
+                print data[i]
                 parity = xor_strings(parity, data[i])
-            # while len(parity) < config.BLOCK_SIZE:
-            #     parity += " "
+
             print("Writing parity to server "), self.vBlockTable[parityBlock].serverNum
             time.sleep(config.DELAY_LENGTH)
             # Update only the parity block
