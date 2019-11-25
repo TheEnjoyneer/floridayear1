@@ -353,6 +353,7 @@ class raidController():
 
             # Determines parity of data
             parity = "".join(block_data)
+            parity = xor_strings(parity, "")
             for i in range(len(data)):
                 parity = xor_strings(parity, data[i])
             #parity = functools.reduce((lambda x,y: x^y),data)
