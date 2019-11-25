@@ -342,16 +342,19 @@ class raidController():
                     data.append(self.get_virt_data_block(i))
 
             # Determines parity of data
+            zeros = [" "] * config.BLOCK_SIZE
+            zeros = "".join(zeros)
             parity = "".join(block_data)
             # Have to initially xor with an all zero array for the math to work out
             parity = xor_strings(parity, "")
             for i in range(len(data)):
                 parity = xor_strings(parity, data[i])
-            while len(parity) < config.BLOCK_SIZE:
-                parity += " "
+            # while len(parity) < config.BLOCK_SIZE:
+            #     parity += " "
             print("Writing parity to server "), self.vBlockTable[parityBlock].serverNum
             time.sleep(config.DELAY_LENGTH)
             # Update only the parity block
+            self.update_virt_block(parityBlock, zeros)
             self.update_virt_block(parityBlock, parity)
 
         # Do the normal version of write
