@@ -1,0 +1,6 @@
+# TLB: Team Let's Ball
+# Christopher Brant, Quan Pham, and Nick Poindexter
+# Term Project Presentation: Youtube Video Link
+# Due 11/19/19
+
+https://youtu.be/w8JUm-sGP6I
