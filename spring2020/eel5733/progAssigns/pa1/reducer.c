@@ -65,8 +65,9 @@ int main(void)
 	tupleCount = 1;
 
 	// continue looping here
+	// MAKE SURE HERE THAT THE REDUCER KNOWS WHEN TO STOP FOR THE EOF CHARACTER
 	//while(fgets(inputBuf, BUF_SIZE, inputFile) != 0)
-	while (fgets(inputBuf, BUF_SIZE, stdin) != 0)
+	while (fgets(inputBuf, BUF_SIZE, stdin) != NULL)
 	{
 		// Parse the string into the tupleArray
 		stringFormat(inputBuf, tupleStr);
