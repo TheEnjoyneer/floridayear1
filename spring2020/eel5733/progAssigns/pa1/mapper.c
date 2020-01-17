@@ -21,14 +21,14 @@
 
 // Declare struct of tuple
 struct tuple {
-	int userID;
-	char action;
+	char userID[5];
+	char action[2];
 	char topic[TOPIC_LENGTH];
 	int score;
 };
 
 // Declare helper functions
-
+void removeParentheses(char *inputStr, char *outputStr);
 
 
 
@@ -45,21 +45,49 @@ int main(int argc, char *argv[])
 	}
 
 	char c;
-	int count, tupleCount, i;
+	int tupleCount, i;
+	int count = 0;
 	for (c = getc(inputFile); c != EOF; c = getc(inputFile))
 		count++;
 	tupleCount = count / INPUT_STR_LEN;
 	fseek(inputFile, 0, SEEK_SET);
 
 	// Declare Array of Structs
-	char inputBuf[INPUT_STR_LEN + 1];
-	struct tuple tupleArray[count];
-	for (i = 0; i < count; i++)
+	char inputBuf[INPUT_STR_LEN];
+	char tupleStr[INPUT_STR_LEN];
+	struct tuple tupleArray[tupleCount];
+	for (i = 0; i < tupleCount; i++)
 	{
 		// Read the data into the buffer
-		fread(&inputBuf, sizeof(char), INPUT_STR_LEN, inputFile);
-		inputBuf[INPUT_STR_LEN] = "\0";
-		printf(inputBuf[i]);
+		fread(&inputBuf, sizeof(char), INPUT_STR_LEN - 1, inputFile);
+		fgetc(inputFile);
+		inputBuf[INPUT_STR_LEN - 1] = '\0';
+		// int j;
+		// for (j = 0; j < INPUT_STR_LEN; j++)
+		// 	printf("%c", inputBuf[j]);
+		// printf("\n");
+
+		// Allocate memory for struct
+
+
+		// Parse the string into the tupleArray
+		removeParentheses(inputBuf, tupleStr);
+
+		char delim[] = ",";
+		char *token;
+		token = strtok(tupleStr, delim);
+		strcpy(tupleArray[i].userID, token);
+		token = strtok(NULL, delim);
+		strcpy(tupleArray[i].action, token);
+		token = strtok(NULL, delim);
+		strcpy(tupleArray[i].topic, token);
+
+		printf("userID: %s  ", tupleArray[i].userID);
+		printf("action: %s  ", tupleArray[i].action);
+		printf("topic: %s  \n", tupleArray[i].topic);
+
+
+
 
 
 	}
@@ -74,6 +102,16 @@ int main(int argc, char *argv[])
 
 
 // Define helper functions
+void removeParentheses(char *inputStr, char *outputStr)
+{
+	int i, j = 0;
+	for (i = 0; i < strlen(inputStr); i++)
+	{
+		if (inputStr[i] != '(' && inputStr[i] != ')')
+			outputStr[j++] = inputStr[i];
+	}
+	outputStr[j] = '\0';
+}
 
 
 
