@@ -42,18 +42,17 @@ int main(void)
 
 	// TESTING PURPOSES ONLY
 	// Attempt to open and verify opening of file to read
-	FILE *inputFile;
-	inputFile = fopen("redInput.txt", "r");
-	if (inputFile == NULL)
-	{
-		fprintf(stderr, "Error opening file to read from.\n");
-		exit(1);
-	}
-
+	// FILE *inputFile;
+	// inputFile = fopen("redInput.txt", "r");
+	// if (inputFile == NULL)
+	// {
+	// 	fprintf(stderr, "Error opening file to read from.\n");
+	// 	exit(1);
+	// }
 
 	// Setup for looping
-	fgets(inputBuf, BUF_SIZE, inputFile);
-	//fgets(inputBuf, BUF_SIZE, stdin);
+	//fgets(inputBuf, BUF_SIZE, inputFile);
+	fgets(inputBuf, BUF_SIZE, stdin);
 	// Parse the string into the tupleArray
 	stringFormat(inputBuf, tupleStr);
 	token = strtok(tupleStr, delim);
@@ -62,14 +61,13 @@ int main(void)
 	strcpy(tupleArray[0].topic, token);
 	token = strtok(NULL, delim);
 	tupleArray[0].score = atoi(token);
-	//printf("%s\n", tupleArray[0].userID);
 	strcpy(currUserID, tupleArray[0].userID);
 	tupleCount = 1;
 
 	// continue looping here
-	while (fgets(inputBuf, BUF_SIZE, inputFile) != 0)
+	//while(fgets(inputBuf, BUF_SIZE, inputFile) != 0)
+	while (fgets(inputBuf, BUF_SIZE, stdin) != 0)
 	{
-		//fgets(inputBuf, BUF_SIZE, stdin);
 		// Parse the string into the tupleArray
 		stringFormat(inputBuf, tupleStr);
 		token = strtok(tupleStr, delim);
@@ -115,9 +113,6 @@ int main(void)
 				tupleCount++;
 			}
 		}
-
-
-		
 	}
 
 	// Print out all tuples with total scores for the last user ID
