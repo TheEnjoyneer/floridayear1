@@ -20,7 +20,7 @@
 #define INPUT_STR_LEN 25
 
 // Declare struct of tuple
-struct tuple {
+struct tuple_s {
 	char userID[5];
 	char action[2];
 	char topic[TOPIC_LENGTH];
@@ -29,7 +29,6 @@ struct tuple {
 
 // Declare helper functions
 void stringFormat(char *inputStr, char *outputStr);
-
 
 
 // Main function
@@ -55,20 +54,14 @@ int main(int argc, char *argv[])
 	// Declare Array of Structs
 	char inputBuf[INPUT_STR_LEN];
 	char tupleStr[INPUT_STR_LEN];
-	struct tuple tupleArray[tupleCount];
+	//struct tuple tupleArray[tupleCount];
+	struct tuple_s tuple;
 	for (i = 0; i < tupleCount; i++)
 	{
 		// Read the data into the buffer
 		fread(&inputBuf, sizeof(char), INPUT_STR_LEN - 1, inputFile);
 		fgetc(inputFile);
 		inputBuf[INPUT_STR_LEN - 1] = '\0';
-		// int j;
-		// for (j = 0; j < INPUT_STR_LEN; j++)
-		// 	printf("%c", inputBuf[j]);
-		// printf("\n");
-
-		// Allocate memory for struct
-
 
 		// Parse the string into the tupleArray
 		stringFormat(inputBuf, tupleStr);
@@ -76,41 +69,37 @@ int main(int argc, char *argv[])
 		char delim[] = ",";
 		char *token;
 		token = strtok(tupleStr, delim);
-		strcpy(tupleArray[i].userID, token);
+		strcpy(tuple.userID, token);
 		token = strtok(NULL, delim);
-		strcpy(tupleArray[i].action, token);
+		strcpy(tuple.action, token);
 		token = strtok(NULL, delim);
-		strcpy(tupleArray[i].topic, token);
+		strcpy(tuple.topic, token);
 
-		// printf("userID: %s  ", tupleArray[i].userID);
-		// printf("action: %s  ", tupleArray[i].action);
-		// printf("topic: %s  \n", tupleArray[i].topic);
-
-
-		switch (tupleArray[i].action[0])
+		// Process the scores of a tuple
+		switch (tuple.action[0])
 		{
 			case 'P':
-				tupleArray[i].score = P_WEIGHT;
+				tuple.score = P_WEIGHT;
 				break;
 			case 'L':
-				tupleArray[i].score = L_WEIGHT;
+				tuple.score = L_WEIGHT;
 				break;
 			case 'D':
-				tupleArray[i].score = D_WEIGHT;
+				tuple.score = D_WEIGHT;
 				break;
 			case 'C':
-				tupleArray[i].score = C_WEIGHT;
+				tuple.score = C_WEIGHT;
 				break;
 			case 'S':
-				tupleArray[i].score = S_WEIGHT;
+				tuple.score = S_WEIGHT;
 				break;
 			default:
-				tupleArray[i].score = 0;
+				tuple.score = 0;
 				break;
 		}
 
 		// Print the output in the desired format to stdout
-		fprintf(stdout, "(%s,%s,%d)\n", tupleArray[i].userID, tupleArray[i].topic, tupleArray[i].score);
+		fprintf(stdout, "(%s,%s,%d)\n", tuple.userID, tuple.topic, tuple.score);
 	}
 
 	return 0;
