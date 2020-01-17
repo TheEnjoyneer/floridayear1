@@ -28,7 +28,7 @@ struct tuple {
 };
 
 // Declare helper functions
-void removeParentheses(char *inputStr, char *outputStr);
+void stringFormat(char *inputStr, char *outputStr);
 
 
 
@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
 
 
 		// Parse the string into the tupleArray
-		removeParentheses(inputBuf, tupleStr);
+		stringFormat(inputBuf, tupleStr);
 
 		char delim[] = ",";
 		char *token;
@@ -82,14 +82,35 @@ int main(int argc, char *argv[])
 		token = strtok(NULL, delim);
 		strcpy(tupleArray[i].topic, token);
 
-		printf("userID: %s  ", tupleArray[i].userID);
-		printf("action: %s  ", tupleArray[i].action);
-		printf("topic: %s  \n", tupleArray[i].topic);
+		// printf("userID: %s  ", tupleArray[i].userID);
+		// printf("action: %s  ", tupleArray[i].action);
+		// printf("topic: %s  \n", tupleArray[i].topic);
 
 
+		switch (tupleArray[i].action[0])
+		{
+			case 'P':
+				tupleArray[i].score = P_WEIGHT;
+				break;
+			case 'L':
+				tupleArray[i].score = L_WEIGHT;
+				break;
+			case 'D':
+				tupleArray[i].score = D_WEIGHT;
+				break;
+			case 'C':
+				tupleArray[i].score = C_WEIGHT;
+				break;
+			case 'S':
+				tupleArray[i].score = S_WEIGHT;
+				break;
+			default:
+				tupleArray[i].score = 0;
+				break;
+		}
 
-
-
+		// Print the output in the desired format to stdout
+		fprintf(stdout, "(%s,%s,%d)\n", tupleArray[i].userID, tupleArray[i].topic, tupleArray[i].score);
 	}
 
 	return 0;
@@ -97,21 +118,20 @@ int main(int argc, char *argv[])
 
 
 
-
-
-
-
 // Define helper functions
-void removeParentheses(char *inputStr, char *outputStr)
+
+// Used to remove parentheses and white space from a string
+void stringFormat(char *inputStr, char *outputStr)
 {
 	int i, j = 0;
 	for (i = 0; i < strlen(inputStr); i++)
 	{
-		if (inputStr[i] != '(' && inputStr[i] != ')')
+		if (inputStr[i] != '(' && inputStr[i] != ')')// && inputStr[i] != ' ')
 			outputStr[j++] = inputStr[i];
 	}
 	outputStr[j] = '\0';
 }
+
 
 
 
