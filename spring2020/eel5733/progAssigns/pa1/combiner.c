@@ -8,32 +8,42 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
-
-
-// MUST USE "FORK", "EXEC", "PIPE", AND "DUP2" SYSTEM CALLS EFFECTIVELY
 
 // Main function
 int main(int argc, char *argv[])
 {
-	// Parent process will be the mapper
-	// Parent runs mapper after creating a pipe
-	// Parent writes to the pipe until it is done
+	// Declare necessary variables, create pipe, and fork the process
+	int fd[2];
+	pipe(fd);
+	pid_t pid = fork();
 
-	// Child process will be the reducer
-	// Child reads from the pipe and processes to stdout
+	// Code for the Child process to run reducer
+	if (pid == 0)
+	{
+		// Close the write end of the pipe
+		close(fd[1]);
 
+		// Redirect the reducer's "stdin" to come from the read end of the pipe
+		dup2(fd[0], STDIN_FILENO);
 
+		// Execute the reducer program
+		execlp("./reducer", "reducer", NULL, NULL);
+	}
 
+	// Code for the Parent process to run mapper
+	else
+	{
+		// Close the read end of the pipe
+		close(fd[0]);
 
+		// Redirect the mapper's "stdout" to go to the write end of the pipe
+		dup2(fd[1], STDOUT_FILENO);
 
-
-
-
-
-
-
-
+		// Execute the mapper program
+		execlp("./mapper", "mapper", argv[1], NULL);
+	}
 
 	return 0;
 }

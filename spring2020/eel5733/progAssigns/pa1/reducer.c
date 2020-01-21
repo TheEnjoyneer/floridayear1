@@ -8,12 +8,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
 
 // Define constants
 #define MAX_TOPICS 10
 #define BUF_SIZE 30
 #define TOPIC_LENGTH 16
+#define TUPLE_STRING 27
 
 // Declare struct of tuple
 struct tuple_s {
@@ -40,18 +42,7 @@ int main(void)
 	struct tuple_s tupleArray[MAX_TOPICS];
 	struct tuple_s tempTuple;
 
-	// TESTING PURPOSES ONLY
-	// Attempt to open and verify opening of file to read
-	// FILE *inputFile;
-	// inputFile = fopen("redInput.txt", "r");
-	// if (inputFile == NULL)
-	// {
-	// 	fprintf(stderr, "Error opening file to read from.\n");
-	// 	exit(1);
-	// }
-
 	// Setup for looping
-	//fgets(inputBuf, BUF_SIZE, inputFile);
 	fgets(inputBuf, BUF_SIZE, stdin);
 	// Parse the string into the tupleArray
 	stringFormat(inputBuf, tupleStr);
@@ -65,8 +56,6 @@ int main(void)
 	tupleCount = 1;
 
 	// continue looping here
-	// MAKE SURE HERE THAT THE REDUCER KNOWS WHEN TO STOP FOR THE EOF CHARACTER
-	//while(fgets(inputBuf, BUF_SIZE, inputFile) != 0)
 	while (fgets(inputBuf, BUF_SIZE, stdin) != NULL)
 	{
 		// Parse the string into the tupleArray
