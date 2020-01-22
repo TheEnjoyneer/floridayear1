@@ -42,12 +42,8 @@ int main(void)
 	struct tuple_s tupleArray[MAX_TOPICS];
 	struct tuple_s tempTuple;
 
-	FILE * inputFile = fopen("redInput.txt", "r");
-
-
 	// Setup for looping
-	fgets(inputBuf, BUF_SIZE, inputFile);
-	//fgets(inputBuf, BUF_SIZE, stdin);
+	fgets(inputBuf, BUF_SIZE, stdin);
 	// Parse the string into the tupleArray
 	stringFormat(inputBuf, tupleStr);
 	token = strtok(tupleStr, delim);
@@ -60,8 +56,7 @@ int main(void)
 	tupleCount = 1;
 
 	// continue looping here
-	while (fgets(inputBuf, BUF_SIZE, inputFile) != NULL)
-	//while (fgets(inputBuf, BUF_SIZE, stdin) != NULL)
+	while (fgets(inputBuf, BUF_SIZE, stdin) != NULL)
 	{
 		// Parse the string into the tupleArray
 		stringFormat(inputBuf, tupleStr);
