@@ -60,7 +60,7 @@ int main(void)
 	tupleCount = 1;
 
 	// continue looping here
-	while (fgets(inputBuf, BUF_SIZE, stdin) != NULL)
+	while (fgets(inputBuf, BUF_SIZE, inputFile) != NULL)
 	//while (fgets(inputBuf, BUF_SIZE, stdin) != NULL)
 	{
 		// Parse the string into the tupleArray
