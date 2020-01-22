@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -g
+CFLAGS = -Wall -c
 
 all:
 	$(CC) mapper.c -o mapper
