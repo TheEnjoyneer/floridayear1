@@ -45,5 +45,8 @@ int main(int argc, char *argv[])
 		execlp("./mapper", "mapper", argv[1], NULL);
 	}
 
+	// Exit both the parent and child processes
+	exit(0);
+
 	return 0;
 }

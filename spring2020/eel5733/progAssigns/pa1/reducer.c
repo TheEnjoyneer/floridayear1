@@ -121,7 +121,7 @@ void stringFormat(char *inputStr, char *outputStr)
 	int i, j = 0;
 	for (i = 0; i < strlen(inputStr); i++)
 	{
-		if (inputStr[i] != '(' && inputStr[i] != ')')// && inputStr[i] != ' ')
+		if (inputStr[i] != '(' && inputStr[i] != ')')
 			outputStr[j++] = inputStr[i];
 	}
 	outputStr[j] = '\0';

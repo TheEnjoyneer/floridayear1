@@ -45,17 +45,16 @@ int main(int argc, char *argv[])
 	}
 
 	char c;
-	int tupleCount, i;
-	int count = 0;
-	for (c = getc(inputFile); c != EOF; c = getc(inputFile))
-		count++;
-	tupleCount = count / INPUT_STR_LEN;
+	int i, tupleCount = 0;
+	while ((c = getc(inputFile)) != EOF)
+		if (c == ')')
+			tupleCount++;
+	// Reset the file cursor
 	fseek(inputFile, 0, SEEK_SET);
 
 	// Declare Array of Structs
 	char inputBuf[INPUT_STR_LEN];
 	char tupleStr[INPUT_STR_LEN];
-	//struct tuple tupleArray[tupleCount];
 	struct tuple_s tuple;
 	for (i = 0; i < tupleCount; i++)
 	{
@@ -116,7 +115,7 @@ void stringFormat(char *inputStr, char *outputStr)
 	int i, j = 0;
 	for (i = 0; i < strlen(inputStr); i++)
 	{
-		if (inputStr[i] != '(' && inputStr[i] != ')')// && inputStr[i] != ' ')
+		if (inputStr[i] != '(' && inputStr[i] != ')')
 			outputStr[j++] = inputStr[i];
 	}
 	outputStr[j] = '\0';
