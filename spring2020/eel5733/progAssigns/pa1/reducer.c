@@ -42,7 +42,7 @@ int main(void)
 	struct tuple_s tupleArray[MAX_TOPICS];
 	struct tuple_s tempTuple;
 
-	FILE * inputFile = open("redInput.txt", "r");
+	FILE * inputFile = fopen("redInput.txt", "r");
 
 
 	// Setup for looping
