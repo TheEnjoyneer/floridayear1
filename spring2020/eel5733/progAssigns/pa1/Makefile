@@ -19,4 +19,4 @@ combiner: combiner.c
 	$(CC) combiner.c -o combiner
 	
 clean:	
-	rm mapper reducer combiner
+	rm mapper mapper.o reducer reducer.o combiner combiner.o
