@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -c
+CFLAGS = -Wall -g
 
 all:
 	$(CC) mapper.c -o mapper
@@ -17,6 +17,18 @@ reducer: reducer.c
 combiner: combiner.c
 	$(CC) $(CFLAGS) combiner.c
 	$(CC) combiner.c -o combiner
+
+mapperClean:
+	rm mapper mapper.o
+
+reducerClean:
+	rm reducer reducer.o
+
+combinerClean:
+	rm combiner combiner.o
+
+allClean:
+	rm mapper mapper.o reducer reducer.o combiner combiner.o
 	
 clean:	
 	rm mapper reducer combiner
