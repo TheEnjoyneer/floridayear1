@@ -13,7 +13,6 @@ For Testing My Program:
 	Running
 	1) Run "run.sh <inputFileName> <outputFileName>"
 
-	* If the script runs with zero output, the program worked correctly *
 	* The "run.sh" script runs the combiner program and pipes the output
 	  to a file called "testOutput.txt" and then runs "diff" to check the
 	  difference in the "testOutput.txt" contents and the contents of the
