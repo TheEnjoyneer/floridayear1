@@ -16,6 +16,7 @@ make > /dev/null
 
 # run the combiner and pipe the output to a test output file
 ./combiner $1 > testOutput.txt
+sleep 1
 
 # run diff to check if the expected output matches the test output
 differences=$(diff testOutput.txt $2)
