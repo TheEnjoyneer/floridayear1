@@ -27,6 +27,7 @@
 
 
 // Declare static variables
+static int bufSlots;
 static int numBufs;
 static bool prodDone = false;
 
@@ -41,7 +42,6 @@ struct tuple_s {
 
 struct tupleBuffer_s {
 	char **tupleBuf;		// Array of tuple strings
-	int bufIdx;				// Index of which thread/buffer it is
 	int lastIdx;			// Index of the last filled slot of the buffer
 	pthread_mutex_t mtx;	// Mutex variable
 	pthread_cond_t full;	// Condition for full or available buffer
@@ -62,6 +62,9 @@ void *mapperThread(void *arg)
 	char delim[] = ",";
 	char *token;
 	struct tuple_s tuple;
+
+	// Get array of tupleBuffers as input to the thread
+	struct tupleBuffer_s *bufferStructs = (struct tupleBuffers_s *) arg;
 
 	// Set initial users array to be all nulls
 	for (i = 0; i < numBufs; i++)
@@ -125,6 +128,11 @@ void *mapperThread(void *arg)
 		// Once data is in its respective categories and in string form,
 		// we need to check if we can write it out to the reducer thread
 
+		/*
+			HERE IS WHERE THE MUTEX TO WRITE TO THE BUFFER WILL GO
+			INCLUDING THE WAITING WHEN THERES A FULL BUFFER
+		*/
+
 
 
 	}
@@ -132,19 +140,35 @@ void *mapperThread(void *arg)
 	// Once no more input to the mapper, notify reducer threads
 	prodDone = true;
 
-	return NULL;
+	// Exit safely
+	pthread_exit(NULL);
 }
 
 // Define the reducer thread function here
 void *reducerThread(void *arg)
 {
+	// Declare necessary variables
+	struct tupleBuffer_s bufferStruct = *((struct tupleBuffers_s *) arg);
+
+	/*
+		MUTEX STUFF FOR READING AND CONSUMING VALUES HERE
+
+		WAIT FOR THERE TO BE VALUES TO CONSUME
+
+		CONSUME VALUES AND SAVE ALL DATA
+
+
+		WHEN prodDone IS TRUE, THEN PRINT ALL DATA TO THE SCREEN
+
+		THEN EXIT THE THREAD
+	*/
 
 
 
 
 
-
-	return NULL;
+	// Exit safely
+	pthread_exit(NULL);
 }
 
 // Declare helper functions
@@ -156,8 +180,8 @@ int main(int argc, char *argv[])
 {
 	// Declare and initialize necessary variables
 	int i, j;
-	int bufSlots = atoi(argv[1]);
-	static int numBufs = atoi(argv[2]);
+	bufSlots = atoi(argv[1]);
+	numBufs = atoi(argv[2]);
 
 	// Declare pthreads_t array
 	pthreads_t threads[numBufs];
@@ -168,7 +192,6 @@ int main(int argc, char *argv[])
 	for (i = 0; i < numBufs; i++)
 	{
 		reducers[i].lastIdx = 0;
-		reducers[i].bufIdx = i;
 		reducers[i].full = PTHREAD_COND_INITIALIZER;
 		reducers[i].mtx = PTHREAD_MUTEX_INITIALIZER;
 		reducers[i].tupleBuf = (char **)malloc(sizeof(char *) * bufSlots);
@@ -180,9 +203,9 @@ int main(int argc, char *argv[])
 
 	// Create all of the threads necessary
 	for (i = 0; i < numBufs; i++)
-		pthread_create(&threads[i], NULL, reducerThread, NULL);
+		pthread_create(&threads[i], NULL, reducerThread, &(reducers[i]));
 	// Make the producer thread
-	pthread_create(&threads[numBufs], NULL, mapperThread, NULL);
+	pthread_create(&threads[numBufs], NULL, mapperThread, &reducers);
 
 
 
