@@ -10,10 +10,30 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <string.h>
 
+// Define the rules for weights
+#define P_WEIGHT 50
+#define L_WEIGHT 20
+#define D_WEIGHT -10
+#define C_WEIGHT 30
+#define S_WEIGHT 40
+#define TOPIC_LENGTH 16
+#define INPUT_STR_LEN 25
 #define TUPLE_STRING 27
+// May not need those below this comment
+#define MAX_TOPICS 10
+#define BUF_SIZE 30
 
-// Declare dynamic data structure here
+
+// Declare necessary structures here
+struct tuple_s {
+	char userID[5];
+	char action[2];
+	char topic[TOPIC_LENGTH];
+	int score;
+};
+
 struct tupleBuffer_s {
 	char **tupleBuf;
 	int lastIdx;
@@ -44,6 +64,9 @@ void *reducerThread(void *arg)
 
 	return NULL;
 }
+
+// Declare helper functions
+void stringFormat(char *inputStr, char *outputStr);
 
 
 // Main function
@@ -92,3 +115,20 @@ int main(int argc, char *argv[])
 
 	return 0;
 }
+
+
+// Define helper functions
+
+// Used to remove parentheses and white space from a string
+void stringFormat(char *inputStr, char *outputStr)
+{
+	int i, j = 0;
+	for (i = 0; i < strlen(inputStr); i++)
+	{
+		if (inputStr[i] != '(' && inputStr[i] != ')')
+			outputStr[j++] = inputStr[i];
+	}
+	outputStr[j] = '\0';
+}
+
+
