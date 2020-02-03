@@ -12,7 +12,7 @@
 #include <pthread.h>
 #include <string.h>
 
-// Define the rules for weights
+// Define all pound define variables
 #define P_WEIGHT 50
 #define L_WEIGHT 20
 #define D_WEIGHT -10
@@ -26,6 +26,11 @@
 #define BUF_SIZE 30
 
 
+// Declare static variables
+static int numBufs;
+static bool prodDone = false;
+
+
 // Declare necessary structures here
 struct tuple_s {
 	char userID[5];
@@ -35,20 +40,97 @@ struct tuple_s {
 };
 
 struct tupleBuffer_s {
-	char **tupleBuf;
-	int lastIdx;
-	pthread_mutex_t mtx;
-	pthread_cond_t full;
+	char **tupleBuf;		// Array of tuple strings
+	int bufIdx;				// Index of which thread/buffer it is
+	int lastIdx;			// Index of the last filled slot of the buffer
+	pthread_mutex_t mtx;	// Mutex variable
+	pthread_cond_t full;	// Condition for full or available buffer
 };
 
 // Define the mapper thread function here
 void *mapperThread(void *arg)
 {
+	// Declare necessary variables
+	int i;
+	char inputBuf[BUF_SIZE];
+	char tupleStr[BUF_SIZE];
+	char outputStr[BUF_SIZE];
+	char users[numBufs][5];
+	int userNum = 0;
+	int userIdx = 0;
+	bool userExist;
+	char delim[] = ",";
+	char *token;
+	struct tuple_s tuple;
+
+	// Set initial users array to be all nulls
+	for (i = 0; i < numBufs; i++)
+		users[i][0] = '\0';
+
+	// Loop through input until empty
+	while (fgets(inputBuf, BUF_SIZE, stdin) != NULL)
+	{
+		// Parse the string into the tupleArray
+		stringFormat(inputBuf, tupleStr);
+		token = strtok(tupleStr, delim);
+		strcpy(tuple.userID, token);
+		token = strtok(NULL, delim);
+		strcpy(tuple.action, token);
+		token = strtok(NULL, delim);
+		strcpy(tuple.topic, token);
+
+		// Check if we need to add an ID to the users array
+		userExist = false;
+		for (i = 0; i < numBufs; i++)
+		{
+			if (!strcmp(tuple.userID, users[i]))
+			{
+				userExist = true;
+				userIdx = i;
+			}
+		}
+		// If not found, then increment userNum and copy into users array
+		if (userExist == false && userNum <= numBufs)
+		{
+			userIdx = userNum;
+			strcpy(users[userNum++], tuple.userID);
+		}
+
+		// Process the scores of a tuple
+		switch (tuple.action[0])
+		{
+			case 'P':
+				tuple.score = P_WEIGHT;
+				break;
+			case 'L':
+				tuple.score = L_WEIGHT;
+				break;
+			case 'D':
+				tuple.score = D_WEIGHT;
+				break;
+			case 'C':
+				tuple.score = C_WEIGHT;
+				break;
+			case 'S':
+				tuple.score = S_WEIGHT;
+				break;
+			default:
+				tuple.score = 0;
+				break;
+		}
+
+		// Print the output in the desired format to stdout
+		sprintf(outputStr, "(%s,%s,%d)\n", tuple.userID, tuple.topic, tuple.score);
+
+		// Once data is in its respective categories and in string form,
+		// we need to check if we can write it out to the reducer thread
 
 
 
+	}
 
-
+	// Once no more input to the mapper, notify reducer threads
+	prodDone = true;
 
 	return NULL;
 }
@@ -75,8 +157,7 @@ int main(int argc, char *argv[])
 	// Declare and initialize necessary variables
 	int i, j;
 	int bufSlots = atoi(argv[1]);
-	int numBufs = atoi(argv[2]);
-	bool prodDone = false;
+	static int numBufs = atoi(argv[2]);
 
 	// Declare pthreads_t array
 	pthreads_t threads[numBufs];
@@ -87,6 +168,7 @@ int main(int argc, char *argv[])
 	for (i = 0; i < numBufs; i++)
 	{
 		reducers[i].lastIdx = 0;
+		reducers[i].bufIdx = i;
 		reducers[i].full = PTHREAD_COND_INITIALIZER;
 		reducers[i].mtx = PTHREAD_MUTEX_INITIALIZER;
 		reducers[i].tupleBuf = (char **)malloc(sizeof(char *) * bufSlots);
@@ -107,6 +189,7 @@ int main(int argc, char *argv[])
 
 
 	// What here? All the rest of the threads are running...
+	// Is there a need to use thread_join here?
 
 
 
