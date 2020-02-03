@@ -1,10 +1,11 @@
 CC = gcc
 CFLAGS = -Wall -c
+THREADS = -lpthread
 
 all:
 	$(CC) mapper.c -o mapper
 	$(CC) reducer.c -o reducer
-	$(CC) combiner.c -o combiner
+	$(CC) $(THREADS) combiner.c -o combiner
 
 mapper: mapper.c
 	$(CC) $(CFLAGS) mapper.c
@@ -15,8 +16,8 @@ reducer: reducer.c
 	$(CC) reducer.c -o reducer
 
 combiner: combiner.c
-	$(CC) $(CFLAGS) combiner.c
-	$(CC) combiner.c -o combiner
+	$(CC) $(CFLAGS) $(THREADS) combiner.c
+	$(CC) $(THREADS) combiner.c -o combiner
 
 mapperClean:
 	rm mapper mapper.o
