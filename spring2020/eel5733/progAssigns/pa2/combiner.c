@@ -21,9 +21,8 @@
 #define TOPIC_LENGTH 16
 #define INPUT_STR_LEN 25
 #define TUPLE_STRING 27
-// May not need those below this comment
-#define MAX_TOPICS 10
 #define BUF_SIZE 30
+#define MAX_TOPICS 10
 
 
 // Declare static variables
@@ -44,14 +43,20 @@ struct tupleBuffer_s {
 	char **tupleBuf;		// Array of tuple strings
 	int lastIdx;			// Index of the last filled slot of the buffer
 	pthread_mutex_t mtx;	// Mutex variable
-	pthread_cond_t full;	// Condition for full or available buffer
+	pthread_cond_t isFull;	// Condition for when buffer is full
+	pthread_cond_t isEmpty;	// Conditioin for when buffer is empty
 };
+
+
+// Declare helper functions
+void stringFormat(char *inputStr, char *outputStr);
+
 
 // Define the mapper thread function here
 void *mapperThread(void *arg)
 {
 	// Declare necessary variables
-	int i;
+	int i, threadErr;
 	char inputBuf[BUF_SIZE];
 	char tupleStr[BUF_SIZE];
 	char outputStr[BUF_SIZE];
@@ -131,14 +136,50 @@ void *mapperThread(void *arg)
 		/*
 			HERE IS WHERE THE MUTEX TO WRITE TO THE BUFFER WILL GO
 			INCLUDING THE WAITING WHEN THERES A FULL BUFFER
+
+			REMEMBER TO SEND COND SIGNAL TO WAKE A SLEEPING CONSUMER
 		*/
 
+		// Attempt to acquire the mutex lock
+		threadErr = pthread_mutex_lock(&(bufferStructs[userIdx].mtx));
+		if (threadErr != 0)
+			errExitEN(threadErr, "pthread_mutex_lock");
 
+		// If the lock is acquired but the buffer is empty, wait until awoken
+		while (bufferStructs[userIdx].lastIdx == (bufSlots - 1))
+		{
+			threadErr = pthread_cond_wait(&(bufferStructs[userIdx].isFull), &(bufferStructs[userIdx].mtx));
+			if (threadErr != 0)
+				errExitEN(threadErr, "pthread_cond_wait");
+		}
 
+		// Once the mutex is acquired and the desired buffer to write to is not full...
+		// Place the outputStr in the next spot and increment lastIdx
+		// MAY NEED TO COME BACK HERE AND FIX THE SYNTAX OF THE LASTIDX INCREMENTING
+		strcpy(bufferStructs[userIdx].tupleBuf[++(bufferStructs[userIdx].lastIdx)], outputStr);
+
+		// Release the lock
+		threadErr = pthread_mutex_unlock(&(bufferStructs[userIdx].mtx));
+		if (threadErr != 0)
+			errExitEN(threadErr, "pthread_mutex_unlock");
+
+		// Awake the sleeping consumer
+		threadErr = pthread_cond_signal(&(bufferStructs[userIdx].isEmpty));
+		if (threadErr != 0)
+			errExitEN(threadErr, "pthread_cond_signal");
 	}
 
 	// Once no more input to the mapper, notify reducer threads
 	prodDone = true;
+
+	// Send conditional signals to every consumer before exiting
+	for (i = 0; i < numBufs; i++)
+	{
+		threadErr = pthread_cond_signal(&(bufferStructs[i].isEmpty));
+
+			if (threadErr != 0)
+				errExitEN(threadErr, "pthread_cond_signal");
+	}
 
 	// Exit safely
 	pthread_exit(NULL);
@@ -149,6 +190,9 @@ void *reducerThread(void *arg)
 {
 	// Declare necessary variables
 	struct tupleBuffer_s bufferStruct = *((struct tupleBuffers_s *) arg);
+	int i, threadErr;
+	struct tuple_s totals[MAX_TOPICS];
+	int topicNum = 0;
 
 	/*
 		MUTEX STUFF FOR READING AND CONSUMING VALUES HERE
@@ -163,6 +207,141 @@ void *reducerThread(void *arg)
 		THEN EXIT THE THREAD
 	*/
 
+	// While the producer thread has not finished
+	for (;;)
+	{
+		// Attempt to acquire the mutex lock
+		threadErr = pthread_mutex_lock(&(bufferStruct.mtx));
+		if (threadErr != 0)
+			errExitEN(threadErr, "pthread_mutex_lock");
+
+		// If the lock is acquired but the buffer is empty, wait until awoken
+		while (bufferStruct.lastIdx == -1)
+		{
+			// Only break out and do the end stuff here when prodDone is done
+			// AND buffer is empty
+			if (prodDone)
+			{
+				// Final printing of output goes here
+				for (i = 0; i < topicNum; i++)
+					fprintf(stdout, "(%s,%s,%d)\n", totals[i].userID, totals[i].topic, totals[i].score);
+
+				// Release the lock
+				threadErr = pthread_mutex_unlock(&(bufferStruct.mtx));
+				if (threadErr != 0)
+					errExitEN(threadErr, "pthread_mutex_unlock");
+
+				// Break out of the loop after printing here
+				break;
+			}
+
+			// Only wait if the buffer is empty AND the producer is NOT done
+			threadErr = pthread_cond_wait(&(bufferStruct.isEmpty), &(bufferStruct.mtx));
+			if (threadErr != 0)
+				errExitEN(threadErr, "pthread_cond_wait");
+		}
+
+		// Complete necessary data parsing on input strings
+
+
+
+		// Remember to increment number of topics
+
+
+
+		// Remember to decrement the lastIdx when taking data out of the buffer
+
+
+		// Release the lock
+		threadErr = pthread_mutex_unlock(&(bufferStruct.mtx));
+		if (threadErr != 0)
+			errExitEN(threadErr, "pthread_mutex_unlock");
+
+		// Wake the sleeping producer if necessary
+		threadErr = pthread_cond_signal(&(bufferStruct.isFull));
+		if (threadErr != 0)
+			errExitEN(threadErr, "pthread_cond_signal");
+	}
+
+
+
+
+
+
+
+	// 	// Setup for looping
+	// fgets(inputBuf, BUF_SIZE, stdin);
+	// // Parse the string into the tupleArray
+	// stringFormat(inputBuf, tupleStr);
+	// token = strtok(tupleStr, delim);
+	// strcpy(tupleArray[0].userID, token);
+	// token = strtok(NULL, delim);
+	// strcpy(tupleArray[0].topic, token);
+	// token = strtok(NULL, delim);
+	// tupleArray[0].score = atoi(token);
+	// strcpy(currUserID, tupleArray[0].userID);
+	// tupleCount = 1;
+
+	// // continue looping here
+	// while (fgets(inputBuf, BUF_SIZE, stdin) != NULL)
+	// {
+	// 	// Parse the string into the tupleArray
+	// 	stringFormat(inputBuf, tupleStr);
+	// 	token = strtok(tupleStr, delim);
+	// 	strcpy(tempTuple.userID, token);
+	// 	token = strtok(NULL, delim);
+	// 	strcpy(tempTuple.topic, token);
+	// 	token = strtok(NULL, delim);
+	// 	tempTuple.score = atoi(token);
+
+	// 	if (strcmp(currUserID, tempTuple.userID))
+	// 	{
+	// 		// Print out all tuples with total scores
+	// 		for (i = 0; i < tupleCount; i++)
+	// 			fprintf(stdout, "(%s,%s,%d)\n", tupleArray[i].userID, tupleArray[i].topic, tupleArray[i].score);
+
+	// 		// Reset for next looping
+	// 		strcpy(currUserID, tempTuple.userID);
+	// 		strcpy(tupleArray[0].userID, tempTuple.userID);
+	// 		strcpy(tupleArray[0].topic, tempTuple.topic);
+	// 		tupleArray[0].score = tempTuple.score;
+	// 		tupleCount = 1;
+	// 	}
+	// 	else
+	// 	{
+	// 		found = 0;
+	// 		// Loop through existing tuples for matching topics
+	// 		for (i = 0; i < tupleCount; i++)
+	// 		{
+	// 			// If the topics are the same, add the scores up
+	// 			if (!strcmp(tupleArray[i].topic, tempTuple.topic))
+	// 			{
+	// 				tupleArray[i].score += tempTuple.score;
+	// 				found = 1;
+	// 			}
+	// 		}
+
+	// 		// if not found, add to the tuple array
+	// 		if (found == 0)
+	// 		{
+	// 			strcpy(tupleArray[tupleCount].userID, tempTuple.userID);
+	// 			strcpy(tupleArray[tupleCount].topic, tempTuple.topic);
+	// 			tupleArray[tupleCount].score = tempTuple.score;
+	// 			tupleCount++;
+	// 		}
+	// 	}
+	// }
+
+	// // Print out all tuples with total scores for the last user ID
+	// for (i = 0; i < tupleCount; i++)
+	// 	fprintf(stdout, "(%s,%s,%d)\n", tupleArray[i].userID, tupleArray[i].topic, tupleArray[i].score);
+
+
+
+
+
+
+
 
 
 
@@ -170,9 +349,6 @@ void *reducerThread(void *arg)
 	// Exit safely
 	pthread_exit(NULL);
 }
-
-// Declare helper functions
-void stringFormat(char *inputStr, char *outputStr);
 
 
 // Main function
@@ -191,14 +367,15 @@ int main(int argc, char *argv[])
 	// Loop through and allocate and initialize values for tupleBuffer structures
 	for (i = 0; i < numBufs; i++)
 	{
-		reducers[i].lastIdx = 0;
-		reducers[i].full = PTHREAD_COND_INITIALIZER;
-		reducers[i].mtx = PTHREAD_MUTEX_INITIALIZER;
-		reducers[i].tupleBuf = (char **)malloc(sizeof(char *) * bufSlots);
-
 		// Loop through and create buffers for tuples
+		reducers[i].tupleBuf = (char **)malloc(sizeof(char *) * bufSlots);
 		for (j = 0; j < bufSlots; j++)
 			reducers[i].tupleBuf[j] = (char *)malloc(sizeof(char) * TUPLE_STRING);
+
+		reducers[i].lastIdx = -1;
+		reducers[i].isFull = PTHREAD_COND_INITIALIZER;
+		reducers[i].isEmpty = PTHREAD_COND_INITIALIZER;
+		reducers[i].mtx = PTHREAD_MUTEX_INITIALIZER;
 	}
 
 	// Create all of the threads necessary
@@ -212,7 +389,7 @@ int main(int argc, char *argv[])
 
 
 	// What here? All the rest of the threads are running...
-	// Is there a need to use thread_join here?
+	// Is there a need to use pthread_join here?
 
 
 
