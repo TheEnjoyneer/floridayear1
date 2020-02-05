@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <string.h>
+#include <stdbool.h>
 
 // Define all pound define variables
 #define P_WEIGHT 50
@@ -69,7 +70,7 @@ void *mapperThread(void *arg)
 	struct tuple_s tuple;
 
 	// Get array of tupleBuffers as input to the thread
-	struct tupleBuffer_s *bufferStructs = (struct tupleBuffers_s *) arg;
+	struct tupleBuffer_s *bufferStructs = (struct tupleBuffer_s *) arg;
 
 	// Set initial users array to be all nulls
 	for (i = 0; i < numBufs; i++)
@@ -134,15 +135,15 @@ void *mapperThread(void *arg)
 		// we need to check if we can write it out to the reducer thread
 		// So we attempt to acquire the mutex lock
 		threadErr = pthread_mutex_lock(&(bufferStructs[userIdx].mtx));
-		if (threadErr != 0)
-			errExitEN(threadErr, "pthread_mutex_lock");
+		//if (threadErr != 0)
+			//errExitEN(threadErr, "pthread_mutex_lock");
 
 		// If the lock is acquired but the buffer is empty, wait until awoken
 		while (bufferStructs[userIdx].lastIdx == (bufSlots - 1))
 		{
 			threadErr = pthread_cond_wait(&(bufferStructs[userIdx].isFull), &(bufferStructs[userIdx].mtx));
-			if (threadErr != 0)
-				errExitEN(threadErr, "pthread_cond_wait");
+			//if (threadErr != 0)
+				//errExitEN(threadErr, "pthread_cond_wait");
 		}
 
 		// Once the mutex is acquired and the desired buffer to write to is not full...
@@ -152,13 +153,13 @@ void *mapperThread(void *arg)
 
 		// Release the lock
 		threadErr = pthread_mutex_unlock(&(bufferStructs[userIdx].mtx));
-		if (threadErr != 0)
-			errExitEN(threadErr, "pthread_mutex_unlock");
+		//if (threadErr != 0)
+			//errExitEN(threadErr, "pthread_mutex_unlock");
 
 		// Awake the sleeping consumer
 		threadErr = pthread_cond_signal(&(bufferStructs[userIdx].isEmpty));
-		if (threadErr != 0)
-			errExitEN(threadErr, "pthread_cond_signal");
+		//if (threadErr != 0)
+			//errExitEN(threadErr, "pthread_cond_signal");
 	}
 
 	// Once no more input to the mapper, notify reducer threads
@@ -168,9 +169,8 @@ void *mapperThread(void *arg)
 	for (i = 0; i < numBufs; i++)
 	{
 		threadErr = pthread_cond_signal(&(bufferStructs[i].isEmpty));
-
-			if (threadErr != 0)
-				errExitEN(threadErr, "pthread_cond_signal");
+		//if (threadErr != 0)
+			//errExitEN(threadErr, "pthread_cond_signal");
 	}
 
 	// Exit safely
@@ -181,10 +181,12 @@ void *mapperThread(void *arg)
 void *reducerThread(void *arg)
 {
 	// Declare necessary variables
-	struct tupleBuffer_s bufferStruct = *((struct tupleBuffers_s *) arg);
+	struct tupleBuffer_s bufferStruct = *((struct tupleBuffer_s *) arg);
 	int i, threadErr, found;
 	char inputBuf[BUF_SIZE];
 	char tupleStr[BUF_SIZE];
+	char *token;
+	char delim[] = ",";
 	struct tuple_s totals[MAX_TOPICS];
 	struct tuple_s tempTuple;
 	int topicNum = 0;
@@ -194,8 +196,8 @@ void *reducerThread(void *arg)
 	{
 		// Attempt to acquire the mutex lock
 		threadErr = pthread_mutex_lock(&(bufferStruct.mtx));
-		if (threadErr != 0)
-			errExitEN(threadErr, "pthread_mutex_lock");
+		//if (threadErr != 0)
+			//errExitEN(threadErr, "pthread_mutex_lock");
 
 		// If the lock is acquired but the buffer is empty, wait until awoken
 		while (bufferStruct.lastIdx == -1)
@@ -210,8 +212,8 @@ void *reducerThread(void *arg)
 
 				// Release the lock
 				threadErr = pthread_mutex_unlock(&(bufferStruct.mtx));
-				if (threadErr != 0)
-					errExitEN(threadErr, "pthread_mutex_unlock");
+				//if (threadErr != 0)
+					//errExitEN(threadErr, "pthread_mutex_unlock");
 
 				// Set lastIdx to -2 so that main loop will break
 				bufferStruct.lastIdx = -2;
@@ -220,8 +222,8 @@ void *reducerThread(void *arg)
 			{
 				// Only wait if the buffer is empty AND the producer is NOT done
 				threadErr = pthread_cond_wait(&(bufferStruct.isEmpty), &(bufferStruct.mtx));
-				if (threadErr != 0)
-					errExitEN(threadErr, "pthread_cond_wait");
+				//if (threadErr != 0)
+					//errExitEN(threadErr, "pthread_cond_wait");
 			}
 		}
 
@@ -230,8 +232,8 @@ void *reducerThread(void *arg)
 		{
 			// Make sure to unlock the mutex
 			threadErr = pthread_mutex_unlock(&(bufferStruct.mtx));
-			if (threadErr != 0)
-				errExitEN(threadErr, "pthread_mutex_unlock");
+			//if (threadErr != 0)
+				//errExitEN(threadErr, "pthread_mutex_unlock");
 			
 			// Then break out of the for loop of consumption	
 			break;
@@ -274,13 +276,13 @@ void *reducerThread(void *arg)
 
 		// Release the lock
 		threadErr = pthread_mutex_unlock(&(bufferStruct.mtx));
-		if (threadErr != 0)
-			errExitEN(threadErr, "pthread_mutex_unlock");
+		//if (threadErr != 0)
+			//errExitEN(threadErr, "pthread_mutex_unlock");
 
 		// Wake the sleeping producer if necessary
 		threadErr = pthread_cond_signal(&(bufferStruct.isFull));
-		if (threadErr != 0)
-			errExitEN(threadErr, "pthread_cond_signal");
+		//if (threadErr != 0)
+			//errExitEN(threadErr, "pthread_cond_signal");
 	}
 
 	// Exit safely
@@ -297,10 +299,10 @@ int main(int argc, char *argv[])
 	numBufs = atoi(argv[2]);
 
 	// Declare pthreads_t array
-	pthreads_t threads[numBufs];
+	pthread_t threads[numBufs];
 
 	// Create number of tuple buffers that are necessary
-	struct tupleBuffer_s *reducers = (struct tupleBuffer_s *)malloc(sizeof(tupleBuffer_s) * numBufs);
+	struct tupleBuffer_s *reducers = (struct tupleBuffer_s *)malloc(sizeof(struct tupleBuffer_s) * numBufs);
 	// Loop through and allocate and initialize values for tupleBuffer structures
 	for (i = 0; i < numBufs; i++)
 	{
@@ -310,9 +312,12 @@ int main(int argc, char *argv[])
 			reducers[i].tupleBuf[j] = (char *)malloc(sizeof(char) * TUPLE_STRING);
 
 		reducers[i].lastIdx = -1;
-		reducers[i].isFull = PTHREAD_COND_INITIALIZER;
-		reducers[i].isEmpty = PTHREAD_COND_INITIALIZER;
-		reducers[i].mtx = PTHREAD_MUTEX_INITIALIZER;
+		//reducers[i].isFull = PTHREAD_COND_INITIALIZER;
+		//reducers[i].isEmpty = PTHREAD_COND_INITIALIZER;
+		//reducers[i].mtx = PTHREAD_MUTEX_INITIALIZER;
+		pthread_cond_init(&(reducers[i].isFull), NULL);
+		pthread_cond_init(&(reducers[i].isEmpty), NULL);
+		pthread_mutex_init(&(reducers[i].mtx), NULL);
 	}
 
 	// Create all of the threads necessary
