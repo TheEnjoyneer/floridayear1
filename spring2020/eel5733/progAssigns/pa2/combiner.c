@@ -311,6 +311,7 @@ int main(int argc, char *argv[])
 	// Loop through and allocate and initialize values for tupleBuffer structures
 	for (i = 0; i < numBufs; i++)
 	{
+		printf("Creating reducer %d.\n", i);
 		// Loop through and create buffers for tuples
 		reducers[i].tupleBuf = (char **)malloc(sizeof(char *) * bufSlots);
 		for (j = 0; j < bufSlots; j++)
@@ -327,8 +328,12 @@ int main(int argc, char *argv[])
 
 	// Create all of the threads necessary
 	for (i = 0; i < numBufs; i++)
+	{
+		printf("Creating reducer thread %d.\n", i);
 		pthread_create(&threads[i], NULL, reducerThread, &(reducers[i]));
+	}
 	// Make the producer thread
+	printf("Creating mapper thread.\n");
 	pthread_create(&threads[numBufs], NULL, mapperThread, &reducers);
 
 
