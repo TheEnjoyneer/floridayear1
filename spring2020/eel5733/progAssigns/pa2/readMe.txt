@@ -29,10 +29,10 @@ My Testing:
 For Running My Program Normally:
 	Prerequisites
 	- A text file of tuples for input
-	- All 3 files compiled using the makefile already
+	- All files compiled using the makefile already
 
 	Running
-	1) Run "./combiner <inputFileName>"
+	1) Run "./combiner < <inputFileName>"
 
 	* This will run the two programs in their processes and output the 
 	  tuples to the screen on stdout *
