@@ -49,7 +49,7 @@ struct tupleBuffer_s {
 
 
 // Declare helper functions
-void stringFormat(char *inputStr, char *outputStr);
+static void stringFormat(char *inputStr, char *outputStr);
 
 
 // Define the mapper thread function here
@@ -132,15 +132,7 @@ void *mapperThread(void *arg)
 
 		// Once data is in its respective categories and in string form,
 		// we need to check if we can write it out to the reducer thread
-
-		/*
-			HERE IS WHERE THE MUTEX TO WRITE TO THE BUFFER WILL GO
-			INCLUDING THE WAITING WHEN THERES A FULL BUFFER
-
-			REMEMBER TO SEND COND SIGNAL TO WAKE A SLEEPING CONSUMER
-		*/
-
-		// Attempt to acquire the mutex lock
+		// So we attempt to acquire the mutex lock
 		threadErr = pthread_mutex_lock(&(bufferStructs[userIdx].mtx));
 		if (threadErr != 0)
 			errExitEN(threadErr, "pthread_mutex_lock");
@@ -196,19 +188,6 @@ void *reducerThread(void *arg)
 	struct tuple_s totals[MAX_TOPICS];
 	struct tuple_s tempTuple;
 	int topicNum = 0;
-
-	/*
-		MUTEX STUFF FOR READING AND CONSUMING VALUES HERE
-
-		WAIT FOR THERE TO BE VALUES TO CONSUME
-
-		CONSUME VALUES AND SAVE ALL DATA
-
-
-		WHEN prodDone IS TRUE, THEN PRINT ALL DATA TO THE SCREEN
-
-		THEN EXIT THE THREAD
-	*/
 
 	// While the producer thread has not finished
 	for (;;)
@@ -361,7 +340,7 @@ int main(int argc, char *argv[])
 // Define helper functions
 
 // Used to remove parentheses and white space from a string
-void stringFormat(char *inputStr, char *outputStr)
+static void stringFormat(char *inputStr, char *outputStr)
 {
 	int i, j = 0;
 	for (i = 0; i < strlen(inputStr); i++)
