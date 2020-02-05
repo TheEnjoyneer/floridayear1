@@ -79,6 +79,8 @@ static void *mapperThread(void *arg)
 	// Loop through input until empty
 	while (fgets(inputBuf, BUF_SIZE, stdin) != NULL)
 	{
+		printf("At beginning of loop of mapper.\n");
+		printf("input is %s.\n", inputBuf);
 		// Parse the string into the tupleArray
 		stringFormat(inputBuf, tupleStr);
 		token = strtok(tupleStr, delim);
@@ -150,6 +152,8 @@ static void *mapperThread(void *arg)
 		// Place the outputStr in the next spot and increment lastIdx
 		// MAY NEED TO COME BACK HERE AND FIX THE SYNTAX OF THE LASTIDX INCREMENTING
 		strcpy(bufferStructs[userIdx].tupleBuf[++(bufferStructs[userIdx].lastIdx)], outputStr);
+
+		printf("Putting the tuple '%s' in buffer %d.\n", outputStr, userIdx);
 
 		// Release the lock
 		threadErr = pthread_mutex_unlock(&(bufferStructs[userIdx].mtx));
@@ -243,6 +247,7 @@ static void *reducerThread(void *arg)
 		// ***HERE IS WHERE THE ACTUAL CONSUMING PORTION IS DONE***
 		// Remove the last entry in the tuple buffer
 		strcpy(inputBuf, bufferStruct.tupleBuf[bufferStruct.lastIdx--]);
+		printf("Input tuple to this reducer is: %s.\n", inputBuf);
 
 		// Parse the string into the tuple array of totals
 		stringFormat(inputBuf, tupleStr);
