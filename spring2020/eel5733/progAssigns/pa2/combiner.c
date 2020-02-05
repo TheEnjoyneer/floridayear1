@@ -342,6 +342,7 @@ int main(int argc, char *argv[])
 
 	// What here? All the rest of the threads are running...
 	// Is there a need to use pthread_join here?
+	printf("TEST\n");
 
 
 
