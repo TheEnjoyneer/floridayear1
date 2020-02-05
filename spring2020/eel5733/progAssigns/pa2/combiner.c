@@ -174,7 +174,7 @@ void *mapperThread(void *arg)
 	}
 
 	// Exit safely
-	pthread_exit(NULL);
+	//pthread_exit(NULL);
 }
 
 // Define the reducer thread function here
@@ -286,7 +286,7 @@ void *reducerThread(void *arg)
 	}
 
 	// Exit safely
-	pthread_exit(NULL);
+	//pthread_exit(NULL);
 }
 
 

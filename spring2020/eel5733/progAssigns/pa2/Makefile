@@ -1,12 +1,12 @@
 CC = gcc
-CFLAGS = -Wall -c
-THREADS = -lpthread
+CFLAGS = -Wall
+THREADS = -pthread
 
 all:
-	$(CC) $(THREADS) combiner.c -o combiner
+	$(CC) $(CFLAGS) $(THREADS) combiner.c -o combiner
 
 debug:
-	$(CC) $(THREADS) combiner.c -g -o combiner 
+	$(CC) $(CFLAGS) $(THREADS) combiner.c -g -o combiner 
 	
 clean:	
 	rm combiner
