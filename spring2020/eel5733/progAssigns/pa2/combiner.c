@@ -54,7 +54,7 @@ static void stringFormat(char *inputStr, char *outputStr);
 
 
 // Define the mapper thread function here
-void *mapperThread(void *arg)
+static void *mapperThread(void *arg)
 {
 	// Declare necessary variables
 	int i, threadErr;
@@ -178,7 +178,7 @@ void *mapperThread(void *arg)
 }
 
 // Define the reducer thread function here
-void *reducerThread(void *arg)
+static void *reducerThread(void *arg)
 {
 	// Declare necessary variables
 	struct tupleBuffer_s bufferStruct = *((struct tupleBuffer_s *) arg);
@@ -194,36 +194,39 @@ void *reducerThread(void *arg)
 	// While the producer thread has not finished
 	for (;;)
 	{
-		// Attempt to acquire the mutex lock
-		threadErr = pthread_mutex_lock(&(bufferStruct.mtx));
-		//if (threadErr != 0)
-			//errExitEN(threadErr, "pthread_mutex_lock");
-
-		// If the lock is acquired but the buffer is empty, wait until awoken
-		while (bufferStruct.lastIdx == -1)
+		for (;;)
 		{
-			// Only break out and do the end stuff here when prodDone is done
-			// AND buffer is empty
-			if (prodDone)
-			{
-				// Final printing of output goes here
-				for (i = 0; i < topicNum; i++)
-					fprintf(stdout, "(%s,%s,%d)\n", totals[i].userID, totals[i].topic, totals[i].score);
+			// Attempt to acquire the mutex lock
+			threadErr = pthread_mutex_lock(&(bufferStruct.mtx));
+			//if (threadErr != 0)
+				//errExitEN(threadErr, "pthread_mutex_lock");
 
-				// Release the lock
-				threadErr = pthread_mutex_unlock(&(bufferStruct.mtx));
-				//if (threadErr != 0)
-					//errExitEN(threadErr, "pthread_mutex_unlock");
-
-				// Set lastIdx to -2 so that main loop will break
-				bufferStruct.lastIdx = -2;
-			}
-			else
+			// If the lock is acquired but the buffer is empty, wait until awoken
+			while (bufferStruct.lastIdx == -1)
 			{
-				// Only wait if the buffer is empty AND the producer is NOT done
-				threadErr = pthread_cond_wait(&(bufferStruct.isEmpty), &(bufferStruct.mtx));
-				//if (threadErr != 0)
-					//errExitEN(threadErr, "pthread_cond_wait");
+				// Only break out and do the end stuff here when prodDone is done
+				// AND buffer is empty
+				if (prodDone)
+				{
+					// Final printing of output goes here
+					for (i = 0; i < topicNum; i++)
+						fprintf(stdout, "(%s,%s,%d)\n", totals[i].userID, totals[i].topic, totals[i].score);
+
+					// Release the lock
+					threadErr = pthread_mutex_unlock(&(bufferStruct.mtx));
+					//if (threadErr != 0)
+						//errExitEN(threadErr, "pthread_mutex_unlock");
+
+					// Set lastIdx to -2 so that main loop will break
+					bufferStruct.lastIdx = -2;
+				}
+				else
+				{
+					// Only wait if the buffer is empty AND the producer is NOT done
+					threadErr = pthread_cond_wait(&(bufferStruct.isEmpty), &(bufferStruct.mtx));
+					//if (threadErr != 0)
+						//errExitEN(threadErr, "pthread_cond_wait");
+				}
 			}
 		}
 
