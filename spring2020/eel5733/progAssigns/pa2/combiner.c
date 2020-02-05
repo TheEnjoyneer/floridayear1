@@ -43,8 +43,8 @@ struct tupleBuffer_s {
 	char **tupleBuf;		// Array of tuple strings
 	int lastIdx;			// Index of the last filled slot of the buffer
 	pthread_mutex_t mtx;	// Mutex variable
-	pthread_cond_t isFull;	// Condition for when buffer is full
-	pthread_cond_t isEmpty;	// Conditioin for when buffer is empty
+	pthread_cond_t isFull;	// Condition for when buffer is no longer full
+	pthread_cond_t isEmpty;	// Conditioin for when buffer is no longer empty
 };
 
 
@@ -190,8 +190,11 @@ void *reducerThread(void *arg)
 {
 	// Declare necessary variables
 	struct tupleBuffer_s bufferStruct = *((struct tupleBuffers_s *) arg);
-	int i, threadErr;
+	int i, threadErr, found;
+	char inputBuf[BUF_SIZE];
+	char tupleStr[BUF_SIZE];
 	struct tuple_s totals[MAX_TOPICS];
+	struct tuple_s tempTuple;
 	int topicNum = 0;
 
 	/*
@@ -231,26 +234,64 @@ void *reducerThread(void *arg)
 				if (threadErr != 0)
 					errExitEN(threadErr, "pthread_mutex_unlock");
 
-				// Break out of the loop after printing here
-				break;
+				// Set lastIdx to -2 so that main loop will break
+				bufferStruct.lastIdx = -2;
 			}
-
-			// Only wait if the buffer is empty AND the producer is NOT done
-			threadErr = pthread_cond_wait(&(bufferStruct.isEmpty), &(bufferStruct.mtx));
-			if (threadErr != 0)
-				errExitEN(threadErr, "pthread_cond_wait");
+			else
+			{
+				// Only wait if the buffer is empty AND the producer is NOT done
+				threadErr = pthread_cond_wait(&(bufferStruct.isEmpty), &(bufferStruct.mtx));
+				if (threadErr != 0)
+					errExitEN(threadErr, "pthread_cond_wait");
+			}
 		}
 
-		// Complete necessary data parsing on input strings
+		// Conditional to break the loop when done
+		if (bufferStruct.lastIdx == -2)
+		{
+			// Make sure to unlock the mutex
+			threadErr = pthread_mutex_unlock(&(bufferStruct.mtx));
+			if (threadErr != 0)
+				errExitEN(threadErr, "pthread_mutex_unlock");
+			
+			// Then break out of the for loop of consumption	
+			break;
+		}
 
 
+		// ***HERE IS WHERE THE ACTUAL CONSUMING PORTION IS DONE***
+		// Remove the last entry in the tuple buffer
+		strcpy(inputBuf, bufferStruct.tupleBuf[bufferStruct.lastIdx--]);
 
-		// Remember to increment number of topics
+		// Parse the string into the tuple array of totals
+		stringFormat(inputBuf, tupleStr);
+		token = strtok(tupleStr, delim);
+		strcpy(tempTuple.userID, token);
+		token = strtok(NULL, delim);
+		strcpy(tempTuple.topic, token);
+		token = strtok(NULL, delim);
+		tempTuple.score = atoi(token);
 
+		found = 0;
+		// Loop through existing tuples for matching topics
+		for (i = 0; i < topicNum; i++)
+		{
+			// If the topics are the same, add the scores up
+			if (!strcmp(totals[i].topic, tempTuple.topic))
+			{
+				totals[i].score += tempTuple.score;
+				found = 1;
+			}
+		}
 
-
-		// Remember to decrement the lastIdx when taking data out of the buffer
-
+		// if not found, add to the tuple array of totals
+		if (found == 0)
+		{
+			strcpy(totals[topicNum].userID, tempTuple.userID);
+			strcpy(totals[topicNum].topic, tempTuple.topic);
+			totals[topicNum].score = tempTuple.score;
+			topicNum++;
+		}
 
 		// Release the lock
 		threadErr = pthread_mutex_unlock(&(bufferStruct.mtx));
@@ -262,89 +303,6 @@ void *reducerThread(void *arg)
 		if (threadErr != 0)
 			errExitEN(threadErr, "pthread_cond_signal");
 	}
-
-
-
-
-
-
-
-	// 	// Setup for looping
-	// fgets(inputBuf, BUF_SIZE, stdin);
-	// // Parse the string into the tupleArray
-	// stringFormat(inputBuf, tupleStr);
-	// token = strtok(tupleStr, delim);
-	// strcpy(tupleArray[0].userID, token);
-	// token = strtok(NULL, delim);
-	// strcpy(tupleArray[0].topic, token);
-	// token = strtok(NULL, delim);
-	// tupleArray[0].score = atoi(token);
-	// strcpy(currUserID, tupleArray[0].userID);
-	// tupleCount = 1;
-
-	// // continue looping here
-	// while (fgets(inputBuf, BUF_SIZE, stdin) != NULL)
-	// {
-	// 	// Parse the string into the tupleArray
-	// 	stringFormat(inputBuf, tupleStr);
-	// 	token = strtok(tupleStr, delim);
-	// 	strcpy(tempTuple.userID, token);
-	// 	token = strtok(NULL, delim);
-	// 	strcpy(tempTuple.topic, token);
-	// 	token = strtok(NULL, delim);
-	// 	tempTuple.score = atoi(token);
-
-	// 	if (strcmp(currUserID, tempTuple.userID))
-	// 	{
-	// 		// Print out all tuples with total scores
-	// 		for (i = 0; i < tupleCount; i++)
-	// 			fprintf(stdout, "(%s,%s,%d)\n", tupleArray[i].userID, tupleArray[i].topic, tupleArray[i].score);
-
-	// 		// Reset for next looping
-	// 		strcpy(currUserID, tempTuple.userID);
-	// 		strcpy(tupleArray[0].userID, tempTuple.userID);
-	// 		strcpy(tupleArray[0].topic, tempTuple.topic);
-	// 		tupleArray[0].score = tempTuple.score;
-	// 		tupleCount = 1;
-	// 	}
-	// 	else
-	// 	{
-	// 		found = 0;
-	// 		// Loop through existing tuples for matching topics
-	// 		for (i = 0; i < tupleCount; i++)
-	// 		{
-	// 			// If the topics are the same, add the scores up
-	// 			if (!strcmp(tupleArray[i].topic, tempTuple.topic))
-	// 			{
-	// 				tupleArray[i].score += tempTuple.score;
-	// 				found = 1;
-	// 			}
-	// 		}
-
-	// 		// if not found, add to the tuple array
-	// 		if (found == 0)
-	// 		{
-	// 			strcpy(tupleArray[tupleCount].userID, tempTuple.userID);
-	// 			strcpy(tupleArray[tupleCount].topic, tempTuple.topic);
-	// 			tupleArray[tupleCount].score = tempTuple.score;
-	// 			tupleCount++;
-	// 		}
-	// 	}
-	// }
-
-	// // Print out all tuples with total scores for the last user ID
-	// for (i = 0; i < tupleCount; i++)
-	// 	fprintf(stdout, "(%s,%s,%d)\n", tupleArray[i].userID, tupleArray[i].topic, tupleArray[i].score);
-
-
-
-
-
-
-
-
-
-
 
 	// Exit safely
 	pthread_exit(NULL);
