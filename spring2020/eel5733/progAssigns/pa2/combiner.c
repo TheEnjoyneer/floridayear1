@@ -78,10 +78,11 @@ static void *mapperThread(void *arg)
 		users[i][0] = '\0';
 
 	// Loop through input until empty
-	while (fgets(inputBuf, BUF_SIZE, stdin) != NULL)
+	while (fgets(inputBuf, INPUT_STR_LEN, stdin) != NULL)
 	{
+		inputBuf[INPUT_STR_LEN - 1] = '\0';
 		printf("At beginning of loop of mapper.\n");
-		printf("input is %s.\n", inputBuf);
+		printf("input is %s\n", inputBuf);
 		// Parse the string into the tupleArray
 		stringFormat(inputBuf, tupleStr);
 		token = strtok(tupleStr, delim);
