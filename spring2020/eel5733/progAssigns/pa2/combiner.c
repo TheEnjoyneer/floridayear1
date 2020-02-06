@@ -78,11 +78,10 @@ static void *mapperThread(void *arg)
 		users[i][0] = '\0';
 
 	// Loop through input until empty
-	while (fgets(inputBuf, INPUT_STR_LEN, stdin) != NULL)
+	while (fgets(inputBuf, INPUT_STR_LEN + 1, stdin) != NULL)
 	{
 		inputBuf[INPUT_STR_LEN - 1] = '\0';
-		printf("At beginning of loop of mapper.\n");
-		printf("input is %s\n", inputBuf);
+		printf("input to map is %s\n", inputBuf);
 		// Parse the string into the tupleArray
 		stringFormat(inputBuf, tupleStr);
 		token = strtok(tupleStr, delim);
@@ -153,18 +152,20 @@ static void *mapperThread(void *arg)
 		// Once the mutex is acquired and the desired buffer to write to is not full...
 		// Place the outputStr in the next spot and increment lastIdx
 		// MAY NEED TO COME BACK HERE AND FIX THE SYNTAX OF THE LASTIDX INCREMENTING
-		strcpy(bufferStructs[userIdx].tupleBuf[++bufferStructs[userIdx].lastIdx], outputStr);
+		strcpy(bufferStructs[userIdx].tupleBuf[++(bufferStructs[userIdx].lastIdx)], outputStr);
 
-		printf("Putting the tuple '%s' in buffer %d.\n", outputStr, userIdx);
+		printf("Mapping the tuple '%s' in buffer %d.\n", outputStr, userIdx);
 
 		// Release the lock
 		threadErr = pthread_mutex_unlock(&(bufferStructs[userIdx].mtx));
 		//if (threadErr != 0)
 			//errExitEN(threadErr, "pthread_mutex_unlock");
 
+
 		// Awake the sleeping consumer
 		threadErr = pthread_cond_signal(&(bufferStructs[userIdx].isEmpty));
-		//if (threadErr != 0)
+		if (threadErr != 0)
+			printf("Failed to signal reducer thread %d\n", userIdx);
 			//errExitEN(threadErr, "pthread_cond_signal");
 	}
 
@@ -187,7 +188,6 @@ static void *mapperThread(void *arg)
 // Define the reducer thread function here
 static void *reducerThread(void *arg)
 {
-	printf("In a reducerThread.\n");
 	// Declare necessary variables
 	struct tupleBuffer_s bufferStruct = *((struct tupleBuffer_s *) arg);
 	int i, threadErr, found;
@@ -202,6 +202,7 @@ static void *reducerThread(void *arg)
 	// While the producer thread has not finished
 	for (;;)
 	{
+		printf("Reducer thread entering loop\n");
 		// Attempt to acquire the mutex lock
 		threadErr = pthread_mutex_lock(&(bufferStruct.mtx));
 		//if (threadErr != 0)
@@ -228,11 +229,14 @@ static void *reducerThread(void *arg)
 			}
 			else
 			{
+				printf("About to wait for buffer to not be empty.\n");
 				// Only wait if the buffer is empty AND the producer is NOT done
 				threadErr = pthread_cond_wait(&(bufferStruct.isEmpty), &(bufferStruct.mtx));
 				//if (threadErr != 0)
 					//errExitEN(threadErr, "pthread_cond_wait");
 			}
+
+			printf("Checking for lastIdx changes after cond signal\n");
 		}
 
 		// Conditional to break the loop when done
@@ -250,8 +254,8 @@ static void *reducerThread(void *arg)
 
 		// ***HERE IS WHERE THE ACTUAL CONSUMING PORTION IS DONE***
 		// Remove the last entry in the tuple buffer
-		strcpy(inputBuf, bufferStruct.tupleBuf[bufferStruct.lastIdx--]);
-		printf("Input tuple to this reducer is: %s.\n", inputBuf);
+		strcpy(inputBuf, bufferStruct.tupleBuf[(bufferStruct.lastIdx)--]);
+		printf("Reducing the input tuple: %s.\n", inputBuf);
 
 		// Parse the string into the tuple array of totals
 		stringFormat(inputBuf, tupleStr);
@@ -300,13 +304,6 @@ static void *reducerThread(void *arg)
 }
 
 
-void *testThreadFunc(void *vargp)
-{
-	printf("Running a reducer thread supposedly.\n");
-	return NULL;
-}
-
-
 // Main function
 int main(int argc, char *argv[])
 {
@@ -323,7 +320,6 @@ int main(int argc, char *argv[])
 	// Loop through and allocate and initialize values for tupleBuffer structures
 	for (i = 0; i < numBufs; i++)
 	{
-		printf("Creating reducer %d.\n", i);
 		// Loop through and create buffers for tuples
 		reducers[i].tupleBuf = (char **)malloc(sizeof(char *) * bufSlots);
 		for (j = 0; j < bufSlots; j++)
@@ -340,19 +336,12 @@ int main(int argc, char *argv[])
 
 	// Create all of the threads necessary
 	for (i = 0; i < numBufs; i++)
-	{
-		printf("Creating reducer thread %d.\n", i);
 		pthread_create(&threads[i], NULL, reducerThread, &(reducers[i]));
-	}
 	// Make the producer thread
-	printf("Creating mapper thread.\n");
 	pthread_create(&threads[numBufs], NULL, mapperThread, reducers);
 
 	for (i = 0; i <= numBufs; i++)
-	{
 		pthread_join(threads[i], NULL);
-		printf("threads[%d] finished and joined.\n", i);
-	}
 
 	// What here? All the rest of the threads are running...
 	// Is there a need to use pthread_join here?
