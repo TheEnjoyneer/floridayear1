@@ -136,33 +136,43 @@ static void *mapperThread(void *arg)
 		// we need to check if we can write it out to the reducer thread
 		// So we attempt to acquire the mutex lock
 		threadErr = pthread_mutex_lock(&(bufferStructs[userIdx].mtx));
-		//if (threadErr != 0)
-			//errExitEN(threadErr, "pthread_mutex_lock");
+		if (threadErr != 0)
+		{
+			printf("Error in pthread_mutex_lock function.\n");
+			exit(1);
+		}
 
 		// If the lock is acquired but the buffer is empty, wait until awoken
 		while (bufferStructs[userIdx].lastIdx == (bufSlots - 1))
 		{
 			threadErr = pthread_cond_wait(&(bufferStructs[userIdx].isFull), &(bufferStructs[userIdx].mtx));
-			//if (threadErr != 0)
-				//errExitEN(threadErr, "pthread_cond_wait");
+			if (threadErr != 0)
+			{
+				printf("Error in pthread_cond_wait function.\n");
+				exit(1);
+			}
 		}
 
 		// Once the mutex is acquired and the desired buffer to write to is not full...
 		// Place the outputStr in the next spot and increment lastIdx
-		// MAY NEED TO COME BACK HERE AND FIX THE SYNTAX OF THE LASTIDX INCREMENTING
 		strcpy(bufferStructs[userIdx].tupleBuf[++(bufferStructs[userIdx].lastIdx)], outputStr);
 
 		// Release the lock
 		threadErr = pthread_mutex_unlock(&(bufferStructs[userIdx].mtx));
-		//if (threadErr != 0)
-			//errExitEN(threadErr, "pthread_mutex_unlock");
+		if (threadErr != 0)
+		{
+			printf("Error in pthread_mutex_unlock function.\n");
+			exit(1);
+		}
 
 
 		// Awake the sleeping consumer
 		threadErr = pthread_cond_signal(&(bufferStructs[userIdx].isEmpty));
-		//if (threadErr != 0)
-			//printf("Failed to signal reducer thread %d\n", userIdx);
-			//errExitEN(threadErr, "pthread_cond_signal");
+		if (threadErr != 0)
+		{
+			printf("Error in pthread_cond_signal function.\n");
+			exit(1);
+		}
 	}
 
 	// Once no more input to the mapper, notify reducer threads
@@ -172,8 +182,11 @@ static void *mapperThread(void *arg)
 	for (i = 0; i < numBufs; i++)
 	{
 		threadErr = pthread_cond_signal(&(bufferStructs[i].isEmpty));
-		//if (threadErr != 0)
-			//errExitEN(threadErr, "pthread_cond_signal");
+		if (threadErr != 0)
+		{
+			printf("Error in pthread_cond_signal function.\n");
+			exit(1);
+		}
 	}
 
 	// Exit safely
@@ -199,8 +212,11 @@ static void *reducerThread(void *arg)
 	{
 		// Attempt to acquire the mutex lock
 		threadErr = pthread_mutex_lock(&(bufferStruct->mtx));
-		//if (threadErr != 0)
-			//errExitEN(threadErr, "pthread_mutex_lock");
+		if (threadErr != 0)
+		{
+			printf("Error in pthread_mutex_lock function.\n");
+			exit(1);
+		}
 
 		// If the lock is acquired but the buffer is empty, wait until awoken
 		while (bufferStruct->lastIdx == -1)
@@ -215,8 +231,11 @@ static void *reducerThread(void *arg)
 
 				// Release the lock
 				threadErr = pthread_mutex_unlock(&(bufferStruct->mtx));
-				//if (threadErr != 0)
-					//errExitEN(threadErr, "pthread_mutex_unlock");
+				if (threadErr != 0)
+				{
+					printf("Error in pthread_mutex_unlock function.\n");
+					exit(1);
+				}
 
 				// Set lastIdx to -2 so that main loop will break
 				bufferStruct->lastIdx = -2;
@@ -225,8 +244,11 @@ static void *reducerThread(void *arg)
 			{
 				// Only wait if the buffer is empty AND the producer is NOT done
 				threadErr = pthread_cond_wait(&(bufferStruct->isEmpty), &(bufferStruct->mtx));
-				//if (threadErr != 0)
-					//errExitEN(threadErr, "pthread_cond_wait");
+				if (threadErr != 0)
+				{
+					printf("Error in pthread_cond_wait function.\n");
+					exit(1);
+				}
 			}
 		}
 
@@ -235,8 +257,11 @@ static void *reducerThread(void *arg)
 		{
 			// Make sure to unlock the mutex
 			threadErr = pthread_mutex_unlock(&(bufferStruct->mtx));
-			//if (threadErr != 0)
-				//errExitEN(threadErr, "pthread_mutex_unlock");
+			if (threadErr != 0)
+			{
+				printf("Error in pthread_mutex_unlock function.\n");
+				exit(1);
+			}
 			
 			// Then break out of the for loop of consumption	
 			break;
@@ -279,13 +304,19 @@ static void *reducerThread(void *arg)
 
 		// Release the lock
 		threadErr = pthread_mutex_unlock(&(bufferStruct->mtx));
-		//if (threadErr != 0)
-			//errExitEN(threadErr, "pthread_mutex_unlock");
+		if (threadErr != 0)
+		{
+			printf("Error in pthread_mutex_unlock function.\n");
+			exit(1);
+		}
 
 		// Wake the sleeping producer if necessary
 		threadErr = pthread_cond_signal(&(bufferStruct->isFull));
-		//if (threadErr != 0)
-			//errExitEN(threadErr, "pthread_cond_signal");
+		if (threadErr != 0)
+		{
+			printf("Error in pthread_cond_signal function.\n");
+			exit(1);
+		}
 	}
 
 	// Exit safely
@@ -297,7 +328,7 @@ static void *reducerThread(void *arg)
 int main(int argc, char *argv[])
 {
 	// Declare and initialize necessary variables
-	int i, j;
+	int i, j, threadErr;
 	bufSlots = atoi(argv[1]);
 	numBufs = atoi(argv[2]);
 
@@ -315,23 +346,59 @@ int main(int argc, char *argv[])
 			reducers[i].tupleBuf[j] = (char *)malloc(sizeof(char) * TUPLE_STRING);
 
 		reducers[i].lastIdx = -1;
-		//reducers[i].isFull = PTHREAD_COND_INITIALIZER;
-		//reducers[i].isEmpty = PTHREAD_COND_INITIALIZER;
-		//reducers[i].mtx = PTHREAD_MUTEX_INITIALIZER;
-		pthread_cond_init(&(reducers[i].isFull), NULL);
-		pthread_cond_init(&(reducers[i].isEmpty), NULL);
-		pthread_mutex_init(&(reducers[i].mtx), NULL);
+
+		// Initialize the two conditional signals
+		threadErr = pthread_cond_init(&(reducers[i].isFull), NULL);
+		if (threadErr != 0)
+		{
+			printf("Error in pthread_cond_init function.\n");
+			exit(1);
+		}
+
+		threadErr = pthread_cond_init(&(reducers[i].isEmpty), NULL);
+		if (threadErr != 0)
+		{
+			printf("Error in pthread_cond_init function.\n");
+			exit(1);
+		}
+
+		// Initialize the mutex lock
+		threadErr = pthread_mutex_init(&(reducers[i].mtx), NULL);
+		if (threadErr != 0)
+		{
+			printf("Error in pthread_mutex_init function.\n");
+			exit(1);
+		}
 	}
 
 	// Create all of the threads necessary
 	for (i = 0; i < numBufs; i++)
-		pthread_create(&threads[i], NULL, reducerThread, &(reducers[i]));
+	{
+		threadErr = pthread_create(&threads[i], NULL, reducerThread, &(reducers[i]));
+		if (threadErr != 0)
+		{
+			printf("Error in pthread_create function.\n");
+			exit(1);
+		}
+	}
 	// Make the producer thread
-	pthread_create(&threads[numBufs], NULL, mapperThread, reducers);
+	threadErr = pthread_create(&threads[numBufs], NULL, mapperThread, reducers);
+	if (threadErr != 0)
+	{
+		printf("Error in pthread_create function.\n");
+		exit(1);
+	}
 
 	// Wait to join threads before exiting main
 	for (i = 0; i <= numBufs; i++)
-		pthread_join(threads[i], NULL);
+	{
+		threadErr = pthread_join(threads[i], NULL);
+		if (threadErr != 0)
+		{
+			printf("Error in pthread_join function.\n");
+			exit(1);
+		}
+	}
 
 	return 0;
 }
