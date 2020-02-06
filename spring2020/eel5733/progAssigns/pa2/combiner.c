@@ -56,7 +56,7 @@ static void stringFormat(char *inputStr, char *outputStr);
 // Define the mapper thread function here
 static void *mapperThread(void *arg)
 {
-	printf("In mapperThread\n.");
+	printf("In mapperThread.\n");
 	// Declare necessary variables
 	int i, threadErr;
 	char inputBuf[BUF_SIZE];
