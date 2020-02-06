@@ -56,6 +56,7 @@ static void stringFormat(char *inputStr, char *outputStr);
 // Define the mapper thread function here
 static void *mapperThread(void *arg)
 {
+	printf("In mapperThread\n.");
 	// Declare necessary variables
 	int i, threadErr;
 	char inputBuf[BUF_SIZE];
@@ -177,13 +178,15 @@ static void *mapperThread(void *arg)
 			//errExitEN(threadErr, "pthread_cond_signal");
 	}
 
+	printf("Exiting the mapper thread.\n");
 	// Exit safely
-	//pthread_exit(NULL);
+	pthread_exit(NULL);
 }
 
 // Define the reducer thread function here
 static void *reducerThread(void *arg)
 {
+	printf("In a reducerThread.\n");
 	// Declare necessary variables
 	struct tupleBuffer_s bufferStruct = *((struct tupleBuffer_s *) arg);
 	int i, threadErr, found;
@@ -290,8 +293,9 @@ static void *reducerThread(void *arg)
 			//errExitEN(threadErr, "pthread_cond_signal");
 	}
 
+	printf("Exiting a reducer thread.\n");
 	// Exit safely
-	//pthread_exit(NULL);
+	pthread_exit(NULL);
 }
 
 
