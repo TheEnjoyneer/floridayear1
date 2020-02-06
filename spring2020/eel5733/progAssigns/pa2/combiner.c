@@ -56,7 +56,6 @@ static void stringFormat(char *inputStr, char *outputStr);
 // Define the mapper thread function here
 static void *mapperThread(void *arg)
 {
-	printf("In mapperThread.\n");
 	// Declare necessary variables
 	int i, threadErr;
 	char inputBuf[BUF_SIZE];
@@ -81,7 +80,6 @@ static void *mapperThread(void *arg)
 	while (fgets(inputBuf, INPUT_STR_LEN + 1, stdin) != NULL)
 	{
 		inputBuf[INPUT_STR_LEN - 1] = '\0';
-		printf("input to map is %s\n", inputBuf);
 		// Parse the string into the tupleArray
 		stringFormat(inputBuf, tupleStr);
 		token = strtok(tupleStr, delim);
@@ -154,8 +152,6 @@ static void *mapperThread(void *arg)
 		// MAY NEED TO COME BACK HERE AND FIX THE SYNTAX OF THE LASTIDX INCREMENTING
 		strcpy(bufferStructs[userIdx].tupleBuf[++(bufferStructs[userIdx].lastIdx)], outputStr);
 
-		printf("Mapping the tuple '%s' in buffer %d.\n", outputStr, userIdx);
-
 		// Release the lock
 		threadErr = pthread_mutex_unlock(&(bufferStructs[userIdx].mtx));
 		//if (threadErr != 0)
@@ -164,8 +160,8 @@ static void *mapperThread(void *arg)
 
 		// Awake the sleeping consumer
 		threadErr = pthread_cond_signal(&(bufferStructs[userIdx].isEmpty));
-		if (threadErr != 0)
-			printf("Failed to signal reducer thread %d\n", userIdx);
+		//if (threadErr != 0)
+			//printf("Failed to signal reducer thread %d\n", userIdx);
 			//errExitEN(threadErr, "pthread_cond_signal");
 	}
 
@@ -180,7 +176,6 @@ static void *mapperThread(void *arg)
 			//errExitEN(threadErr, "pthread_cond_signal");
 	}
 
-	printf("Exiting the mapper thread.\n");
 	// Exit safely
 	pthread_exit(NULL);
 }
@@ -334,13 +329,9 @@ int main(int argc, char *argv[])
 	// Make the producer thread
 	pthread_create(&threads[numBufs], NULL, mapperThread, reducers);
 
+	// Wait to join threads before exiting main
 	for (i = 0; i <= numBufs; i++)
 		pthread_join(threads[i], NULL);
-
-	// What here? All the rest of the threads are running...
-	// Is there a need to use pthread_join here?
-	printf("Exiting main\n");
-
 
 	return 0;
 }
