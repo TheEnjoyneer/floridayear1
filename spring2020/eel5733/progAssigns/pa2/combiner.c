@@ -100,7 +100,7 @@ static void *mapperThread(void *arg)
 			}
 		}
 		// If not found, then increment userNum and copy into users array
-		if (userExist == false && userNum <= numBufs)
+		if (userExist == false && userNum < numBufs)
 		{
 			userIdx = userNum;
 			strcpy(users[userNum++], tuple.userID);
