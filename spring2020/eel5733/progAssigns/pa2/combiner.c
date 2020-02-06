@@ -299,6 +299,13 @@ static void *reducerThread(void *arg)
 }
 
 
+void *testThreadFunc(void *vargp)
+{
+	printf("Running a reducer thread supposedly.\n");
+	return NULL;
+}
+
+
 // Main function
 int main(int argc, char *argv[])
 {
@@ -308,7 +315,7 @@ int main(int argc, char *argv[])
 	numBufs = atoi(argv[2]);
 
 	// Declare pthreads_t array
-	pthread_t threads[numBufs];
+	pthread_t threads[numBufs + 1];
 
 	// Create number of tuple buffers that are necessary
 	struct tupleBuffer_s *reducers = (struct tupleBuffer_s *)malloc(sizeof(struct tupleBuffer_s) * numBufs);
@@ -340,17 +347,15 @@ int main(int argc, char *argv[])
 	printf("Creating mapper thread.\n");
 	pthread_create(&threads[numBufs], NULL, mapperThread, &reducers);
 
-
-
-
+	for (i = 0; i <= numBufs; i++)
+	{
+		pthread_join(threads[i], NULL);
+		printf("threads[%d] finished and joined.\n", i);
+	}
 
 	// What here? All the rest of the threads are running...
 	// Is there a need to use pthread_join here?
-	printf("TEST\n");
-
-
-
-
+	printf("Exiting main\n");
 
 
 	return 0;
