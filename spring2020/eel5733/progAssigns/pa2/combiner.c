@@ -342,7 +342,7 @@ int main(int argc, char *argv[])
 	for (i = 0; i < numBufs; i++)
 	{
 		printf("Creating reducer thread %d.\n", i);
-		pthread_create(&threads[i], NULL, reducerThread, reducers[i]);
+		pthread_create(&threads[i], NULL, reducerThread, &(reducers[i]));
 	}
 	// Make the producer thread
 	printf("Creating mapper thread.\n");
