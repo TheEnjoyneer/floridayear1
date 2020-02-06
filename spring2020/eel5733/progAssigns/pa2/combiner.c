@@ -153,7 +153,7 @@ static void *mapperThread(void *arg)
 		// Once the mutex is acquired and the desired buffer to write to is not full...
 		// Place the outputStr in the next spot and increment lastIdx
 		// MAY NEED TO COME BACK HERE AND FIX THE SYNTAX OF THE LASTIDX INCREMENTING
-		strcpy(bufferStructs[userIdx].tupleBuf[++(bufferStructs[userIdx].lastIdx)], outputStr);
+		strcpy(bufferStructs[userIdx].tupleBuf[++bufferStructs[userIdx].lastIdx], outputStr);
 
 		printf("Putting the tuple '%s' in buffer %d.\n", outputStr, userIdx);
 
