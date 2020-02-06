@@ -133,7 +133,7 @@ static void *mapperThread(void *arg)
 		}
 
 		// Print the output in the desired format to stdout
-		sprintf(outputStr, "(%s,%s,%d)\n", tuple.userID, tuple.topic, tuple.score);
+		sprintf(outputStr, "(%s,%s,%d)", tuple.userID, tuple.topic, tuple.score);
 
 		// Once data is in its respective categories and in string form,
 		// we need to check if we can write it out to the reducer thread
