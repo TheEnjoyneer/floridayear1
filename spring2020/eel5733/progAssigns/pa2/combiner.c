@@ -66,7 +66,7 @@ static void *mapperThread(void *arg)
 	int userIdx = 0;
 	bool userExist;
 	char delim[] = ",";
-	char *token;
+	char *tokenMap = (char *)malloc(sizeof(char));
 	struct tuple_s tuple;
 
 	// Get array of tupleBuffers as input to the thread
@@ -82,12 +82,12 @@ static void *mapperThread(void *arg)
 		inputBuf[INPUT_STR_LEN - 1] = '\0';
 		// Parse the string into the tupleArray
 		stringFormat(inputBuf, tupleStr);
-		token = strtok(tupleStr, delim);
-		strcpy(tuple.userID, token);
-		token = strtok(NULL, delim);
-		strcpy(tuple.action, token);
-		token = strtok(NULL, delim);
-		strcpy(tuple.topic, token);
+		tokenMap = strtok(tupleStr, delim);
+		strcpy(tuple.userID, tokenMap);
+		tokenMap = strtok(NULL, delim);
+		strcpy(tuple.action, tokenMap);
+		tokenMap = strtok(NULL, delim);
+		strcpy(tuple.topic, tokenMap);
 
 		// Check if we need to add an ID to the users array
 		userExist = false;
@@ -175,8 +175,28 @@ static void *mapperThread(void *arg)
 		}
 	}
 
+	// Send conditional signals to every consumer before exiting
+	for (i = 0; i < numBufs; i++)
+	{
+		threadErr = pthread_mutex_lock(&(bufferStructs[i].mtx));
+		if (threadErr != 0)
+		{
+			printf("Error in pthread_mutex_lock function.\n");
+			exit(1);
+		}
+	}
 	// Once no more input to the mapper, notify reducer threads
 	prodDone = true;
+	// Send conditional signals to every consumer before exiting
+	for (i = 0; i < numBufs; i++)
+	{
+		threadErr = pthread_mutex_unlock(&(bufferStructs[i].mtx));
+		if (threadErr != 0)
+		{
+			printf("Error in pthread_mutex_unlock function.\n");
+			exit(1);
+		}
+	}
 
 	// Send conditional signals to every consumer before exiting
 	for (i = 0; i < numBufs; i++)
@@ -201,7 +221,7 @@ static void *reducerThread(void *arg)
 	int i, threadErr, found;
 	char inputBuf[BUF_SIZE];
 	char tupleStr[BUF_SIZE];
-	char *token;
+	char *tokenRed = (char *)malloc(sizeof(char));
 	char delim[] = ",";
 	struct tuple_s totals[MAX_TOPICS];
 	struct tuple_s tempTuple;
@@ -228,14 +248,6 @@ static void *reducerThread(void *arg)
 				// Final printing of output goes here
 				for (i = 0; i < topicNum; i++)
 					fprintf(stdout, "(%s,%s,%d)\n", totals[i].userID, totals[i].topic, totals[i].score);
-
-				// Release the lock
-				threadErr = pthread_mutex_unlock(&(bufferStruct->mtx));
-				if (threadErr != 0)
-				{
-					printf("Error in pthread_mutex_unlock function.\n");
-					exit(1);
-				}
 
 				// Set lastIdx to -2 so that main loop will break
 				bufferStruct->lastIdx = -2;
@@ -274,12 +286,16 @@ static void *reducerThread(void *arg)
 
 		// Parse the string into the tuple array of totals
 		stringFormat(inputBuf, tupleStr);
-		token = strtok(tupleStr, delim);
-		strcpy(tempTuple.userID, token);
-		token = strtok(NULL, delim);
-		strcpy(tempTuple.topic, token);
-		token = strtok(NULL, delim);
-		tempTuple.score = atoi(token);
+		//printf("\ntuple input is: %s\n", tupleStr);
+		tokenRed = strtok(tupleStr, delim);
+		//printf("token before failure: %s\n", tokenRed);
+		strcpy(tempTuple.userID, tokenRed);
+		tokenRed = strtok(NULL, delim);
+		//printf("token before failure: %s\n", tokenRed);
+		strcpy(tempTuple.topic, tokenRed);
+		tokenRed = strtok(NULL, delim);
+		//printf("token before failure: %s\n", tokenRed);
+		tempTuple.score = atoi(tokenRed);
 
 		found = 0;
 		// Loop through existing tuples for matching topics
@@ -407,7 +423,7 @@ int main(int argc, char *argv[])
 // Define helper functions
 
 // Used to remove parentheses and white space from a string
-static void stringFormat(char *inputStr, char *outputStr)
+void stringFormat(char *inputStr, char *outputStr)
 {
 	int i, j = 0;
 	for (i = 0; i < strlen(inputStr); i++)
