@@ -66,7 +66,8 @@ static void *mapperThread(void *arg)
 	int userIdx = 0;
 	bool userExist;
 	char delim[] = ",";
-	char *tokenMap = (char *)malloc(sizeof(char));
+	char *token;
+	char *rest = NULL;
 	struct tuple_s tuple;
 
 	// Get array of tupleBuffers as input to the thread
@@ -82,12 +83,13 @@ static void *mapperThread(void *arg)
 		inputBuf[INPUT_STR_LEN - 1] = '\0';
 		// Parse the string into the tupleArray
 		stringFormat(inputBuf, tupleStr);
-		tokenMap = strtok(tupleStr, delim);
-		strcpy(tuple.userID, tokenMap);
-		tokenMap = strtok(NULL, delim);
-		strcpy(tuple.action, tokenMap);
-		tokenMap = strtok(NULL, delim);
-		strcpy(tuple.topic, tokenMap);
+		rest = tupleStr;
+		token = strtok_r(rest, delim, &rest);
+		strcpy(tuple.userID, token);
+		token = strtok_r(NULL, delim, &rest);
+		strcpy(tuple.action, token);
+		token = strtok_r(NULL, delim, &rest);
+		strcpy(tuple.topic, token);
 
 		// Check if we need to add an ID to the users array
 		userExist = false;
@@ -165,7 +167,6 @@ static void *mapperThread(void *arg)
 			exit(1);
 		}
 
-
 		// Awake the sleeping consumer
 		threadErr = pthread_cond_signal(&(bufferStructs[userIdx].isEmpty));
 		if (threadErr != 0)
@@ -221,7 +222,8 @@ static void *reducerThread(void *arg)
 	int i, threadErr, found;
 	char inputBuf[BUF_SIZE];
 	char tupleStr[BUF_SIZE];
-	char *tokenRed = (char *)malloc(sizeof(char));
+	char *token;
+	char *rest = NULL;
 	char delim[] = ",";
 	struct tuple_s totals[MAX_TOPICS];
 	struct tuple_s tempTuple;
@@ -286,16 +288,13 @@ static void *reducerThread(void *arg)
 
 		// Parse the string into the tuple array of totals
 		stringFormat(inputBuf, tupleStr);
-		//printf("\ntuple input is: %s\n", tupleStr);
-		tokenRed = strtok(tupleStr, delim);
-		//printf("token before failure: %s\n", tokenRed);
-		strcpy(tempTuple.userID, tokenRed);
-		tokenRed = strtok(NULL, delim);
-		//printf("token before failure: %s\n", tokenRed);
-		strcpy(tempTuple.topic, tokenRed);
-		tokenRed = strtok(NULL, delim);
-		//printf("token before failure: %s\n", tokenRed);
-		tempTuple.score = atoi(tokenRed);
+		rest = tupleStr;
+		token = strtok_r(rest, delim, &rest);
+		strcpy(tempTuple.userID, token);
+		token = strtok_r(NULL, delim, &rest);
+		strcpy(tempTuple.topic, token);
+		token = strtok_r(NULL, delim, &rest);
+		tempTuple.score = atoi(token);
 
 		found = 0;
 		// Loop through existing tuples for matching topics
