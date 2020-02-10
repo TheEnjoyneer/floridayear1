@@ -106,73 +106,77 @@ static void *mapperThread(void *arg)
 		{
 			userIdx = userNum;
 			strcpy(users[userNum++], tuple.userID);
+			userExist = true;
 		}
 
-		// Process the scores of a tuple
-		switch (tuple.action[0])
+		if (userExist == true)
 		{
-			case 'P':
-				tuple.score = P_WEIGHT;
-				break;
-			case 'L':
-				tuple.score = L_WEIGHT;
-				break;
-			case 'D':
-				tuple.score = D_WEIGHT;
-				break;
-			case 'C':
-				tuple.score = C_WEIGHT;
-				break;
-			case 'S':
-				tuple.score = S_WEIGHT;
-				break;
-			default:
-				tuple.score = 0;
-				break;
-		}
+			// Process the scores of a tuple
+			switch (tuple.action[0])
+			{
+				case 'P':
+					tuple.score = P_WEIGHT;
+					break;
+				case 'L':
+					tuple.score = L_WEIGHT;
+					break;
+				case 'D':
+					tuple.score = D_WEIGHT;
+					break;
+				case 'C':
+					tuple.score = C_WEIGHT;
+					break;
+				case 'S':
+					tuple.score = S_WEIGHT;
+					break;
+				default:
+					tuple.score = 0;
+					break;
+			}
 
-		// Print the output in the desired format to stdout
-		sprintf(outputStr, "(%s,%s,%d)", tuple.userID, tuple.topic, tuple.score);
+			// Print the output in the desired format to stdout
+			sprintf(outputStr, "(%s,%s,%d)", tuple.userID, tuple.topic, tuple.score);
 
-		// Once data is in its respective categories and in string form,
-		// we need to check if we can write it out to the reducer thread
-		// So we attempt to acquire the mutex lock
-		threadErr = pthread_mutex_lock(&(bufferStructs[userIdx].mtx));
-		if (threadErr != 0)
-		{
-			printf("Error in pthread_mutex_lock function.\n");
-			exit(1);
-		}
-
-		// If the lock is acquired but the buffer is empty, wait until awoken
-		while (bufferStructs[userIdx].lastIdx == (bufSlots - 1))
-		{
-			threadErr = pthread_cond_wait(&(bufferStructs[userIdx].isFull), &(bufferStructs[userIdx].mtx));
+			// Once data is in its respective categories and in string form,
+			// we need to check if we can write it out to the reducer thread
+			// So we attempt to acquire the mutex lock
+			threadErr = pthread_mutex_lock(&(bufferStructs[userIdx].mtx));
 			if (threadErr != 0)
 			{
-				printf("Error in pthread_cond_wait function.\n");
+				printf("Error in pthread_mutex_lock function.\n");
 				exit(1);
 			}
-		}
 
-		// Once the mutex is acquired and the desired buffer to write to is not full...
-		// Place the outputStr in the next spot and increment lastIdx
-		strcpy(bufferStructs[userIdx].tupleBuf[++(bufferStructs[userIdx].lastIdx)], outputStr);
+			// If the lock is acquired but the buffer is empty, wait until awoken
+			while (bufferStructs[userIdx].lastIdx == (bufSlots - 1))
+			{
+				threadErr = pthread_cond_wait(&(bufferStructs[userIdx].isFull), &(bufferStructs[userIdx].mtx));
+				if (threadErr != 0)
+				{
+					printf("Error in pthread_cond_wait function.\n");
+					exit(1);
+				}
+			}
 
-		// Release the lock
-		threadErr = pthread_mutex_unlock(&(bufferStructs[userIdx].mtx));
-		if (threadErr != 0)
-		{
-			printf("Error in pthread_mutex_unlock function.\n");
-			exit(1);
-		}
+			// Once the mutex is acquired and the desired buffer to write to is not full...
+			// Place the outputStr in the next spot and increment lastIdx
+			strcpy(bufferStructs[userIdx].tupleBuf[++(bufferStructs[userIdx].lastIdx)], outputStr);
 
-		// Awake the sleeping consumer
-		threadErr = pthread_cond_signal(&(bufferStructs[userIdx].isEmpty));
-		if (threadErr != 0)
-		{
-			printf("Error in pthread_cond_signal function.\n");
-			exit(1);
+			// Release the lock
+			threadErr = pthread_mutex_unlock(&(bufferStructs[userIdx].mtx));
+			if (threadErr != 0)
+			{
+				printf("Error in pthread_mutex_unlock function.\n");
+				exit(1);
+			}
+
+			// Awake the sleeping consumer
+			threadErr = pthread_cond_signal(&(bufferStructs[userIdx].isEmpty));
+			if (threadErr != 0)
+			{
+				printf("Error in pthread_cond_signal function.\n");
+				exit(1);
+			}
 		}
 	}
 
