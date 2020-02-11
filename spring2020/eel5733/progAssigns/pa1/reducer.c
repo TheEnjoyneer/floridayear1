@@ -108,7 +108,7 @@ int main(void)
 	// Print out all tuples with total scores for the last user ID
 	for (i = 0; i < tupleCount; i++)
 		fprintf(stdout, "(%s,%s,%d)\n", tupleArray[i].userID, tupleArray[i].topic, tupleArray[i].score);
-
+	
 	return 0;
 }
 
