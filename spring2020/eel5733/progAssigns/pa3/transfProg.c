@@ -73,10 +73,6 @@ static void *workerThread(void *arg)
 			// // Put back/unlock the accounts when done
 			// // this function sem_waits and sem_posts for workerLock
 			// putAccounts(transferVals);
-
-			// FOR TESTING PURPOSES
-			//workOrder->currOrder = NULL;
-			sem_post(&workerLock);
 		}
 		else
 		{
@@ -235,10 +231,7 @@ int main(int argc, char *argv[])
 		}
 		// Make loop go again at this transfList order value if this is the case
 		if (ordered == 0)
-		{
-			printf("Full, and checking again.\n");
 			i--;
-		}
 
 		// Unlock semaphore
 		sem_post(&workerLock);
