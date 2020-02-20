@@ -48,6 +48,7 @@ struct workerParams {
 static void *workerThread(void *arg)
 {
 	// Declare necessary variables
+	int cont = 1;
 	struct workerParams *workOrder = (struct workerParams *) arg;
 	struct transferOrder *transferVals;
 
@@ -55,7 +56,7 @@ static void *workerThread(void *arg)
 	printf("This worker thread has transfer %p.\n\n", workOrder->currOrder);
 
 	// Loop through and wait or complete transfers until theres no more transfers.
-	while (1)
+	while (cont)
 	{
 		sem_wait(&workerLock);
 		if (workOrder->currOrder != NULL)
@@ -82,7 +83,7 @@ static void *workerThread(void *arg)
 		{
 			// If no more transfers break the while loop
 			if (noMoreTransfers)
-				break;
+				cont = 0;
 			// Release the lock in the case that it doesn't have work to do
 			sem_post(&workerLock);
 		}
