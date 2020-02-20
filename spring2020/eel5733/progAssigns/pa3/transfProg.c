@@ -248,6 +248,8 @@ int main(int argc, char *argv[])
 	noMoreTransfers = true;
 	sem_post(&workerLock);
 
+	printf("No more transfers.\n");
+
 	// Setup threads to join 
 	for (i = 0; i < numWorkers; i++)
 	{
