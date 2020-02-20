@@ -242,9 +242,9 @@ int main(int argc, char *argv[])
 	// Lock workerLock semaphore and set noMoreTransfers to be true
 	// MAKE SURE THIS IS DONE CORRECTLY AS FOR NOW IT PROBABLY ISN'T SINCE
 	// THIS WON'T TAKE CARE OF EVERYTHING SIGNAL-WISE
-	sem_wait(&workerLock);
+	//sem_wait(&workerLock);
 	noMoreTransfers = true;
-	sem_post(&workerLock);
+	//sem_post(&workerLock);
 
 	// Setup threads to join 
 	for (i = 0; i < numWorkers; i++)
