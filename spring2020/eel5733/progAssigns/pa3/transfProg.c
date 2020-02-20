@@ -15,16 +15,14 @@
 #include <semaphore.h>
 
 #define MAXLINE 50
-#define FREE 0
-#define WAITING 1
-#define PENDING 2
 
 // Declare static variables
 static bool noMoreTransfers = false;
-static sem_t workerLock;
-static sem_t *accLock;
+static sem_t mtx;
+static sem_t *threadsLock;
 static struct bankAccount *accounts;
-static int *accountStates;
+static bool *accountStates;
+static int numWorkers;
 
 // Define structures here
 struct transferOrder {
@@ -48,19 +46,27 @@ struct workerParams {
 static void *workerThread(void *arg)
 {
 	// Declare necessary variables
-	int cont = 1;
+	int fromIdx, toIdx, cont = 1;
 	struct workerParams *workOrder = (struct workerParams *) arg;
 	struct transferOrder *transferVals;
+
 
 	printf("Hello from a worker thread.\n");
 
 	// Loop through and wait or complete transfers until theres no more transfers.
 	while (cont)
 	{
-		sem_wait(&workerLock);
+		sem_wait(&mtx);
 		if (workOrder->currOrder != NULL)
 		{
+			// Reset loop vals
 			transferVals = workOrder->currOrder;
+			fromIdx = ;
+			toIdx = -1;
+
+
+
+			
 			printf("This worker thread has transfer %p.\n", workOrder->currOrder);
 			printf("Worker #%d has a job to do...\n\n", workOrder->workerID);
 			// Attempt to get the account locks
@@ -80,7 +86,7 @@ static void *workerThread(void *arg)
 			if (noMoreTransfers)
 				cont = 0;
 			// Release the lock in the case that it doesn't have work to do
-			sem_post(&workerLock);
+			sem_post(&mtx);
 		}
 	}
 
@@ -94,6 +100,8 @@ void getAccounts(struct transferOrder *order);
 void testAccounts(struct transferOrder *order);
 void putAccounts(struct transferOrder *order);
 void transferFunds(int fromIdx, int toIdx, int amount);
+int right(int workerNum);
+int left(int workerNum);
 
 
 // Main function here
@@ -101,9 +109,9 @@ int main(int argc, char *argv[])
 {
 	// Declare necessary variables
 	int i, j, ordered, threadErr;
-	int numWorkers = atoi(argv[2]);
 	struct transferOrder *transfList;
 	struct workerParams *workerOrders;
+	numWorkers = atoi(argv[2]);
 
 	// Vars for account and transfer input
 	int accountCount = 0;
@@ -147,7 +155,7 @@ int main(int argc, char *argv[])
 
 	// Initialize all account states
 	for (i = 0; i < accountCount; i++)
-		accountStates[i] = FREE;
+		accountStates[i] = false;
 
 
 	while (fgets(inputBuf, MAXLINE, inputFile) != NULL)
@@ -195,10 +203,10 @@ int main(int argc, char *argv[])
 	pthread_t workers[numWorkers];
 
 	// Initial setup for threads and semaphores before creating threads
-	sem_init(&workerLock, 0, 1);
-	accLock = (sem_t *)malloc(sizeof(sem_t) * accountCount);
-	for (i = 0; i < accountCount; i++)
-		sem_init(&(accLock[i]), 0, 0);
+	sem_init(&mtx, 0, 1);
+	threadsLock = (sem_t *)malloc(sizeof(sem_t) * numWorkers);
+	for (i = 0; i < numWorkers; i++)
+		sem_init(&(threadsLock[i]), 0, 0);
 
 	// Now to create the worker threads
 	for (i = 0; i < numWorkers; i++)
@@ -216,7 +224,7 @@ int main(int argc, char *argv[])
 	{
 		ordered = 0;
 		// Lock semaphore
-		sem_wait(&workerLock);
+		sem_wait(&mtx);
 		for (j = 0; j < numWorkers; j++)
 		{
 			if (workerOrders[j].currOrder == NULL)
@@ -234,15 +242,15 @@ int main(int argc, char *argv[])
 			i--;
 
 		// Unlock semaphore
-		sem_post(&workerLock);
+		sem_post(&mtx);
 	}
 
 	// Lock workerLock semaphore and set noMoreTransfers to be true
 	// MAKE SURE THIS IS DONE CORRECTLY AS FOR NOW IT PROBABLY ISN'T SINCE
 	// THIS WON'T TAKE CARE OF EVERYTHING SIGNAL-WISE
-	sem_wait(&workerLock);
+	sem_wait(&mtx);
 	noMoreTransfers = true;
-	sem_post(&workerLock);
+	sem_post(&mtx);
 
 	printf("No more transfers.\n");
 
@@ -273,7 +281,9 @@ int main(int argc, char *argv[])
 // getAccounts is essentially the get_forks(i) function in my implementation
 void getAccounts(struct transferOrder *order)
 {
-
+	testAccounts(order);
+	sem_post(&workerLock);
+	sem_wait(&)
 }
 
 // testAccounts is essentially the test(i) function in my implementation
@@ -296,6 +306,10 @@ void transferFunds(int fromIdx, int toIdx, int amount)
 	accounts[fromIdx].balance -= amount;
 	accounts[toIdx].balance += amount;
 }
+
+int right(int workerNum) { return (workerNum + 1) % numWorkers; }
+
+int left(int workerNum) { return (workerNum + numWorkers - 1) % numWorkers; }
 
 
 
