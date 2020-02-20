@@ -244,7 +244,7 @@ int main(int argc, char *argv[])
 	// THIS WON'T TAKE CARE OF EVERYTHING SIGNAL-WISE
 	//sem_wait(&workerLock);
 	noMoreTransfers = true;
-	//sem_post(&workerLock);
+	sem_post(&workerLock);
 
 	// Setup threads to join 
 	for (i = 0; i < numWorkers; i++)
