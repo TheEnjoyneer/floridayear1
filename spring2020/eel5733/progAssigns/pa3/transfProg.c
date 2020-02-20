@@ -23,6 +23,8 @@
 static bool noMoreTransfers = false;
 static sem_t workerLock;
 static sem_t *accLock;
+static struct bankAccount *accounts;
+static int *accountStates;
 
 // Define structures here
 struct transferOrder {
@@ -38,7 +40,6 @@ struct bankAccount {
 
 struct workerParams {
 	int workerID;
-	int state;
 	struct transferOrder *currOrder;
 };
 
@@ -46,12 +47,36 @@ struct workerParams {
 // Declare thread functions here
 static void *workerThread(void *arg)
 {
-	// Read the 
+	// Declare necessary variables
+	struct workerParams *workOrder = (struct workerParams *) arg;
+	struct transferOrder *transferVals = workOrder->currOrder;
 
+	// Loop through and wait or complete transfers until theres no more transfers.
+	while (1)
+	{
+		sem_wait(&workerLock);
+		if (transferVals != NULL)
+		{
+			// Attempt to get the account locks
+			// this function sem_posts
+			getAccounts(transferVals);
 
+			// Print test statement
+			printf("Transferring %d from Account %d to Account %d\n", transferVals->amount, transferVals->fromAccNum, transferVals->toAccNum);
 
-
-
+			// Put back/unlock the accounts when done
+			// this function sem_waits and sem_posts for workerLock
+			putAccounts(transferVals);
+		}
+		else
+		{
+			// If no more transfers break the while loop
+			if (noMoreTransfers)
+				break;
+			// Release the lock in the case that it doesn't have work to do
+			sem_post(&workerLock);
+		}
+	}
 
 	// Exit thread safely
 	pthread_exit(NULL);
@@ -59,9 +84,10 @@ static void *workerThread(void *arg)
 
 
 // Declare Helper functions here
-void getAccounts(int workerNum, int toAcc, int fromAcc);
-void testAccounts(int workerNum, int toAcc, int fromAcc);
-void putAccounts(int workerNum, int toAcc, int from Acc);
+void getAccounts(struct transferOrder *order);
+void testAccounts(struct transferOrder *order);
+void putAccounts(struct transferOrder *order);
+void transferFunds(int fromIdx, int toIdx, int amount);
 
 
 // Main function here
@@ -70,8 +96,6 @@ int main(int argc, char *argv[])
 	// Declare necessary variables
 	int i, j, ordered, threadErr;
 	int numWorkers = atoi(argv[2]);
-	int assignToWorker = 0;
-	struct bankAccount *accounts;
 	struct transferOrder *transfList;
 	struct transferOrder *workerOrders;
 
@@ -106,14 +130,18 @@ int main(int argc, char *argv[])
 	accounts = (struct bankAccount *)malloc(sizeof(struct bankAccount) * accountCount);
 	transfList = (struct transferOrder *)malloc(sizeof(struct transferOrder) * transfCount);
 	workerOrders = (struct workerParams *)malloc(sizeof(struct workerParams) * numWorkers);
+	workerStates = (int *)malloc(sizeof(int) * numWorkers);
 
 	// Initialize all worker params
 	for (i = 0; i < numWorkers; i++)
 	{
 		workerOrders[i].workerID = i;
-		workerOrders[i].state = FREE;
 		workerOrders[i].currOrder = NULL;
 	}
+
+	// Initialize all account states
+	for (i = 0; i < accountCount; i++)
+		accountStates[i] = FREE;
 
 
 	while (fgets(inputBuf, MAXLINE, inputFile) != NULL)
@@ -180,9 +208,34 @@ int main(int argc, char *argv[])
 	// Now assign transfer orders to threads
 	for (i = 0; i < transfCount; i++)
 	{
+		ordered = 0;
+		// Lock semaphore
+		sem_wait(&workerLock);
+		for (j = 0; j < numWorkers; j++)
+		{
+			if (workerOrders[j].currOrder == NULL)
+			{
+				// Set new current order
+				workerOrders[j].currOrder = &(transfList[i]);
+				ordered = 1;
+				// Break out of inner for loop
+				break;
+			}
+		}
+		// Make loop go again at this transfList order value if this is the case
+		if (ordered == 0)
+			i--;
 
-
+		// Unlock semaphore
+		sem_post(&workerLock);
 	}
+
+	// Lock workerLock semaphore and set noMoreTransfers to be true
+	// MAKE SURE THIS IS DONE CORRECTLY AS FOR NOW IT PROBABLY ISN'T SINCE
+	// THIS WON'T TAKE CARE OF EVERYTHING SIGNAL-WISE
+	sem_wait(&workerLock);
+	noMoreTransfers = true;
+	sem_post(&workerLock);
 
 	// Setup threads to join 
 	for (i = 0; i < numWorkers; i++)
@@ -196,6 +249,7 @@ int main(int argc, char *argv[])
 	}
 
 	// Free all allocated memory
+	free(workerStates);
 	free(accountLock);
 	free(workerOrders);
 	free(transfList);
@@ -208,21 +262,30 @@ int main(int argc, char *argv[])
 // Define Helper functions here
 
 // getAccounts is essentially the get_forks(i) function in my implementation
-void getAccounts(int workerNum, int toAcc, int fromAcc)
+void getAccounts(int workerNum, struct transferOrder *order)
 {
 
 }
 
 // testAccounts is essentially the test(i) function in my implementation
-void testAccounts(int workerNum, int toAcc, int fromAcc)
+void testAccounts(int workerNum, struct transferOrder *order)
 {
+	if (workerStates[workerNum] == WAITING)
 
 }
 
 // putAccounts is essentially the put_forks(i) function in my implementation
-void putAccounts(int workerNum, int toAcc, int from Acc)
+void putAccounts(int workerNum, struct transferOrder *order)
 {
 
+}
+
+// transferFunds just takes the two account numbers and does the balance transfer
+void transferFunds(int fromIdx, int toIdx, int amount)
+{
+	// Perform the balance transfer
+	accounts[fromIdx].balance -= amount;
+	accounts[toIdx].balance += amount;
 }
 
 
