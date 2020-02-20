@@ -63,16 +63,16 @@ static void *workerThread(void *arg)
 			transferVals = workOrder->currOrder;
 			printf("This worker thread has transfer %p.\n", workOrder->currOrder);
 			printf("Worker #%d has a job to do...\n\n", workOrder->workerID);
-			// // Attempt to get the account locks
-			// // this function sem_posts
-			// getAccounts(transferVals);
+			// Attempt to get the account locks
+			// this function sem_posts
+			getAccounts(transferVals);
 
-			// // Print test statement
-			// printf("Transferring %d from Account %d to Account %d\n", transferVals->amount, transferVals->fromAccNum, transferVals->toAccNum);
+			// Print test statement
+			printf("Transferring %d from Account %d to Account %d\n", transferVals->amount, transferVals->fromAccNum, transferVals->toAccNum);
 
-			// // Put back/unlock the accounts when done
-			// // this function sem_waits and sem_posts for workerLock
-			// putAccounts(transferVals);
+			// Put back/unlock the accounts when done
+			// this function sem_waits and sem_posts for workerLock
+			putAccounts(transferVals);
 		}
 		else
 		{
