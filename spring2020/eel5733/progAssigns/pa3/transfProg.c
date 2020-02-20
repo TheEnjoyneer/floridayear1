@@ -51,6 +51,8 @@ static void *workerThread(void *arg)
 	struct workerParams *workOrder = (struct workerParams *) arg;
 	struct transferOrder *transferVals;
 
+	printf("Hello from a worker thread.\n");
+
 	// Loop through and wait or complete transfers until theres no more transfers.
 	while (1)
 	{
@@ -224,6 +226,7 @@ int main(int argc, char *argv[])
 				// Set new current order
 				workerOrders[j].currOrder = &(transfList[i]);
 				ordered = 1;
+				printf("Assigning Worker %d transfer %d.\n", j, i);
 				// Break out of inner for loop
 				break;
 			}
