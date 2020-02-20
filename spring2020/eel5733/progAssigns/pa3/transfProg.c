@@ -53,7 +53,6 @@ static void *workerThread(void *arg)
 	struct transferOrder *transferVals;
 
 	printf("Hello from a worker thread.\n");
-	printf("This worker thread has transfer %p.\n\n", workOrder->currOrder);
 
 	// Loop through and wait or complete transfers until theres no more transfers.
 	while (cont)
@@ -62,8 +61,8 @@ static void *workerThread(void *arg)
 		if (workOrder->currOrder != NULL)
 		{
 			transferVals = workOrder->currOrder;
-			printf("This worker thread has transfer %p.\n\n", workOrder->currOrder);
-			printf("Worker #%d has a job to do...\n", workOrder->workerID);
+			printf("This worker thread has transfer %p.\n", workOrder->currOrder);
+			printf("Worker #%d has a job to do...\n\n", workOrder->workerID);
 			// // Attempt to get the account locks
 			// // this function sem_posts
 			// getAccounts(transferVals);
