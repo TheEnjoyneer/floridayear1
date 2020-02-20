@@ -75,7 +75,7 @@ static void *workerThread(void *arg)
 			// putAccounts(transferVals);
 
 			// FOR TESTING PURPOSES
-			workOrder->currOrder = NULL;
+			//workOrder->currOrder = NULL;
 			sem_post(&workerLock);
 		}
 		else
@@ -235,7 +235,10 @@ int main(int argc, char *argv[])
 		}
 		// Make loop go again at this transfList order value if this is the case
 		if (ordered == 0)
+		{
+			printf("Full, and checking again.\n");
 			i--;
+		}
 
 		// Unlock semaphore
 		sem_post(&workerLock);
