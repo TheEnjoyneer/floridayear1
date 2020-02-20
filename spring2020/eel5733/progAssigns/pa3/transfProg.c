@@ -49,24 +49,30 @@ static void *workerThread(void *arg)
 {
 	// Declare necessary variables
 	struct workerParams *workOrder = (struct workerParams *) arg;
-	struct transferOrder *transferVals = workOrder->currOrder;
+	struct transferOrder *transferVals;
 
 	// Loop through and wait or complete transfers until theres no more transfers.
 	while (1)
 	{
 		sem_wait(&workerLock);
-		if (transferVals != NULL)
+		if (workOrder->currOrder != NULL)
 		{
-			// Attempt to get the account locks
-			// this function sem_posts
-			getAccounts(transferVals);
+			transferVals = workOrder->currOrder;
+			printf("Worker #%d has a job to do...\n", workOrder->workerID);
+			// // Attempt to get the account locks
+			// // this function sem_posts
+			// getAccounts(transferVals);
 
-			// Print test statement
-			printf("Transferring %d from Account %d to Account %d\n", transferVals->amount, transferVals->fromAccNum, transferVals->toAccNum);
+			// // Print test statement
+			// printf("Transferring %d from Account %d to Account %d\n", transferVals->amount, transferVals->fromAccNum, transferVals->toAccNum);
 
-			// Put back/unlock the accounts when done
-			// this function sem_waits and sem_posts for workerLock
-			putAccounts(transferVals);
+			// // Put back/unlock the accounts when done
+			// // this function sem_waits and sem_posts for workerLock
+			// putAccounts(transferVals);
+
+			// FOR TESTING PURPOSES
+			workOrder->currOrder = NULL;
+			sem_post(&workerLock);
 		}
 		else
 		{
@@ -97,7 +103,7 @@ int main(int argc, char *argv[])
 	int i, j, ordered, threadErr;
 	int numWorkers = atoi(argv[2]);
 	struct transferOrder *transfList;
-	struct transferOrder *workerOrders;
+	struct workerParams *workerOrders;
 
 	// Vars for account and transfer input
 	int accountCount = 0;
@@ -130,7 +136,7 @@ int main(int argc, char *argv[])
 	accounts = (struct bankAccount *)malloc(sizeof(struct bankAccount) * accountCount);
 	transfList = (struct transferOrder *)malloc(sizeof(struct transferOrder) * transfCount);
 	workerOrders = (struct workerParams *)malloc(sizeof(struct workerParams) * numWorkers);
-	workerStates = (int *)malloc(sizeof(int) * numWorkers);
+	accountStates = (int *)malloc(sizeof(int) * numWorkers);
 
 	// Initialize all worker params
 	for (i = 0; i < numWorkers; i++)
@@ -190,8 +196,8 @@ int main(int argc, char *argv[])
 
 	// Initial setup for threads and semaphores before creating threads
 	sem_init(&workerLock, 0, 1);
-	accountLock = (sem_t *)malloc(sizeof(sem_t) * accountCount);
-	for (i = 0; i < accountcount; i++)
+	accLock = (sem_t *)malloc(sizeof(sem_t) * accountCount);
+	for (i = 0; i < accountCount; i++)
 		sem_init(&(accLock[i]), 0, 0);
 
 	// Now to create the worker threads
@@ -249,8 +255,8 @@ int main(int argc, char *argv[])
 	}
 
 	// Free all allocated memory
-	free(workerStates);
-	free(accountLock);
+	free(accountStates);
+	free(accLock);
 	free(workerOrders);
 	free(transfList);
 	free(accounts);
@@ -262,20 +268,20 @@ int main(int argc, char *argv[])
 // Define Helper functions here
 
 // getAccounts is essentially the get_forks(i) function in my implementation
-void getAccounts(int workerNum, struct transferOrder *order)
+void getAccounts(struct transferOrder *order)
 {
 
 }
 
 // testAccounts is essentially the test(i) function in my implementation
-void testAccounts(int workerNum, struct transferOrder *order)
+void testAccounts(struct transferOrder *order)
 {
-	if (workerStates[workerNum] == WAITING)
+
 
 }
 
 // putAccounts is essentially the put_forks(i) function in my implementation
-void putAccounts(int workerNum, struct transferOrder *order)
+void putAccounts(struct transferOrder *order)
 {
 
 }
