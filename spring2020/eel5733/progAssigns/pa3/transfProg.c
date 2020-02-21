@@ -42,6 +42,14 @@ struct workerParams {
 };
 
 
+// Declare Helper functions here
+void getAccounts(int workerNum, int fromIdx, int toIdx);
+void putAccounts(int workerNum, int fromIdx, int toIdx);
+void transferFunds(int fromIdx, int toIdx, int amount);
+int right(int workerNum);
+int left(int workerNum);
+
+
 // Declare thread functions here
 static void *workerThread(void *arg)
 {
@@ -99,14 +107,6 @@ static void *workerThread(void *arg)
 	// Exit thread safely
 	pthread_exit(NULL);
 }
-
-
-// Declare Helper functions here
-void getAccounts(int workerNum, int fromIdx, int toIdx);
-void putAccounts(int workerNum, int fromIdx, int toIdx);
-void transferFunds(int fromIdx, int toIdx, int amount);
-int right(int workerNum);
-int left(int workerNum);
 
 
 // Main function here
