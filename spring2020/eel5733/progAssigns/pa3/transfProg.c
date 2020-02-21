@@ -260,6 +260,9 @@ int main(int argc, char *argv[])
 	sem_wait(&mtx);
 	noMoreTransfers = true;
 	sem_post(&mtx);
+	sem_post(&mtx);
+	sem_post(&mtx);
+	sem_post(&mtx);
 
 	printf("No more transfers.\n");
 
