@@ -44,10 +44,8 @@ struct workerParams {
 
 // Declare Helper functions here
 void getAccounts(int workerNum, int fromIdx, int toIdx);
-void putAccounts(int workerNum, int fromIdx, int toIdx);
+void putAccounts(int fromIdx, int toIdx);
 void transferFunds(int fromIdx, int toIdx, int amount);
-int right(int workerNum);
-int left(int workerNum);
 
 
 // Declare thread functions here
@@ -81,7 +79,7 @@ static void *workerThread(void *arg)
 			transferFunds(fromIdx, toIdx, moveAmount);
 
 			// Put back/unlock the accounts when done
-			putAccounts(threadNum, fromIdx, toIdx);
+			putAccounts(fromIdx, toIdx);
 
 			// Set the currOrder to be null now
 			workOrder->currOrder = NULL;
@@ -286,8 +284,11 @@ void getAccounts(int workerNum, int fromIdx, int toIdx)
 }
 
 // putAccounts is essentially the put_forks(i) function in my implementation
-void putAccounts(int workerNum, int fromIdx, int toIdx)
+void putAccounts(int fromIdx, int toIdx)
 {
+	// Declare necessary variables
+	int i;
+
 	// Lock the mutex
 	sem_wait(&mtx);
 
@@ -296,8 +297,8 @@ void putAccounts(int workerNum, int fromIdx, int toIdx)
 	accountStates[toIdx] = true;
 
 	// Post semaphore updates
-	sem_post(&(threadsLock[left(workerNum)]));
-	sem_post(&(threadsLock[right(workerNum)]));
+	for (i = 0; i < numWorkers; i++)
+		sem_post(&(threadsLock[i]));
 }
 
 // transferFunds just takes the two account numbers and does the balance transfer
@@ -307,22 +308,5 @@ void transferFunds(int fromIdx, int toIdx, int amount)
 	accounts[fromIdx].balance -= amount;
 	accounts[toIdx].balance += amount;
 }
-
-int right(int workerNum) { return (workerNum + 1) % numWorkers; }
-
-int left(int workerNum) { return (workerNum + numWorkers - 1) % numWorkers; }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
