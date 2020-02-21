@@ -73,8 +73,8 @@ static void *workerThread(void *arg)
 			transferVals = workOrder->currOrder;
 
 			// COME BACK AND MAKE SURE THIS IS CORRECT
-			fromIdx = transferVals->fromAccNum;
-			toIdx = transferVals->toAccNum;
+			fromIdx = transferVals->fromAccNum - 1;
+			toIdx = transferVals->toAccNum - 1;
 			moveAmount = transferVals->amount;
 
 			printf("This worker thread has transfer %p.\n", workOrder->currOrder);
