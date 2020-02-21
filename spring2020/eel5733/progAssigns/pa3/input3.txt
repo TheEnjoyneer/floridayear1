@@ -1,0 +1,12 @@
+1 1000
+2 50
+3 400
+4 150
+5 600
+6 45
+7 3000
+Transfer 1 2 200
+Transfer 2 3 100
+Transfer 4 5 25
+Transfer 3 6 30
+Transfer 7 1 1000
