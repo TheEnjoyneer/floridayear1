@@ -80,7 +80,7 @@ static void *workerThread(void *arg)
 			printf("Transferring %d from Account %d to Account %d\n", transferVals->amount, transferVals->fromAccNum, transferVals->toAccNum);
 
 			// Do the transfering
-			transfer(fromIdx, toIdx, moveAmount);
+			transferFunds(fromIdx, toIdx, moveAmount);
 
 			// Put back/unlock the accounts when done
 			// this function sem_waits and sem_posts for workerLock
