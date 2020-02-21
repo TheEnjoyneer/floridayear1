@@ -250,6 +250,10 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	// Print out to stdout the results
+	for (i = 0; i < accountCount; i++)
+		printf("%d %d\n", accounts[i].accNum, accounts[i].balance);
+
 	// Free all allocated memory
 	free(accountStates);
 	free(threadsLock);
