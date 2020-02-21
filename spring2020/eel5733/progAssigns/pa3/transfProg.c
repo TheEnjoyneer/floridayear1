@@ -199,12 +199,12 @@ int main(int argc, char *argv[])
 
 
 	// // TESTING PURPOSES ONLY
-	// for (i = 0; i < accountCount; i++)
-	// 	printf("Account Number: %d has Initial Balance: %d\n", accounts[i].accNum, accounts[i].balance);
+	for (i = 0; i < accountCount; i++)
+		printf("Account Number: %d has Initial Balance: %d\n", accounts[i].accNum, accounts[i].balance);
 
-	// printf("Transfer List includes the following transfers:\n");
-	// for (i = 0; i < transfCount; i++)
-	// 	printf("From: %d, To: %d, Amount: %d\n", transfList[i].fromAccNum, transfList[i].toAccNum, transfList[i].amount);
+	printf("Transfer List includes the following transfers:\n");
+	for (i = 0; i < transfCount; i++)
+		printf("From: %d, To: %d, Amount: %d\n", transfList[i].fromAccNum, transfList[i].toAccNum, transfList[i].amount);
 
 
 
