@@ -46,9 +46,11 @@ struct workerParams {
 static void *workerThread(void *arg)
 {
 	// Declare necessary variables
-	int fromIdx, toIdx, cont = 1;
+	int i, j;
+	int fromIdx, toIdx, moveAmount, cont = 1;
 	struct workerParams *workOrder = (struct workerParams *) arg;
 	struct transferOrder *transferVals;
+	int threadNum = workOrder->workerID;
 
 
 	printf("Hello from a worker thread.\n");
@@ -61,20 +63,24 @@ static void *workerThread(void *arg)
 		{
 			// Reset loop vals
 			transferVals = workOrder->currOrder;
-			fromIdx = ;
-			toIdx = -1;
 
+			// COME BACK AND MAKE SURE THIS IS CORRECT
+			fromIdx = transferVals->fromAccNum;
+			toIdx = transferVals->toAccNum;
+			moveAmount = transferVals->amount;
 
-
-			
 			printf("This worker thread has transfer %p.\n", workOrder->currOrder);
 			printf("Worker #%d has a job to do...\n\n", workOrder->workerID);
+
 			// Attempt to get the account locks
 			// this function sem_posts
-			getAccounts(transferVals);
+			getAccounts(threadNum, fromIdx, toIdx);
 
 			// Print test statement
 			printf("Transferring %d from Account %d to Account %d\n", transferVals->amount, transferVals->fromAccNum, transferVals->toAccNum);
+
+			// Do the transfering
+			transfer(fromIdx, toIdx, moveAmount);
 
 			// Put back/unlock the accounts when done
 			// this function sem_waits and sem_posts for workerLock
@@ -97,7 +103,6 @@ static void *workerThread(void *arg)
 
 // Declare Helper functions here
 void getAccounts(struct transferOrder *order);
-void testAccounts(struct transferOrder *order);
 void putAccounts(struct transferOrder *order);
 void transferFunds(int fromIdx, int toIdx, int amount);
 int right(int workerNum);
@@ -279,24 +284,39 @@ int main(int argc, char *argv[])
 // Define Helper functions here
 
 // getAccounts is essentially the get_forks(i) function in my implementation
-void getAccounts(struct transferOrder *order)
+void getAccounts(int workerNum, int fromIdx, int toIdx)
 {
-	testAccounts(order);
-	sem_post(&workerLock);
-	sem_wait(&)
-}
+	while (accountStates[fromIdx] == false || accountStates[toIdx] == false)
+	{
+		sem_post(&mtx);
+		sem_wait(&(threadsLock[workerNum]));
+		sem_wait(&mtx);
+	}
 
-// testAccounts is essentially the test(i) function in my implementation
-void testAccounts(struct transferOrder *order)
-{
+	// Set to be false after successfully leaving the while loop
+	accountStates[fromIdx] = false;
+	accountStates[toIdx] = false;
 
-
+	// Unlock mutex
+	sem_post(&mtx);
 }
 
 // putAccounts is essentially the put_forks(i) function in my implementation
-void putAccounts(struct transferOrder *order)
+void putAccounts(int workerNum, int fromIdx, int toIdx)
 {
+	// Lock the mutex
+	sem_wait(&mtx);
 
+	// Change account states values
+	accountStates[fromIdx] = true;
+	accountStates[toIdx] = true;
+
+	// Post semaphore updates
+	sem_post(&(threadsLock[left(workerNum)]));
+	sem_post(&(threadsLock[right(workerNum)]));
+
+	// Unlock the mutex
+	sem_post(&mtx);
 }
 
 // transferFunds just takes the two account numbers and does the balance transfer
