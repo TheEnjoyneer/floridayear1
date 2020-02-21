@@ -102,8 +102,8 @@ static void *workerThread(void *arg)
 
 
 // Declare Helper functions here
-void getAccounts(struct transferOrder *order);
-void putAccounts(struct transferOrder *order);
+void getAccounts(int workerNum, int fromIdx, int toIdx);
+void putAccounts(int workerNum, int fromIdx, int toIdx);
 void transferFunds(int fromIdx, int toIdx, int amount);
 int right(int workerNum);
 int left(int workerNum);
@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
 	accounts = (struct bankAccount *)malloc(sizeof(struct bankAccount) * accountCount);
 	transfList = (struct transferOrder *)malloc(sizeof(struct transferOrder) * transfCount);
 	workerOrders = (struct workerParams *)malloc(sizeof(struct workerParams) * numWorkers);
-	accountStates = (int *)malloc(sizeof(int) * numWorkers);
+	accountStates = (bool *)malloc(sizeof(bool) * numWorkers);
 
 	// Initialize all worker params
 	for (i = 0; i < numWorkers; i++)
@@ -272,7 +272,7 @@ int main(int argc, char *argv[])
 
 	// Free all allocated memory
 	free(accountStates);
-	free(accLock);
+	free(threadsLock);
 	free(workerOrders);
 	free(transfList);
 	free(accounts);
