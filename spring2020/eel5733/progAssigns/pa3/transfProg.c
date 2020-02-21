@@ -81,7 +81,6 @@ static void *workerThread(void *arg)
 			printf("Worker #%d has a job to do...\n\n", workOrder->workerID);
 
 			// Attempt to get the account locks
-			// this function sem_posts
 			getAccounts(threadNum, fromIdx, toIdx);
 
 			// Print test statement
@@ -91,8 +90,13 @@ static void *workerThread(void *arg)
 			transferFunds(fromIdx, toIdx, moveAmount);
 
 			// Put back/unlock the accounts when done
-			// this function sem_waits and sem_posts for workerLock
 			putAccounts(threadNum, fromIdx, toIdx);
+
+			// Set the currOrder to be null now
+			workOrder->currOrder = NULL;
+
+			// Unlock the mutex
+			sem_post(&mtx);
 		}
 		else
 		{
@@ -314,9 +318,6 @@ void putAccounts(int workerNum, int fromIdx, int toIdx)
 	// Post semaphore updates
 	sem_post(&(threadsLock[left(workerNum)]));
 	sem_post(&(threadsLock[right(workerNum)]));
-
-	// Unlock the mutex
-	sem_post(&mtx);
 }
 
 // transferFunds just takes the two account numbers and does the balance transfer
