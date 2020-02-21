@@ -189,7 +189,7 @@ int main(int argc, char *argv[])
 			token = strtok_r(rest, delim, &rest);
 			accounts[accountNum].accNum = atoi(token);
 			token = strtok_r(NULL, delim, &rest);
-			accounts[accountNum].balance = atoi(token);
+			accounts[accountNum++].balance = atoi(token);
 		}
 	}
 
