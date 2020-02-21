@@ -164,7 +164,7 @@ int main(int argc, char *argv[])
 
 	// Initialize all account states
 	for (i = 0; i < accountCount; i++)
-		accountStates[i] = false;
+		accountStates[i] = true;
 
 
 	while (fgets(inputBuf, MAXLINE, inputFile) != NULL)
