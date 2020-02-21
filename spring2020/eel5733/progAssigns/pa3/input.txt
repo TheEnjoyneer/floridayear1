@@ -5,3 +5,6 @@
 Transfer 1 2 200
 Transfer 1 4 50
 Transfer 2 3 100
+Transfer 1 2 10
+Transfer 1 4 10
+Transfer 2 3 10
