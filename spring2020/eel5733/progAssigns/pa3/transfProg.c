@@ -54,7 +54,7 @@ int left(int workerNum);
 static void *workerThread(void *arg)
 {
 	// Declare necessary variables
-	int i, j;
+	//int i, j;
 	int fromIdx, toIdx, moveAmount, cont = 1;
 	struct workerParams *workOrder = (struct workerParams *) arg;
 	struct transferOrder *transferVals;
@@ -92,7 +92,7 @@ static void *workerThread(void *arg)
 
 			// Put back/unlock the accounts when done
 			// this function sem_waits and sem_posts for workerLock
-			putAccounts(transferVals);
+			putAccounts(threadNum, fromIdx, toIdx);
 		}
 		else
 		{
