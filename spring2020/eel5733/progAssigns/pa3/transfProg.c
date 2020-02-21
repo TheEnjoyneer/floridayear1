@@ -60,9 +60,6 @@ static void *workerThread(void *arg)
 	struct transferOrder *transferVals;
 	int threadNum = workOrder->workerID;
 
-
-	printf("Hello from a worker thread.\n");
-
 	// Loop through and wait or complete transfers until theres no more transfers.
 	while (cont)
 	{
@@ -77,14 +74,8 @@ static void *workerThread(void *arg)
 			toIdx = transferVals->toAccNum - 1;
 			moveAmount = transferVals->amount;
 
-			printf("This worker thread has transfer %p.\n", workOrder->currOrder);
-			printf("Worker #%d has a job to do...\n\n", workOrder->workerID);
-
 			// Attempt to get the account locks
 			getAccounts(threadNum, fromIdx, toIdx);
-
-			// Print test statement
-			printf("Transferring %d from Account %d to Account %d\n", transferVals->amount, transferVals->fromAccNum, transferVals->toAccNum);
 
 			// Do the transfering
 			transferFunds(fromIdx, toIdx, moveAmount);
@@ -196,18 +187,6 @@ int main(int argc, char *argv[])
 	// After all input has been parsed close the input file
 	fclose(inputFile);
 
-
-
-	// // TESTING PURPOSES ONLY
-	for (i = 0; i < accountCount; i++)
-		printf("Account Number: %d has Initial Balance: %d\n", accounts[i].accNum, accounts[i].balance);
-
-	printf("Transfer List includes the following transfers:\n");
-	for (i = 0; i < transfCount; i++)
-		printf("From: %d, To: %d, Amount: %d\n", transfList[i].fromAccNum, transfList[i].toAccNum, transfList[i].amount);
-
-
-
 	// Vars for threads and semaphores
 	pthread_t workers[numWorkers];
 
@@ -241,7 +220,6 @@ int main(int argc, char *argv[])
 				// Set new current order
 				workerOrders[j].currOrder = &(transfList[i]);
 				ordered = 1;
-				printf("Assigning Worker %d transfer %d. Which is pointer %p.\n", j, i, &(transfList[i]));
 				// Break out of inner for loop
 				break;
 			}
@@ -261,8 +239,6 @@ int main(int argc, char *argv[])
 	noMoreTransfers = true;
 	sem_post(&mtx);
 
-	printf("No more transfers.\n");
-
 	// Setup threads to join 
 	for (i = 0; i < numWorkers; i++)
 	{
@@ -273,9 +249,6 @@ int main(int argc, char *argv[])
 			exit(1);
 		}
 	}
-
-	for (i = 0; i < accountCount; i++)
-		printf("Account %d has a balance of %d.\n", accounts[i].accNum, accounts[i].balance);
 
 	// Free all allocated memory
 	free(accountStates);

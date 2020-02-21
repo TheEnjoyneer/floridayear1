@@ -9,4 +9,4 @@ debug:
 	$(CC) $(CFLAGS) $(THREADS) transfProg.c -g -o transfProg 
 	
 clean:	
-	rm combiner
+	rm transfProg
