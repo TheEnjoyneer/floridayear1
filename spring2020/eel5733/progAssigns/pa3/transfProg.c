@@ -274,6 +274,9 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	for (i = 0; i < accountCount; i++)
+		printf("Account %d has a balance of %d.\n", accounts[i].accNum, accounts[i].balance);
+
 	// Free all allocated memory
 	free(accountStates);
 	free(threadsLock);
