@@ -933,7 +933,7 @@ Disassembly of section .text:
  804930a:	83 ec 08             	sub    $0x8,%esp
  804930d:	50                   	push   %eax
  804930e:	ff 75 e4             	pushl  -0x1c(%ebp)
- 8049311:	e8 06 fd ff ff       	call   804901c <launcher>
+ 8049311:	e8 06 fd ff ff       	call   804901c <launcher>f
  8049316:	83 c4 10             	add    $0x10,%esp
  8049319:	83 45 e8 01          	addl   $0x1,-0x18(%ebp)
  804931d:	8b 45 e8             	mov    -0x18(%ebp),%eax
