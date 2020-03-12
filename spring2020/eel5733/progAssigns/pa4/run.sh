@@ -6,8 +6,8 @@
 # University of Florida
 # 3/14/20
 
-if [[ "$#" -ne 2 || "$1" = "" || "$2" = "" ]]; then
-	echo "Usage: ./run.sh <inputFileName> <outputFileName>"
+if [[ "$#" -ne 4 || "$1" = "" || "$2" = "" || "$3" = "" || "$4" = "" ]]; then
+	echo "Usage: ./run.sh <bufSlots> <numBufs> <inputFileName> <outputFileName>"
 	exit 2
 fi
 
@@ -15,14 +15,14 @@ fi
 make > /dev/null
 
 # run the combiner and pipe the output to a test output file
-./combiner $1 > testOutput.txt
+./combiner $1 $2 < $3 > testOutput.txt
 sleep 1
 
 # run diff to check if the expected output matches the test output
-differences=$(diff testOutput.txt $2)
+differences=$(diff <(sort testOutput.txt) <(sort $4))
 if [[ $differences ]]; then
 	echo "Differences found in the two files."
-	diff testOutput.txt $2
+	diff <(sort testOutput.txt) <(sort $4)
 else
 	echo "Test was successful! No errors found."
 fi
