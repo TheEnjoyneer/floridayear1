@@ -34,11 +34,10 @@
 #define MAX_TOPICS 10
 
 
-// Declare static variables
+// // Declare static variables
 static int bufSlots;
 static int numBufs;
-static bool prodDone = false;
-
+static bool *prodDone;
 
 // Declare necessary structures here
 struct tuple_s {
@@ -59,10 +58,11 @@ struct tupleBuffer_s {
 
 // Declare helper functions
 static void stringFormat(char *inputStr, char *outputStr);
+static void errorHandler(int threadErr);
 
 
 // Define the mapper thread function here
-static void mapperFunc(void *arg)
+void mapperFunc(struct tupleBuffer_s * bufferStructs)
 {
 	// Declare necessary variables
 	int i, threadErr;
@@ -79,7 +79,7 @@ static void mapperFunc(void *arg)
 	struct tuple_s tuple;
 
 	// Get array of tupleBuffers as input to the thread
-	struct tupleBuffer_s *bufferStructs = (struct tupleBuffer_s *) arg;
+	//struct tupleBuffer_s *bufferStructs = (struct tupleBuffer_s *) arg;
 
 	// Set initial users array to be all nulls
 	for (i = 0; i < numBufs; i++)
@@ -149,21 +149,13 @@ static void mapperFunc(void *arg)
 			// we need to check if we can write it out to the reducer thread
 			// So we attempt to acquire the mutex lock
 			threadErr = pthread_mutex_lock(&(bufferStructs[userIdx].mtx));
-			if (threadErr != 0)
-			{
-				printf("Error in pthread_mutex_lock function.\n");
-				exit(1);
-			}
+			errorHandler(threadErr);
 
 			// If the lock is acquired but the buffer is empty, wait until awoken
 			while (bufferStructs[userIdx].lastIdx == (bufSlots - 1))
 			{
 				threadErr = pthread_cond_wait(&(bufferStructs[userIdx].isFull), &(bufferStructs[userIdx].mtx));
-				if (threadErr != 0)
-				{
-					printf("Error in pthread_cond_wait function.\n");
-					exit(1);
-				}
+				errorHandler(threadErr);
 			}
 
 			// Once the mutex is acquired and the desired buffer to write to is not full...
@@ -172,19 +164,11 @@ static void mapperFunc(void *arg)
 
 			// Release the lock
 			threadErr = pthread_mutex_unlock(&(bufferStructs[userIdx].mtx));
-			if (threadErr != 0)
-			{
-				printf("Error in pthread_mutex_unlock function.\n");
-				exit(1);
-			}
+			errorHandler(threadErr);
 
 			// Awake the sleeping consumer
 			threadErr = pthread_cond_signal(&(bufferStructs[userIdx].isEmpty));
-			if (threadErr != 0)
-			{
-				printf("Error in pthread_cond_signal function.\n");
-				exit(1);
-			}
+			errorHandler(threadErr);
 		}
 	}
 
@@ -192,34 +176,22 @@ static void mapperFunc(void *arg)
 	for (i = 0; i < numBufs; i++)
 	{
 		threadErr = pthread_mutex_lock(&(bufferStructs[i].mtx));
-		if (threadErr != 0)
-		{
-			printf("Error in pthread_mutex_lock function.\n");
-			exit(1);
-		}
+		errorHandler(threadErr);
 	}
 	// Once no more input to the mapper, notify reducer threads
-	prodDone = true;
+	*prodDone = true;
 	// Send conditional signals to every consumer before exiting
 	for (i = 0; i < numBufs; i++)
 	{
 		threadErr = pthread_mutex_unlock(&(bufferStructs[i].mtx));
-		if (threadErr != 0)
-		{
-			printf("Error in pthread_mutex_unlock function.\n");
-			exit(1);
-		}
+		errorHandler(threadErr);
 	}
 
 	// Send conditional signals to every consumer before exiting
 	for (i = 0; i < numBufs; i++)
 	{
 		threadErr = pthread_cond_signal(&(bufferStructs[i].isEmpty));
-		if (threadErr != 0)
-		{
-			printf("Error in pthread_cond_signal function.\n");
-			exit(1);
-		}
+		errorHandler(threadErr);
 	}
 
 	// Exit safely
@@ -227,10 +199,10 @@ static void mapperFunc(void *arg)
 }
 
 // Define the reducer thread function here
-static void reducerFunc(void *arg)
+void reducerFunc(struct tupleBuffer_s *bufferStruct)
 {
 	// Declare necessary variables
-	struct tupleBuffer_s *bufferStruct = (struct tupleBuffer_s *) arg;
+	//struct tupleBuffer_s *bufferStruct = (struct tupleBuffer_s *) arg;
 	int i, threadErr, found;
 	char inputBuf[BUF_SIZE];
 	char tupleStr[BUF_SIZE];
@@ -246,18 +218,14 @@ static void reducerFunc(void *arg)
 	{
 		// Attempt to acquire the mutex lock
 		threadErr = pthread_mutex_lock(&(bufferStruct->mtx));
-		if (threadErr != 0)
-		{
-			printf("Error in pthread_mutex_lock function.\n");
-			exit(1);
-		}
+		errorHandler(threadErr);
 
 		// If the lock is acquired but the buffer is empty, wait until awoken
 		while (bufferStruct->lastIdx == -1)
 		{
 			// Only break out and do the end stuff here when prodDone is done
 			// AND buffer is empty
-			if (prodDone)
+			if (*prodDone)
 			{
 				// Final printing of output goes here
 				for (i = 0; i < topicNum; i++)
@@ -270,11 +238,7 @@ static void reducerFunc(void *arg)
 			{
 				// Only wait if the buffer is empty AND the producer is NOT done
 				threadErr = pthread_cond_wait(&(bufferStruct->isEmpty), &(bufferStruct->mtx));
-				if (threadErr != 0)
-				{
-					printf("Error in pthread_cond_wait function.\n");
-					exit(1);
-				}
+				errorHandler(threadErr);
 			}
 		}
 
@@ -283,11 +247,7 @@ static void reducerFunc(void *arg)
 		{
 			// Make sure to unlock the mutex
 			threadErr = pthread_mutex_unlock(&(bufferStruct->mtx));
-			if (threadErr != 0)
-			{
-				printf("Error in pthread_mutex_unlock function.\n");
-				exit(1);
-			}
+			errorHandler(threadErr);
 			
 			// Then break out of the for loop of consumption	
 			break;
@@ -331,23 +291,15 @@ static void reducerFunc(void *arg)
 
 		// Release the lock
 		threadErr = pthread_mutex_unlock(&(bufferStruct->mtx));
-		if (threadErr != 0)
-		{
-			printf("Error in pthread_mutex_unlock function.\n");
-			exit(1);
-		}
+		errorHandler(threadErr);
 
 		// Wake the sleeping producer if necessary
 		threadErr = pthread_cond_signal(&(bufferStruct->isFull));
-		if (threadErr != 0)
-		{
-			printf("Error in pthread_cond_signal function.\n");
-			exit(1);
-		}
+		errorHandler(threadErr);
 	}
 
 	// Exit safely
-	return;
+	exit(0);
 }
 
 
@@ -356,6 +308,8 @@ int main(int argc, char *argv[])
 {
 	// Declare and initialize necessary variables
 	int i, j, threadErr;
+	prodDone = (bool *)mmap(NULL, sizeof(bool), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	*prodDone = false;
 	bufSlots = atoi(argv[1]);
 	numBufs = atoi(argv[2]);
 	pthread_mutexattr_t attrmutex;
@@ -370,13 +324,9 @@ int main(int argc, char *argv[])
 	// Create pointer for reducers array to be memory mapped
 	struct tupleBuffer_s *reducers;
 
-	printf("About to do the anonymous mapping.\n");
-
     reducers = (struct tupleBuffer_s *)mmap(NULL, sizeof(struct tupleBuffer_s) * numBufs, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
     if (reducers == MAP_FAILED)
         exit(1);
-
-	printf("Finished the anonymous mapping.\n");
 
 	// Loop through and allocate and initialize values for tupleBuffer structures
 	for (i = 0; i < numBufs; i++)
@@ -390,44 +340,24 @@ int main(int argc, char *argv[])
 
 		// Initialize the two conditional signals
 		threadErr = pthread_cond_init(&(reducers[i].isFull), &attrcond);
-		if (threadErr != 0)
-		{
-			printf("Error in pthread_cond_init function.\n");
-			exit(1);
-		}
+		errorHandler(threadErr);
 
 		threadErr = pthread_cond_init(&(reducers[i].isEmpty), &attrcond);
-		if (threadErr != 0)
-		{
-			printf("Error in pthread_cond_init function.\n");
-			exit(1);
-		}
+		errorHandler(threadErr);
 
 		// Initialize the mutex lock
 		threadErr = pthread_mutex_init(&(reducers[i].mtx), &attrmutex);
-		if (threadErr != 0)
-		{
-			printf("Error in pthread_mutex_init function.\n");
-			exit(1);
-		}
+		errorHandler(threadErr);
 	}
-
-	// TESTING PURPOSES
-	printf("About to spawn child processes");
 
 	// Fork as necessary for numBufs number of reducers
 	for (i = 0; i < numBufs; i++)
 	{
-		printf("Spawning child process %d.\n", i);
-		if (fork() == 0)
-		{
-			// Run each reducer function but don't exit until done
+		// Fork and run each reducer function but don't exit until done
+		if (fork() == 0)	
 			reducerFunc(&(reducers[i]));
-			exit(0);
-		}
 	}
 
-	printf("Running mapper function.\n");
 	// Run the mapper function
 	mapperFunc(reducers);
 
@@ -435,8 +365,6 @@ int main(int argc, char *argv[])
 	for (i = 0; i < numBufs; i++)
 		wait(NULL);
 
-
-	printf("Destroying attributes.\n");
 	// Clean up the mutexes
 	for (i = 0; i <= numBufs; i++)
 	{
@@ -447,15 +375,6 @@ int main(int argc, char *argv[])
 	pthread_mutexattr_destroy(&attrmutex);
 	pthread_condattr_destroy(&attrcond);
 
-	// Free allocated memory
-	for (i = 0; i < numBufs; i++)
-	{
-		for (j = 0; j < bufSlots; j++)
-			free(reducers[i].tupleBuf[j]);
-
-		free(reducers[i].tupleBuf);
-	}
-
 	return 0;
 }
 
@@ -463,7 +382,7 @@ int main(int argc, char *argv[])
 // Define helper functions
 
 // Used to remove parentheses and white space from a string
-void stringFormat(char *inputStr, char *outputStr)
+static void stringFormat(char *inputStr, char *outputStr)
 {
 	int i, j = 0;
 	for (i = 0; i < strlen(inputStr); i++)
@@ -472,6 +391,15 @@ void stringFormat(char *inputStr, char *outputStr)
 			outputStr[j++] = inputStr[i];
 	}
 	outputStr[j] = '\0';
+}
+
+static void errorHandler(int threadErr)
+{
+	if (threadErr != 0)
+		{
+			printf("Error in a pthreads function.\n");
+			exit(1);
+		}
 }
 
 
