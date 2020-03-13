@@ -6,12 +6,20 @@
  * 3/14/20
  */
 
+#ifdef USE_MAP_ANON
+#define _BSD_SOURCE		// Get MAN_ANONYMOUS definition
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <pthread.h>
 #include <string.h>
 #include <stdbool.h>
+#include <sys/mman.h>
+#include <sys/wait.h>
+#include <fcntl.h>
+
 
 // Define all pound define variables
 #define P_WEIGHT 50
@@ -54,7 +62,7 @@ static void stringFormat(char *inputStr, char *outputStr);
 
 
 // Define the mapper thread function here
-static void *mapperFunc(void *arg)
+static void mapperFunc(void *arg)
 {
 	// Declare necessary variables
 	int i, threadErr;
@@ -215,11 +223,11 @@ static void *mapperFunc(void *arg)
 	}
 
 	// Exit safely
-	pthread_exit(NULL);
+	return;
 }
 
 // Define the reducer thread function here
-static void *reducerFunc(void *arg)
+static void reducerFunc(void *arg)
 {
 	// Declare necessary variables
 	struct tupleBuffer_s *bufferStruct = (struct tupleBuffer_s *) arg;
@@ -339,7 +347,7 @@ static void *reducerFunc(void *arg)
 	}
 
 	// Exit safely
-	pthread_exit(NULL);
+	return;
 }
 
 
@@ -350,12 +358,42 @@ int main(int argc, char *argv[])
 	int i, j, threadErr;
 	bufSlots = atoi(argv[1]);
 	numBufs = atoi(argv[2]);
+	pthread_mutexattr_t attrmutex;
+	pthread_condattr_t attrcond;
 
-	// Declare pthreads_t array
-	pthread_t threads[numBufs + 1];
+	// Initialize pshared for mutex and conditional attributes
+	pthread_mutexattr_init(&attrmutex);
+	pthread_condattr_init(&attrcond);
+	pthread_mutexattr_setpshared(&attrmutex, PTHREAD_PROCESS_SHARED);
+	pthread_condattr_setpshared(&attrcond, PTHREAD_PROCESS_SHARED);
 
-	// Create number of tuple buffers that are necessary
-	struct tupleBuffer_s *reducers = (struct tupleBuffer_s *)malloc(sizeof(struct tupleBuffer_s) * numBufs);
+	// Create pointer for reducers array to be memory mapped
+	struct tupleBuffer_s *reducers;
+
+	// Use MAP_ANONYMOUS
+	#ifdef USE_MAP_ANON
+	    reducers = mmap(NULL, sizeof(struct tupleBuffer_s) * numBufs, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	    if (reducers == MAP_FAILED)
+	        errExit("mmap");
+
+	// Map /dev/zero
+	// Probably don't need this though
+	#else
+	    int fd;
+
+	    fd = open("/dev/zero", O_RDWR);
+	    if (fd == -1)
+	        errExit("open");
+
+	    reducers = mmap(NULL, sizeof(struct tupleBuffer_s) * numBufs, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+	    if (reducers == MAP_FAILED)
+	        errExit("mmap");
+
+	    // No longer needed
+	    if (close(fd) == -1)
+	        errExit("close");
+	#endif
+
 	// Loop through and allocate and initialize values for tupleBuffer structures
 	for (i = 0; i < numBufs; i++)
 	{
@@ -367,14 +405,14 @@ int main(int argc, char *argv[])
 		reducers[i].lastIdx = -1;
 
 		// Initialize the two conditional signals
-		threadErr = pthread_cond_init(&(reducers[i].isFull), NULL);
+		threadErr = pthread_cond_init(&(reducers[i].isFull), &attrcond);
 		if (threadErr != 0)
 		{
 			printf("Error in pthread_cond_init function.\n");
 			exit(1);
 		}
 
-		threadErr = pthread_cond_init(&(reducers[i].isEmpty), NULL);
+		threadErr = pthread_cond_init(&(reducers[i].isEmpty), &attrcond);
 		if (threadErr != 0)
 		{
 			printf("Error in pthread_cond_init function.\n");
@@ -382,7 +420,7 @@ int main(int argc, char *argv[])
 		}
 
 		// Initialize the mutex lock
-		threadErr = pthread_mutex_init(&(reducers[i].mtx), NULL);
+		threadErr = pthread_mutex_init(&(reducers[i].mtx), &attrmutex);
 		if (threadErr != 0)
 		{
 			printf("Error in pthread_mutex_init function.\n");
@@ -390,34 +428,35 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	// Create all of the threads necessary
+
+
+	// Fork as necessary for numBufs number of reducers
 	for (i = 0; i < numBufs; i++)
 	{
-		threadErr = pthread_create(&threads[i], NULL, reducerThread, &(reducers[i]));
-		if (threadErr != 0)
+		if (fork() == 0)
 		{
-			printf("Error in pthread_create function.\n");
-			exit(1);
+			// Run each reducer function but don't exit until done
+			reducerFunc(&(reducers[i]));
+			exit(0);
 		}
-	}
-	// Make the producer thread
-	threadErr = pthread_create(&threads[numBufs], NULL, mapperThread, reducers);
-	if (threadErr != 0)
-	{
-		printf("Error in pthread_create function.\n");
-		exit(1);
 	}
 
-	// Wait to join threads before exiting main
+	// Run the mapper function
+	mapperFunc(reducers);
+
+	// Wait for the reducer processes to return
+	for (i = 0; i < numBufs; i++)
+		wait(NULL);
+
+	// Clean up the mutexes
 	for (i = 0; i <= numBufs; i++)
 	{
-		threadErr = pthread_join(threads[i], NULL);
-		if (threadErr != 0)
-		{
-			printf("Error in pthread_join function.\n");
-			exit(1);
-		}
+		pthread_mutex_destroy(&(reducers[i].mtx));
+		pthread_cond_destroy(&(reducers[i].isFull));
+		pthread_cond_destroy(&(reducers[i].isEmpty));
 	}
+	pthread_mutexattr_destroy(&attrmutex);
+	pthread_condattr_destroy(&attrcond);
 
 	return 0;
 }
