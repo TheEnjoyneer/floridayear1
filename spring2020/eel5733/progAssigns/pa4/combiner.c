@@ -370,37 +370,21 @@ int main(int argc, char *argv[])
 	// Create pointer for reducers array to be memory mapped
 	struct tupleBuffer_s *reducers;
 
-	// Use MAP_ANONYMOUS
-	#ifdef USE_MAP_ANON
-	    reducers = mmap(NULL, sizeof(struct tupleBuffer_s) * numBufs, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-	    if (reducers == MAP_FAILED)
-	        errExit("mmap");
+	printf("About to do the anonymous mapping.\n");
 
-	// Map /dev/zero
-	// Probably don't need this though
-	#else
-	    int fd;
+    reducers = (struct tupleBuffer_s *)mmap(NULL, sizeof(struct tupleBuffer_s) * numBufs, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+    if (reducers == MAP_FAILED)
+        exit(1);
 
-	    fd = open("/dev/zero", O_RDWR);
-	    if (fd == -1)
-	        errExit("open");
-
-	    reducers = mmap(NULL, sizeof(struct tupleBuffer_s) * numBufs, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-	    if (reducers == MAP_FAILED)
-	        errExit("mmap");
-
-	    // No longer needed
-	    if (close(fd) == -1)
-	        errExit("close");
-	#endif
+	printf("Finished the anonymous mapping.\n");
 
 	// Loop through and allocate and initialize values for tupleBuffer structures
 	for (i = 0; i < numBufs; i++)
 	{
 		// Loop through and create buffers for tuples
-		reducers[i].tupleBuf = (char **)malloc(sizeof(char *) * bufSlots);
+		reducers[i].tupleBuf = (char **)mmap(NULL, sizeof(char *) * bufSlots, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 		for (j = 0; j < bufSlots; j++)
-			reducers[i].tupleBuf[j] = (char *)malloc(sizeof(char) * TUPLE_STRING);
+			reducers[i].tupleBuf[j] = (char *)mmap(NULL, sizeof(char) * TUPLE_STRING, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 
 		reducers[i].lastIdx = -1;
 
@@ -428,11 +412,13 @@ int main(int argc, char *argv[])
 		}
 	}
 
-
+	// TESTING PURPOSES
+	printf("About to spawn child processes");
 
 	// Fork as necessary for numBufs number of reducers
 	for (i = 0; i < numBufs; i++)
 	{
+		printf("Spawning child process %d.\n", i);
 		if (fork() == 0)
 		{
 			// Run each reducer function but don't exit until done
@@ -441,6 +427,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	printf("Running mapper function.\n");
 	// Run the mapper function
 	mapperFunc(reducers);
 
@@ -448,6 +435,8 @@ int main(int argc, char *argv[])
 	for (i = 0; i < numBufs; i++)
 		wait(NULL);
 
+
+	printf("Destroying attributes.\n");
 	// Clean up the mutexes
 	for (i = 0; i <= numBufs; i++)
 	{
@@ -457,6 +446,15 @@ int main(int argc, char *argv[])
 	}
 	pthread_mutexattr_destroy(&attrmutex);
 	pthread_condattr_destroy(&attrcond);
+
+	// Free allocated memory
+	for (i = 0; i < numBufs; i++)
+	{
+		for (j = 0; j < bufSlots; j++)
+			free(reducers[i].tupleBuf[j]);
+
+		free(reducers[i].tupleBuf);
+	}
 
 	return 0;
 }
