@@ -27,7 +27,7 @@ struct asp_mycdev {
 // Parameters to be set at load time
 int mycdev_major;
 int mycdev_minor = 0;
-int mycdev_nr_devs;
+int mycdev_nr_devs = 3;
 // int mycdev_quantum = MYCDEV_QUANTUM;
 // int mycdev_qset = MYCDEV_QSET;
 
@@ -95,16 +95,22 @@ static int mycdev_release(struct inode *inode, struct file *file)
 // FIRST SLIDESET
 static ssize_t mycdev_read(struct file *file, char __user *buf, size_t lbuf, loff_t *ppos)
 {
-	// Immediately set ramdisk equal to file's private data
-	char *ramdisk = file->private_data;
-
+	// Declare necessary variables
 	int nbytes;
+
+	// Set the dev structure up first so we are doing the right thing
+	struct asp_mycdev dev = file->private_data;
+
+	// Synchronization primitives...
+	if (down_interruptible(&dev->sem))
+		return -ERESTARTSYS;
+
 	if ((lbuf + *ppos) > ramdisk_size) {
 		pr_info("Christopher Brant dictates: trying to read past end of device,"
 			"aborting because this is just a stub!\n");
 		return 0;
 	}
-	nbytes = lbuf - copy_to_user(buf, ramdisk + *ppos, lbuf);
+	nbytes = lbuf - copy_to_user(buf, (dev->ramdisk) + *ppos, lbuf);
 	*ppos += nbytes;
 	pr_info("\n Christopher Brant dictates: READING function, nbytes=%d, pos=%d\n", nbytes, (int)*ppos);
 	return nbytes;
@@ -114,17 +120,28 @@ static ssize_t mycdev_read(struct file *file, char __user *buf, size_t lbuf, lof
 // FIRST SLIDESET
 static ssize_t mycdev_write(struct file *file, const char __user *buf, size_t lbuf, loff_t *ppos)
 {
-	// Immediately set ramdisk equal to file's private data
-	char *ramdisk = file->private_data;
+	// Declare necessary variables
 	int nbytes;
+
+	// Set the dev structure up first so we are doing the right thing
+	struct asp_mycdev dev = file->private_data;
+
+	// Synchronization primitives...
+	if (down_interruptible(&dev->sem))
+		return -ERESTARTSYS;
+
 	if ((lbuf + *ppos) > ramdisk_size) {
 		pr_info("Christopher Brant dictates: trying to read past end of device,"
 			"aborting because this is just a stub!\n");
 		return 0;
 	}
-	nbytes = lbuf - copy_from_user(ramdisk + *ppos, buf, lbuf);
+	nbytes = lbuf - copy_from_user((dev->ramdisk) + *ppos, buf, lbuf);
 	*ppos += nbytes;
 	pr_info("\n Christopher Brant dictates: WRITING function, nbytes=%d, pos=%d\n", nbytes, (int)*ppos);
+
+	// Synchronization primitives...
+	up(&dev->sem);
+
 	return nbytes;
 }
 
@@ -132,11 +149,15 @@ static ssize_t mycdev_write(struct file *file, const char __user *buf, size_t lb
 // FIRST SLIDESET
 static loff_t mycdev_lseek(struct file *file, loff_t * offset, int orig)
 {
-	// Immediately set ramdisk equal to file's private data
-	char *ramdisk = file->private_data;
-
-	// Declare loff_t for testing purposes
+	// Declare necessary variables
 	loff_t newpos;
+
+	// Set the dev structure up first so we are doing the right thing
+	struct asp_mycdev dev = file->private_data;
+
+	// Synchronization primitives...
+	if (down_interruptible(&dev->sem))
+		return -ERESTARTSYS;
 
 	// Switch statement to test where to pur the cursor
 	switch (orig)
@@ -161,6 +182,13 @@ static loff_t mycdev_lseek(struct file *file, loff_t * offset, int orig)
 	newpos = newpos < ramdisk_sizse ? newpos : ramdisk_size;
 	newpos = newpos >= 0 ? newpos : 0;
 
+
+
+	// If newpos is greater than the size of the buffer...
+	// Expand the buffer and fill the new region with zeros.
+
+
+
 	// Set new cursor position, print, and then return
 	file->f_pos = newpos;
 	pr_info("Seeking to cursor position=%ld\n", (long)newpos);
@@ -170,16 +198,32 @@ static loff_t mycdev_lseek(struct file *file, loff_t * offset, int orig)
 
 static int mycdev_ioctl(struct inode *inode, struct file *file, unsigned int command, unsigned long args)
 {
-	// Immediately set ramdisk equal to file's private data
-	char *ramdisk = file->private_data;
+	// Declare necessary variables
+	int err = 0;
+	int retVal = 0;
+	int tmp;
 
-	int result;
-	
-
-	// IOCTL function here
+	// Set the dev structure up first so we are doing the right thing
+	struct asp_mycdev dev = file->private_data;
 
 
-	return result;
+	// HERE SHOULD GO ALL THE SCULL IOCTL MAGIC BS ON PAGE 21
+
+
+	// Synchronization primitives...
+	if (down_interruptible(&dev->sem))
+		return -ERESTARTSYS;
+
+	// Switch statement for handling the control commands
+	switch (cmd)
+	{
+		// Clear the buffer and reset the file position pointer to 0
+		case ASP_CLEAR_BUF:
+
+	}
+
+
+	return retVal;
 }
 
 static const struct file_operations mycdev_fops = {
@@ -244,12 +288,7 @@ static int __init my_init(void)
 		return -1;
 	}
 
-	
-	
-
-	// Get a range of minor numbers to work with
-
-
+	// RANGE of minor numbers is just the base minor number plus the index of that device
 
 	// Make the device node itself here
 	if (mycdev_major)
@@ -336,6 +375,7 @@ static void __exit my_exit(void)
 	{
 		for (i = 0; i < mycdev_nr_devs; i++)
 		{
+			// COME BACK HERE AND FIGURE OUT SCULL_TRIM FUNCTION
 			scull_trim(cdb_devices + i);
 			cdev_del(&cdb_devices[i].dev);
 		}
