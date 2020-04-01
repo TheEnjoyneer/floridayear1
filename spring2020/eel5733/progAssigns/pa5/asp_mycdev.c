@@ -45,9 +45,6 @@ static unsigned int count = 1;
 static struct asp_mycdev *cdb_devices;
 static struct class *mycdev_class;
 
-// DON'T KNOW IF I NEED THIS
-static int my_major = 700, my_minor = 0;
-
 
 // THIS IS FROM THE FIRST SLIDESET
 static int mycdev_open(struct inode *inode, struct file *file)
@@ -176,13 +173,13 @@ static int mycdev_ioctl(struct inode *inode, struct file *file, unsigned int com
 	// Immediately set ramdisk equal to file's private data
 	char *ramdisk = file->private_data;
 
-	int nbytes;
+	int result;
 	
 
 	// IOCTL function here
 
 
-	return nbytes;
+	return result;
 }
 
 static const struct file_operations mycdev_fops = {
