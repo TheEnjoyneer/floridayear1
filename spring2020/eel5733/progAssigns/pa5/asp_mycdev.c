@@ -16,17 +16,19 @@
 #define MYDEV_NAME "mycdev"
 #define ramdisk_size (size_t) (16*PAGE_SIZE)
 
-struct asp_mycdev {
-	struct cdev dev;
-	char *ramdisk;
-	struct semaphore sem;
-	int devNo;
-}
+// struct asp_mycdev {
+// 	struct cdev dev;
+// 	char *ramdisk;
+// 	struct semaphore sem;
+// 	int devNo;
+// }
 
 
 static dev_t first;
 static unsigned int count = 1;
 static int my_major = 700, my_minor = 0;
+static struct cdev *asp_mycdev;
+static struct class *mycdev_class;
 
 static int mycdrv_open(struct inode *inode, struct file *file)
 {
@@ -50,13 +52,13 @@ static int mycdrv_open(struct inode *inode, struct file *file)
 	return 0;
 }
 
-static int mycdrv_release(struct inode *inode, struct file *file)
+static int mycdev_release(struct inode *inode, struct file *file)
 {
 	pr_info(" Christopher Brant dictates: CLOSING device: %s:\n\n", MYDEV_NAME);
 	return 0;
 }
 
-static ssize_t mycdrv_read(struct file *file, char __user * buf, size_t lbuf, loff_t * ppos)
+static ssize_t mycdev_read(struct file *file, char __user * buf, size_t lbuf, loff_t * ppos)
 {
 	// Immediately set ramdisk equal to file's private data
 	char *ramdisk = file->private_data;
@@ -73,7 +75,7 @@ static ssize_t mycdrv_read(struct file *file, char __user * buf, size_t lbuf, lo
 	return nbytes;
 }
 
-static ssize_t mycdrv_write(struct file *file, const char __user * buf, size_t lbuf, loff_t * ppos)
+static ssize_t mycdev_write(struct file *file, const char __user * buf, size_t lbuf, loff_t * ppos)
 {
 	// Immediately set ramdisk equal to file's private data
 	char *ramdisk = file->private_data;
@@ -89,7 +91,7 @@ static ssize_t mycdrv_write(struct file *file, const char __user * buf, size_t l
 	return nbytes;
 }
 
-static loff_t mycdrv_lseek(struct file *file, loff_t * offset, int orig)
+static loff_t mycdev_lseek(struct file *file, loff_t * offset, int orig)
 {
 	// Immediately set ramdisk equal to file's private data
 	char *ramdisk = file->private_data;
@@ -127,7 +129,7 @@ static loff_t mycdrv_lseek(struct file *file, loff_t * offset, int orig)
 	return newpos;
 }
 
-static int mycdrv_ioctl(struct inode *inode, struct file *file, unsigned int command, unsigned long args)
+static int mycdev_ioctl(struct inode *inode, struct file *file, unsigned int command, unsigned long args)
 {
 	// Immediately set ramdisk equal to file's private data
 	char *ramdisk = file->private_data;
@@ -141,31 +143,62 @@ static int mycdrv_ioctl(struct inode *inode, struct file *file, unsigned int com
 	return nbytes;
 }
 
-static const struct file_operations mycdrv_fops = {
+static const struct file_operations mycdev_fops = {
 	.owner = THIS_MODULE,
-	.read = mycdrv_read,
-	.write = mycdrv_write,
-	.open = mycdrv_open,
-	.release = mycdrv_release,
-	.lseek = mycdrv_lseek,
-	.ioctl = mycdrv_ioctl,
+	.read = mycdev_read,
+	.write = mycdev_write,
+	.open = mycdev_open,
+	.release = mycdev_release,
+	.lseek = mycdev_lseek,
+	.ioctl = mycdev_ioctl,
 };
 
 static int __init my_init(void)
 {
-	ramdisk = kmalloc(ramdisk_size, GFP_KERNEL);
-	first = MKDEV(my_major, my_minor);
-	register_chrdev_region(first, count, MYDEV_NAME);
-	my_cdev = cdev_alloc();
-	cdev_init(my_cdev, &mycdrv_fops);
-	cdev_add(my_cdev, first, count);
-	pr_info("\nSucceeded in registering character device %s, and done so on purpose by Christopher Brant\n", MYDEV_NAME);
+	// allocate region and cdev
+	if (alloc_chrdev_region(&first, 0, count, MYDEV_NAME) < 0)
+	{
+		pr_err("Failed to allocate custom device region\n");
+		return -1;
+	}
+
+	if (!(asp_mycdev = cdev_alloc()))
+	{
+		pr_err("cdev_alloc() failed\n");
+		unregister_chr_dev_region(first, count);
+		return -1;
+	}
+
+	// init and add cdev
+	cdev_init(asp_mycdev, &mycdev_fops);
+	if (cdev_add(asp_mycdev, first, count) < 0)
+	{
+		pr_err("cdev_add() failed\n");
+		cdev_del(asp_mycdev);
+		unregister_chrdev_region(first, count);
+		return -1;
+	}
+
+	// Create class and dynamically create device node
+	mycdev_class = class_create(THIS_MODULE, "mycdev_class");
+	device_create(mycdev_class, NULL, first, NULL, "asp_mycdev")
+
+	// Printouts and return
+	pr_info("cbrant succeeded in registering character device %s\n", MYDEV_NAME);
+	pr_info("MAJOR number = %d, MINOR number = %d\n", MAJOR(first), MINOR(first));
+
 	return 0;
 }
 
 static void __exit my_exit(void)
 {
-	cdev_del(my_cdev);
+	// Destroy or free everything in the reverse order it was created or allocated
+	device_destroy(mycdev_class, first);
+	class_destroy(mycdev_class);
+
+	if (asp_mycdev)
+		cdev_del(asp_mycdev);
+
 	unregister_chrdev_region(first, count);
 	pr_info("\ndevice unregistered, and done so on purpose by Christopher Brant\n");
 	kfree(ramdisk);
