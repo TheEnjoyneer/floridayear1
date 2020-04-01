@@ -14,7 +14,7 @@
 #include <linux/cdev.h>		/* cdev utilities */
 
 #define MYDRV_NAME "asp_mycdev"
-#define MYDEV_NAME "mycdev"
+#define MYDEV_NAME "/dev/mycdev"
 #define ramdisk_size (size_t) (16*PAGE_SIZE)
 
 struct asp_mycdev {
@@ -99,10 +99,10 @@ static ssize_t mycdev_read(struct file *file, char __user *buf, size_t lbuf, lof
 	int nbytes;
 
 	// Set the dev structure up first so we are doing the right thing
-	struct asp_mycdev dev = file->private_data;
+	struct asp_mycdev mycdev = file->private_data;
 
 	// Synchronization primitives...
-	if (down_interruptible(&dev->sem))
+	if (down_interruptible(&mycdev->sem))
 		return -ERESTARTSYS;
 
 	if ((lbuf + *ppos) > ramdisk_size) {
@@ -110,9 +110,13 @@ static ssize_t mycdev_read(struct file *file, char __user *buf, size_t lbuf, lof
 			"aborting because this is just a stub!\n");
 		return 0;
 	}
-	nbytes = lbuf - copy_to_user(buf, (dev->ramdisk) + *ppos, lbuf);
+	nbytes = lbuf - copy_to_user(buf, (mycdev->ramdisk) + *ppos, lbuf);
 	*ppos += nbytes;
 	pr_info("\n Christopher Brant dictates: READING function, nbytes=%d, pos=%d\n", nbytes, (int)*ppos);
+
+	// Synchronization primitives...
+	up(&mycdev->sem);
+
 	return nbytes;
 }
 
@@ -135,7 +139,7 @@ static ssize_t mycdev_write(struct file *file, const char __user *buf, size_t lb
 			"aborting because this is just a stub!\n");
 		return 0;
 	}
-	nbytes = lbuf - copy_from_user((dev->ramdisk) + *ppos, buf, lbuf);
+	nbytes = lbuf - copy_from_user((mycdev->ramdisk) + *ppos, buf, lbuf);
 	*ppos += nbytes;
 	pr_info("\n Christopher Brant dictates: WRITING function, nbytes=%d, pos=%d\n", nbytes, (int)*ppos);
 
@@ -153,10 +157,10 @@ static loff_t mycdev_lseek(struct file *file, loff_t * offset, int orig)
 	loff_t newpos;
 
 	// Set the dev structure up first so we are doing the right thing
-	struct asp_mycdev dev = file->private_data;
+	struct asp_mycdev mycdev = file->private_data;
 
 	// Synchronization primitives...
-	if (down_interruptible(&dev->sem))
+	if (down_interruptible(&mycdev->sem))
 		return -ERESTARTSYS;
 
 	// Switch statement to test where to pur the cursor
@@ -193,6 +197,9 @@ static loff_t mycdev_lseek(struct file *file, loff_t * offset, int orig)
 	file->f_pos = newpos;
 	pr_info("Seeking to cursor position=%ld\n", (long)newpos);
 
+	// Synchronization primitives...
+	up(&mycdev->sem);
+
 	return newpos;
 }
 
@@ -204,14 +211,14 @@ static int mycdev_ioctl(struct inode *inode, struct file *file, unsigned int com
 	int tmp;
 
 	// Set the dev structure up first so we are doing the right thing
-	struct asp_mycdev dev = file->private_data;
+	struct asp_mycdev mycdev = file->private_data;
 
 
 	// HERE SHOULD GO ALL THE SCULL IOCTL MAGIC BS ON PAGE 21
 
 
 	// Synchronization primitives...
-	if (down_interruptible(&dev->sem))
+	if (down_interruptible(&mycdev->sem))
 		return -ERESTARTSYS;
 
 	// Switch statement for handling the control commands
@@ -282,7 +289,7 @@ static int __init my_init(void)
 	dev_t dev = 0;
 
 	// Get dynamic major number
-	if (alloc_chrdev_region(&first, 0, count, MYDEV_NAME) < 0)
+	if (alloc_chrdev_region(&first, 0, count, MYDRV_NAME) < 0)
 	{
 		pr_err("Failed to allocate custom device region\n");
 		return -1;
@@ -322,27 +329,37 @@ static int __init my_init(void)
 	// Set the memory of the devices
 	memset(cdb_devices, 0, mycdev_nr_devs * sizeof(struct asp_mycdev));
 
+	// Create class and dynamically create device node
+	mycdev_class = class_create(THIS_MODULE, "mycdev_class");
+
 	// Initialize each individual devices
 	for (i = 0; i < mycdev_nr_devs; i++)
 	{
 		cdb_devices[i].devNo = i;
 		init_MUTEX(&cdb_devices[i].sem);
-		setup_mycdev(&cdb_devices[i], i);
+		setup_mycdev(&cdb_devices[i], i, mycdev_class);
 	}
 
 	// If we succeed to here, return 0
 	return 0;
 }
 
-static void setup_mycdev(struct asp_mycdev *mycdev, int index)
+static void setup_mycdev(struct asp_mycdev *mycdev, int index, struct class mycdev_class)
 {
 	int err;
 	int devno = MKDEV(mycdev_major, mycdev_minor + index);
+	char devName[13];
 
 	cdev_init(&mycdev->dev, mycdev_fops);
 	mycdev->dev.owner = THIS_MODULE;
 	mycdev->dev.ops = &mycdev_fops;
 	err = cdev_add(&mycdev->dev, devno, 1);
+
+	// Set device name string
+	sprintf(devName, "%s%d", MYDEV_NAME, index);
+
+	// Create device with given name
+	device_create(mycdev_class, NULL, first + index, devName);
 
 	// Error checking
 	if (err)
