@@ -13,19 +13,40 @@
 #include <linux/slab.h>		/* kmalloc */
 #include <linux/cdev.h>		/* cdev utilities */
 
-#define MYDEV_NAME "mycdrv"
-
-static char *ramdisk;
+#define MYDEV_NAME "mycdev"
 #define ramdisk_size (size_t) (16*PAGE_SIZE)
+
+struct asp_mycdev {
+	struct cdev dev;
+	char *ramdisk;
+	struct semaphore sem;
+	int devNo;
+}
+
 
 static dev_t first;
 static unsigned int count = 1;
 static int my_major = 700, my_minor = 0;
-static struct cdev *my_cdev;
 
 static int mycdrv_open(struct inode *inode, struct file *file)
 {
-	pr_info(" Christopher Brant dictates: OPENING device: %s:\n\n", MYDEV_NAME);
+	// static int for counting how many times the open func has executed
+	static int openCount = 0;
+
+	// Allocate a new ramdisk for each open
+	char *ramdisk = kmalloc(ramdisk_size, GFP_KERNEL);
+	file->private_data = ramdisk;
+	pr_info("cbrant attempting to open device: %s\n", MYDEV_NAME);
+	pr_info("MAJOR number = %d, MINOR number = %d\n", imajor(inode), iminor(inode));
+
+	// Increment counter
+	openCount++;
+
+	// Then print messages
+	pr_info("cbrant succesfully opened device: %s:\n\n", MYDEV_NAME);
+	pr_info("I have been opened %d times since being loaded.\n", openCount);
+	pr_info("ref=%d\n", (int)module_refcount(THIS_MODULE));
+
 	return 0;
 }
 
@@ -35,9 +56,11 @@ static int mycdrv_release(struct inode *inode, struct file *file)
 	return 0;
 }
 
-static ssize_t
-mycdrv_read(struct file *file, char __user * buf, size_t lbuf, loff_t * ppos)
+static ssize_t mycdrv_read(struct file *file, char __user * buf, size_t lbuf, loff_t * ppos)
 {
+	// Immediately set ramdisk equal to file's private data
+	char *ramdisk = file->private_data;
+
 	int nbytes;
 	if ((lbuf + *ppos) > ramdisk_size) {
 		pr_info("Christopher Brant dictates: trying to read past end of device,"
@@ -50,10 +73,10 @@ mycdrv_read(struct file *file, char __user * buf, size_t lbuf, loff_t * ppos)
 	return nbytes;
 }
 
-static ssize_t
-mycdrv_write(struct file *file, const char __user * buf, size_t lbuf,
-	     loff_t * ppos)
+static ssize_t mycdrv_write(struct file *file, const char __user * buf, size_t lbuf, loff_t * ppos)
 {
+	// Immediately set ramdisk equal to file's private data
+	char *ramdisk = file->private_data;
 	int nbytes;
 	if ((lbuf + *ppos) > ramdisk_size) {
 		pr_info("Christopher Brant dictates: trying to read past end of device,"
@@ -66,12 +89,66 @@ mycdrv_write(struct file *file, const char __user * buf, size_t lbuf,
 	return nbytes;
 }
 
+static loff_t mycdrv_lseek(struct file *file, loff_t * offset, int orig)
+{
+	// Immediately set ramdisk equal to file's private data
+	char *ramdisk = file->private_data;
+
+	// Declare loff_t for testing purposes
+	loff_t newpos;
+
+	// Switch statement to test where to pur the cursor
+	switch (orig)
+	{
+		case SEEK_SET:
+			newpos = offset;
+			break;
+
+		case SEEK_CUR:
+			newpos = file->f_pos + offset;
+			break;
+
+		case SEEK_END:
+			newpos = ramdisk_size + offset;
+			break;
+
+		default:
+			return -EINVAL;
+	}
+
+	// Test for errors
+	newpos = newpos < ramdisk_sizse ? newpos : ramdisk_size;
+	newpos = newpos >= 0 ? newpos : 0;
+
+	// Set new cursor position, print, and then return
+	file->f_pos = newpos;
+	pr_info("Seeking to cursor position=%ld\n", (long)newpos);
+
+	return newpos;
+}
+
+static int mycdrv_ioctl(struct inode *inode, struct file *file, unsigned int command, unsigned long args)
+{
+	// Immediately set ramdisk equal to file's private data
+	char *ramdisk = file->private_data;
+
+	int nbytes;
+	
+
+	// IOCTL function here
+
+
+	return nbytes;
+}
+
 static const struct file_operations mycdrv_fops = {
 	.owner = THIS_MODULE,
 	.read = mycdrv_read,
 	.write = mycdrv_write,
 	.open = mycdrv_open,
 	.release = mycdrv_release,
+	.lseek = mycdrv_lseek,
+	.ioctl = mycdrv_ioctl,
 };
 
 static int __init my_init(void)
