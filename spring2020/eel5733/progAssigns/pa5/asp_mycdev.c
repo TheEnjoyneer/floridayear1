@@ -15,13 +15,14 @@
 
 #define MYDRV_NAME "asp_mycdev"
 #define MYDEV_NAME "/dev/mycdev"
-#define ramdisk_size (size_t) (16*PAGE_SIZE)
+//#define ramdisk_size (size_t) (16*PAGE_SIZE)
 
 struct asp_mycdev {
 	struct cdev dev;
 	char *ramdisk;
 	struct semaphore sem;
 	int devNo;
+	size_t ramdisk_size = (size_t) (16*PAGE_SIZE);
 }
 
 // Parameters to be set at load time
@@ -46,15 +47,20 @@ static struct asp_mycdev *cdb_devices;
 static struct class *mycdev_class;
 
 
-// THIS IS FROM THE FIRST SLIDESET
 static int mycdev_open(struct inode *inode, struct file *file)
 {
 	// static int for counting how many times the open func has executed
 	static int openCount = 0;
 
+	// Set the dev structure up first so we are doing the right thing
+	struct asp_mycdev mycdev;
+	mycdev = container_of(inode->i_cdev, struct asp_mycdev, cdev);
+	file->private_data = mycdev;
+
 	// Allocate a new ramdisk for each open
-	char *ramdisk = kmalloc(ramdisk_size, GFP_KERNEL);
-	file->private_data = ramdisk;
+	mycdev->ramdisk = kmalloc(mycdev->ramdisk_size, GFP_KERNEL);
+
+	// Printouts
 	pr_info("cbrant attempting to open device: %s\n", MYDEV_NAME);
 	pr_info("MAJOR number = %d, MINOR number = %d\n", imajor(inode), iminor(inode));
 
@@ -70,23 +76,11 @@ static int mycdev_open(struct inode *inode, struct file *file)
 }
 
 
-// THIS IS FROM THE SCULL SLIDESET
-static int mycdev_open(struct inode *inode, struct file *file)
-{
-	// Get device info and container_of
-	struct asp_mycdev *dev = container_of(inode->i_cdev, struct asp_mycdev, cdev);
-	file->private_data = dev;
-
-	// If write only trim length of the device
-
-}
-
-
-
 
 // FIRST SLIDESET
 static int mycdev_release(struct inode *inode, struct file *file)
 {
+
 	pr_info(" Christopher Brant dictates: CLOSING device: %s:\n\n", MYDEV_NAME);
 	return 0;
 }
@@ -155,6 +149,8 @@ static loff_t mycdev_lseek(struct file *file, loff_t * offset, int orig)
 {
 	// Declare necessary variables
 	loff_t newpos;
+	char *newdisk;
+	char *tempdisk;
 
 	// Set the dev structure up first so we are doing the right thing
 	struct asp_mycdev mycdev = file->private_data;
@@ -175,7 +171,7 @@ static loff_t mycdev_lseek(struct file *file, loff_t * offset, int orig)
 			break;
 
 		case SEEK_END:
-			newpos = ramdisk_size + offset;
+			newpos = mycdev->ramdisk_size + offset;
 			break;
 
 		default:
@@ -183,8 +179,26 @@ static loff_t mycdev_lseek(struct file *file, loff_t * offset, int orig)
 	}
 
 	// Test for errors
-	newpos = newpos < ramdisk_sizse ? newpos : ramdisk_size;
 	newpos = newpos >= 0 ? newpos : 0;
+
+	if (newpos > mycdev->ramdisk_size)
+	{
+		// Allocate new disk
+		newdisk = kmalloc(newpos, GFP_KERNEL);
+
+		// Copy over old data
+		memcpy(newdisk, mycdev->ramdisk, mycdev->ramdisk_size);
+
+		// Extend new data to the length of the position
+		memset((newdisk + mycdev->ramdisk_size), '\0', (newpos - mycdev->ramdisk_size));
+
+		// Switch newdisk and original ramdisk and then free the original ramdisk
+		tempdisk = mycdev->ramdisk;
+
+		mycdev->ramdisk = newdisk;
+
+		kfree(tempdisk);
+	}
 
 
 
