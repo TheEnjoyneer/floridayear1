@@ -248,7 +248,7 @@ static const struct file_operations mycdev_fops = {
 	.ioctl = mycdev_ioctl,
 };
 
-// FIRST SLIDESET
+
 static int __init my_init(void)
 {
 	// Declare necessary variables
@@ -271,7 +271,6 @@ static int __init my_init(void)
 
 	// Create class and dynamically create device node
 	mycdev_class = class_create(THIS_MODULE, "mycdev_class");
-
 
 	// For loop to create the individual devices.
 	for (i = 0; i < mycdev_nr_devs; i++)
@@ -312,7 +311,6 @@ static int __init my_init(void)
 		// Printouts and return
 		pr_info("cbrant succeeded in registering character device %s\n", devName);
 		pr_info("MAJOR number = %d, MINOR number = %d\n", MAJOR(devNum), MINOR(devNum));
-
 	}
 
 	return 0;
@@ -343,8 +341,10 @@ static void __exit my_exit(void)
 	pr_info("\ndevice unregistered, and done so on purpose by Christopher Brant\n");
 }
 
+
 module_init(my_init);
 module_exit(my_exit);
+
 
 MODULE_AUTHOR("Christopher Brant");
 MODULE_LICENSE("GPL v2");
