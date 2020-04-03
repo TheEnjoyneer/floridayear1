@@ -41,9 +41,6 @@ module_param(mycdev_nr_devs, int, S_IRUGO);
 // More necessary global variables
 static dev_t first;
 static unsigned int count = 1;
-
-// FIX THIS IF NEED BE
-static struct asp_mycdev *cdb_devices;
 static struct class *mycdev_class;
 
 
@@ -257,43 +254,60 @@ static const struct file_operations mycdev_fops = {
 	.ioctl = mycdev_ioctl,
 };
 
-// // FIRST SLIDESET
-// static int __init my_init(void)
-// {
-// 	// allocate region and cdev
-// 	if (alloc_chrdev_region(&first, 0, count, MYDEV_NAME) < 0)
-// 	{
-// 		pr_err("Failed to allocate custom device region\n");
-// 		return -1;
-// 	}
+// FIRST SLIDESET
+static int __init my_init(void)
+{
+	// Declare necessary variables
+	struct asp_mycdev *mycdev;
+	char devName[13];
+	int i;
 
-// 	if (!(asp_mycdev = cdev_alloc()))
-// 	{
-// 		pr_err("cdev_alloc() failed\n");
-// 		unregister_chr_dev_region(first, count);
-// 		return -1;
-// 	}
+	// Allocate all devices
+	mycdev = kmalloc(mycdev_nr_devs * sizeof(struct asp_mycdev), GFP_KERNEL);
 
-// 	// init and add cdev
-// 	cdev_init(asp_mycdev, &mycdev_fops);
-// 	if (cdev_add(asp_mycdev, first, count) < 0)
-// 	{
-// 		pr_err("cdev_add() failed\n");
-// 		cdev_del(asp_mycdev);
-// 		unregister_chrdev_region(first, count);
-// 		return -1;
-// 	}
+	// allocate region and cdev
+	if (alloc_chrdev_region(&first, mycdev_minor, mycdev_nr_devs, MYDRV_NAME) < 0)
+	{
+		pr_err("Failed to allocate custom device region for %s, for %d devices\n", MYDRV_NAME, mycdev_nr_devs);
+		return -1;
+	}
 
-// 	// Create class and dynamically create device node
-// 	mycdev_class = class_create(THIS_MODULE, "mycdev_class");
-// 	device_create(mycdev_class, NULL, first, NULL, "asp_mycdev");
+	if (!(mycdev[i] = cdev_alloc()))
+	{
+		pr_err("cdev_alloc() failed\n");
+		unregister_chrdev_region(first, mycdev_nr_devs);
+		return -1;
+	}
 
-// 	// Printouts and return
-// 	pr_info("cbrant succeeded in registering character device %s\n", MYDEV_NAME);
-// 	pr_info("MAJOR number = %d, MINOR number = %d\n", MAJOR(first), MINOR(first));
+	// init and add cdev
+	cdev_init(mycdev, &mycdev_fops);
+	if (cdev_add(mycdev, first, count) < 0)
+	{
+		pr_err("cdev_add() failed\n");
+		cdev_del(mycdev);
+		unregister_chrdev_region(first, mycdev_nr_devs);
+		return -1;
+	}
 
-// 	return 0;
-// }
+	// Create class and dynamically create device node
+	mycdev_class = class_create(THIS_MODULE, "mycdev_class");
+
+	for (i = 0; i < mycdev_nr_devs; i++)
+	{
+		// Set device name string
+		sprintf(devName, "%s%d", MYDEV_NAME, i);
+
+		// Create the device
+		device_create(mycdev_class, NULL, first, NULL, devName);
+
+		// Printouts and return
+		pr_info("cbrant succeeded in registering character device %s\n", devName);
+		pr_info("MAJOR number = %d, MINOR number = %d\n", MAJOR(first), MINOR(first));
+
+	}
+
+	return 0;
+}
 
 
 // SCULL SLIDESET
@@ -302,49 +316,60 @@ static int __init my_init(void)
 	int result, i;
 	dev_t dev = 0;
 
-	// Get dynamic major number
-	if (alloc_chrdev_region(&first, 0, count, MYDRV_NAME) < 0)
+	// Initialize each individual devices
+	for (i = 0; i < mycdev_nr_devs; i++)
 	{
-		pr_err("Failed to allocate custom device region\n");
-		return -1;
+
+		// Get dynamic major number
+		if (alloc_chrdev_region(&first, 0, count, MYDRV_NAME) < 0)
+		{
+			pr_err("Failed to allocate custom device region\n");
+			return -1;
+		}
+
+		// RANGE of minor numbers is just the base minor number plus the index of that device
+
+		// Make the device node itself here
+		if (mycdev_major)
+		{
+			dev = MKDEV(mycdev_major, mycdev_minor);
+			result = register_chrdev_region(dev, scull_nr_devs, MYDRV_NAME);
+		}
+		else
+		{
+			result = alloc_chrdev_region(&dev, mycdev_minor, mycdev_nr_devs, MYDRV_NAME);
+			mycdev_major = MAJOR(dev);
+		}
+
+		// Error checking here
+		if (result < 0)
+		{
+			printk(KERN_WARNING "asp_mycdev: can't get major %d\n", mycdev_major);
+			return result;
+		}
+
+		// Allocate the devices here, and the number can be specified at load time
+		cdb_devices = kmalloc(mycdev_nr_devs * sizeof(struct asp_mycdev), GFP_KERNEL);
+
+		// Error check
+		if (!cdb_devices)
+		{
+			result = -ENOMEM;
+			return result;	// this may have to change
+		}
+
+		// Set the memory of the devices
+		memset(cdb_devices, 0, mycdev_nr_devs * sizeof(struct asp_mycdev));
+
+
+
+		// Set device name string
+		sprintf(devName, "%s%d", MYDEV_NAME, index);
+
+		// Create device with given name
+		device_create(mycdev_class, NULL, first + index, devName);
+
 	}
-
-	// RANGE of minor numbers is just the base minor number plus the index of that device
-
-	// Make the device node itself here
-	if (mycdev_major)
-	{
-		dev = MKDEV(mycdev_major, mycdev_minor);
-		result = register_chrdev_region(dev, scull_nr_devs, MYDRV_NAME);
-	}
-	else
-	{
-		result = alloc_chrdev_region(&dev, mycdev_minor, mycdev_nr_devs, MYDRV_NAME);
-		mycdev_major = MAJOR(dev);
-	}
-
-	// Error checking here
-	if (result < 0)
-	{
-		printk(KERN_WARNING "asp_mycdev: can't get major %d\n", mycdev_major);
-		return result;
-	}
-
-	// Allocate the devices here, and the number can be specified at load time
-	cdb_devices = kmalloc(mycdev_nr_devs * sizeof(struct asp_mycdev), GFP_KERNEL);
-
-	// Error check
-	if (!cdb_devices)
-	{
-		result = -ENOMEM;
-		return result;	// this may have to change
-	}
-
-	// Set the memory of the devices
-	memset(cdb_devices, 0, mycdev_nr_devs * sizeof(struct asp_mycdev));
-
-	// Create class and dynamically create device node
-	mycdev_class = class_create(THIS_MODULE, "mycdev_class");
 
 	// Initialize each individual devices
 	for (i = 0; i < mycdev_nr_devs; i++)
