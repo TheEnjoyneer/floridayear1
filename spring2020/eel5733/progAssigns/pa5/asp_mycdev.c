@@ -48,12 +48,11 @@ static int mycdev_open(struct inode *inode, struct file *file)
 
 	// Set the dev structure up first so we are doing the right thing
 	struct asp_mycdev mycdev;
-	mycdev = container_of(inode->i_cdev, struct asp_mycdev, cdev);
+	mycdev = container_of(inode->i_cdev, struct asp_mycdev, dev);
 	file->private_data = mycdev;
 
-	// Printouts
-	pr_info("cbrant attempting to open device: %s\n", MYDEV_NAME);
-	pr_info("MAJOR number = %d, MINOR number = %d\n", imajor(inode), iminor(inode));
+	// Printout
+	pr_info("cbrant attempting to open device with MAJOR number = %d, MINOR number = %d\n", MAJOR(mycdev->devNo), MINOR(mycdev->devNo));
 
 	// Increment counter
 	openCount++;
@@ -71,8 +70,7 @@ static int mycdev_open(struct inode *inode, struct file *file)
 // FIRST SLIDESET
 static int mycdev_release(struct inode *inode, struct file *file)
 {
-
-	pr_info(" Christopher Brant dictates: CLOSING device: %s:\n\n", MYDEV_NAME);
+	pr_info("cbrant dictates: CLOSING device: %s:\n\n", MYDEV_NAME);
 	return 0;
 }
 
@@ -91,13 +89,13 @@ static ssize_t mycdev_read(struct file *file, char __user *buf, size_t lbuf, lof
 		return -ERESTARTSYS;
 
 	if ((lbuf + *ppos) > ramdisk_size) {
-		pr_info("Christopher Brant dictates: trying to read past end of device,"
+		pr_info("cbrant dictates: trying to read past end of device,"
 			"aborting because this is just a stub!\n");
 		return 0;
 	}
 	nbytes = lbuf - copy_to_user(buf, (mycdev->ramdisk) + *ppos, lbuf);
 	*ppos += nbytes;
-	pr_info("\n Christopher Brant dictates: READING function, nbytes=%d, pos=%d\n", nbytes, (int)*ppos);
+	pr_info("\ncbrant dictates: READING function, nbytes=%d, pos=%d\n", nbytes, (int)*ppos);
 
 	// Synchronization primitives...
 	up(&mycdev->sem);
@@ -120,13 +118,13 @@ static ssize_t mycdev_write(struct file *file, const char __user *buf, size_t lb
 		return -ERESTARTSYS;
 
 	if ((lbuf + *ppos) > ramdisk_size) {
-		pr_info("Christopher Brant dictates: trying to read past end of device,"
+		pr_info("cbrant dictates: trying to read past end of device,"
 			"aborting because this is just a stub!\n");
 		return 0;
 	}
 	nbytes = lbuf - copy_from_user((mycdev->ramdisk) + *ppos, buf, lbuf);
 	*ppos += nbytes;
-	pr_info("\n Christopher Brant dictates: WRITING function, nbytes=%d, pos=%d\n", nbytes, (int)*ppos);
+	pr_info("\ncbrant dictates: WRITING function, nbytes=%d, pos=%d\n", nbytes, (int)*ppos);
 
 	// Synchronization primitives...
 	up(&dev->sem);
@@ -187,11 +185,14 @@ static loff_t mycdev_lseek(struct file *file, loff_t * offset, int orig)
 		tempdisk = mycdev->ramdisk;
 		mycdev.ramdisk = newdisk;
 		kfree(tempdisk);
+
+		// Set ramdisk size to new size
+		mycdev->ramdisk_size = newpos;
 	}
 
 	// Set new cursor position, print, and then return
 	file->f_pos = newpos;
-	pr_info("Seeking to cursor position=%ld\n", (long)newpos);
+	pr_info("cbrant driver seeking to cursor position=%ld\n", (long)newpos);
 
 	// Synchronization primitives...
 	up(&mycdev->sem);
@@ -281,7 +282,6 @@ static int __init my_init(void)
 		sprintf(devName, "%s%d", MYDEV_NAME, i);
 
 		// Init and add cdev the individual cdev structs within my structure
-		currDev = MKDEV(mycdev_major)
 		cdev_init(&(mycdevices[i].dev), &mycdev_fops);
 
 		// Add the cdev, but with some error checks
