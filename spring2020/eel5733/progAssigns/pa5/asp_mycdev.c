@@ -15,7 +15,6 @@
 
 #define MYDRV_NAME "asp_mycdev"
 #define MYDEV_NAME "/dev/mycdev"
-//#define ramdisk_size (size_t) (16*PAGE_SIZE)
 
 struct asp_mycdev {
 	struct cdev dev;
@@ -66,8 +65,6 @@ static int mycdev_open(struct inode *inode, struct file *file)
 }
 
 
-
-// FIRST SLIDESET
 static int mycdev_release(struct inode *inode, struct file *file)
 {
 	pr_info("cbrant dictates: CLOSING device: %s:\n\n", MYDEV_NAME);
@@ -75,7 +72,6 @@ static int mycdev_release(struct inode *inode, struct file *file)
 }
 
 
-// FIRST SLIDESET
 static ssize_t mycdev_read(struct file *file, char __user *buf, size_t lbuf, loff_t *ppos)
 {
 	// Declare necessary variables
@@ -104,7 +100,6 @@ static ssize_t mycdev_read(struct file *file, char __user *buf, size_t lbuf, lof
 }
 
 
-// FIRST SLIDESET
 static ssize_t mycdev_write(struct file *file, const char __user *buf, size_t lbuf, loff_t *ppos)
 {
 	// Declare necessary variables
@@ -133,7 +128,6 @@ static ssize_t mycdev_write(struct file *file, const char __user *buf, size_t lb
 }
 
 
-// FIRST SLIDESET
 static loff_t mycdev_lseek(struct file *file, loff_t * offset, int orig)
 {
 	// Declare necessary variables
@@ -200,6 +194,7 @@ static loff_t mycdev_lseek(struct file *file, loff_t * offset, int orig)
 	return newpos;
 }
 
+
 static int mycdev_ioctl(struct inode *inode, struct file *file, unsigned int command, unsigned long args)
 {
 	// Declare necessary variables
@@ -210,10 +205,6 @@ static int mycdev_ioctl(struct inode *inode, struct file *file, unsigned int com
 	// Set the dev structure up first so we are doing the right thing
 	struct asp_mycdev mycdev = file->private_data;
 
-
-	// HERE SHOULD GO ALL THE SCULL IOCTL MAGIC BS ON PAGE 21
-
-
 	// Synchronization primitives...
 	if (down_interruptible(&mycdev->sem))
 		return -ERESTARTSYS;
@@ -223,11 +214,17 @@ static int mycdev_ioctl(struct inode *inode, struct file *file, unsigned int com
 	{
 		// Clear the buffer and reset the file position pointer to 0
 		case ASP_CLEAR_BUF:
+			memset(mycdev->ramdisk, 0, mycdev->ramdisk_size);
+			file->f_pos = 0;
+			pr_info("cbrant driver clearing buffer and resetting cursor position\n");
+			break;
 
+		// If any errors, return -1
+		default:
+			return -1;
 	}
 
-
-	return retVal;
+	return 0;
 }
 
 static const struct file_operations mycdev_fops = {
