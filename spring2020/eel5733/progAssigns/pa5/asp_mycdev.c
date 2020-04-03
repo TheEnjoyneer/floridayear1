@@ -253,7 +253,7 @@ static int __init my_init(void)
 {
 	// Declare necessary variables
 	char devName[13];
-	int i, retVal;
+	int i;
 	dev_t currDev;
 
 	// Allocate all devices
@@ -295,7 +295,7 @@ static int __init my_init(void)
 		cdev_init(&(mycdevices[i].dev), &mycdev_fops);
 
 		// Add the cdev, but with some error checks
-		if (retVal = cdev_add(&(mycdevices[i].dev), currDev, 1))
+		if (cdev_add(&(mycdevices[i].dev), currDev, 1))
 		{
 			printk(KERN_NOTICE "Error %d adding %s\n", retVal, devName);
 			return -1;
