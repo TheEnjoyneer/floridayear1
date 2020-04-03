@@ -221,8 +221,12 @@ static int mycdev_ioctl(struct inode *inode, struct file *file, unsigned int com
 
 		// If any errors, return -1
 		default:
+			up(&mycdev->sem);
 			return -1;
 	}
+
+	// Synchronization primitives...
+	up(&mycdev->sem);
 
 	return 0;
 }
