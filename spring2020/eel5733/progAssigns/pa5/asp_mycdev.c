@@ -181,22 +181,13 @@ static loff_t mycdev_lseek(struct file *file, loff_t * offset, int orig)
 		memcpy(newdisk, mycdev->ramdisk, mycdev->ramdisk_size);
 
 		// Extend new data to the length of the position
-		memset((newdisk + mycdev->ramdisk_size), '\0', (newpos - mycdev->ramdisk_size));
+		memset((newdisk + mycdev->ramdisk_size), 0, (newpos - mycdev->ramdisk_size));
 
 		// Switch newdisk and original ramdisk and then free the original ramdisk
 		tempdisk = mycdev->ramdisk;
-
-		mycdev->ramdisk = newdisk;
-
+		mycdev.ramdisk = newdisk;
 		kfree(tempdisk);
 	}
-
-
-
-	// If newpos is greater than the size of the buffer...
-	// Expand the buffer and fill the new region with zeros.
-
-
 
 	// Set new cursor position, print, and then return
 	file->f_pos = newpos;
