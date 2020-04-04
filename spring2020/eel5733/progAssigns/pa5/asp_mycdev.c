@@ -285,15 +285,6 @@ static int __init my_init(void)
 		// Init and add cdev the individual cdev structs within my structure
 		cdev_init(&(mycdevices[i]->dev), &mycdev_fops);
 
-		// Create the device
-		device_create(mycdev_class, NULL, currDev, NULL, devName);
-
-		// Allocate and set all the structure variables here too
-		mycdevices[i]->ramdisk_size = RAMDISK_SIZE;
-		mycdevices[i]->ramdisk = kmalloc(mycdevices[i]->ramdisk_size, GFP_KERNEL);
-		mycdevices[i]->devNo = currDev;
-		sema_init(&mycdevices[i]->sem, 1); 
-
 		// Add the cdev, but with some error checks
 		err = cdev_add(&(mycdevices[i]->dev), currDev, 1);
 
@@ -303,6 +294,15 @@ static int __init my_init(void)
 			printk(KERN_NOTICE "Error %d adding %s\n", err, devName);
 			return -1;
 		}
+
+		// Create the device
+		device_create(mycdev_class, NULL, currDev, NULL, devName);
+
+		// Allocate and set all the structure variables here too
+		mycdevices[i]->ramdisk_size = RAMDISK_SIZE;
+		mycdevices[i]->ramdisk = kmalloc(mycdevices[i]->ramdisk_size, GFP_KERNEL);
+		mycdevices[i]->devNo = currDev;
+		sema_init(&mycdevices[i]->sem, 1); 
 
 		// Printouts and return
 		pr_info("cbrant succeeded in registering character device %s\n", devName);
