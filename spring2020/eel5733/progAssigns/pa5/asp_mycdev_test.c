@@ -31,19 +31,19 @@ int main(void)
 	
 	if (fork() == 0)
 	{
-		sleep(2);
-		// Clear the buffer with the ioctl function
-		ioctl(fd[0], ASP_CLEAR_BUF, NULL);
+		// sleep(2);
+		// // Clear the buffer with the ioctl function
+		// ioctl(fd[0], ASP_CLEAR_BUF, NULL);
 
-		// Write to the device
-		write(fd[0], "\n Christopher Brant says: Hello /dev/mycdev0!\n", 45);
-		//sleep(10);
+		// // Write to the device
+		// write(fd[0], "\n Christopher Brant says: Hello /dev/mycdev0!\n", 45);
+		// //sleep(10);
 
-		// // Let the other process read, clear, and write then try to read and then lseek and write then the other will read
-		lseek(fd[0], 0, SEEK_SET);
-		read(fd[0], data, 46);
-		data[46] = '\0';
-		printf("Data read from the device driver: %s\n", data);
+		// // // Let the other process read, clear, and write then try to read and then lseek and write then the other will read
+		// lseek(fd[0], 0, SEEK_SET);
+		// read(fd[0], data, 46);
+		// data[46] = '\0';
+		// printf("Data read from the device driver: %s\n", data);
 
 		// // lseek and try and read again
 		// printf("Now trying lseek\n");
@@ -64,31 +64,31 @@ int main(void)
 		// write(fd[0], "\n Christopher Brant says: Hello /dev/mycdev0!\n", 45);
 
 		// Possibly read from the driver here
-		sleep(3);
-		lseek(fd[0], 0, SEEK_SET);
-		read(fd[0], data, 45);
-		data[45] = '\0';
+		// sleep(3);
+		// lseek(fd[0], 0, SEEK_SET);
+		// read(fd[0], data, 45);
+		// data[45] = '\0';
 		
-		// Print the value that was read
-		printf("Data read from the device driver: %s\n", data);
-
-		//sleep(2);
-
-		lseek(fd[0], 0, SEEK_SET);
-
-		// lseek(fd[0], 4, SEEK_SET);
-		// read(fd[0], data, 10);
-		// data[10] = '\0';
+		// // Print the value that was read
 		// printf("Data read from the device driver: %s\n", data);
-		//sleep(1);
 
-		// printf("Clearing the device driver buffer with ioctl\n");
+		// //sleep(2);
 
-		// // Clear the buffer with the ioctl function
-		// ioctl(fd[0], ASP_CLEAR_BUF, NULL);
+		// lseek(fd[0], 0, SEEK_SET);
 
-		// // Write new value to buffer
-		write(fd[0], "\nChristopher Brant says: CRIKEY /dev/mycdev0!\n", 46);
+		// // lseek(fd[0], 4, SEEK_SET);
+		// // read(fd[0], data, 10);
+		// // data[10] = '\0';
+		// // printf("Data read from the device driver: %s\n", data);
+		// //sleep(1);
+
+		// // printf("Clearing the device driver buffer with ioctl\n");
+
+		// // // Clear the buffer with the ioctl function
+		// // ioctl(fd[0], ASP_CLEAR_BUF, NULL);
+
+		// // // Write new value to buffer
+		// write(fd[0], "\nChristopher Brant says: CRIKEY /dev/mycdev0!\n", 46);
 
 		// lseek(fd[0], 0, SEEK_SET);
 
@@ -98,6 +98,8 @@ int main(void)
 
 		// // Sleep some more
 		wait(NULL);
+
+		lseek(fd[0], 150, SEEK_SET);
 
 	}
 
