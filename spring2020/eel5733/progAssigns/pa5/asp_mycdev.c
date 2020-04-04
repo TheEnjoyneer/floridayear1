@@ -328,13 +328,16 @@ static void __exit my_exit(void)
 		// Also free the individual asp_mycdev structure's ramdisk and the struct itself
 		kfree(mycdevices[i]->ramdisk);
 		kfree(mycdevices[i]);
+
+		// Printout
+		pr_info("cbrant succeeded in unregistering character device with MAJOR number = %d, MINOR number = %d\n", MAJOR(currDev), MINOR(currDev));
 	}
 
 	// Free the custom struct array destroy the class, unregister the region and print
 	class_destroy(mycdev_class);
 	unregister_chrdev_region(devNum, mycdev_nr_devs);
 	kfree(mycdevices);
-	pr_info("\ndevice unregistered, and done so on purpose by Christopher Brant\n");
+	pr_info("cbrant succeeded in unregistering and destroying all allocated device resources\n");
 }
 
 
