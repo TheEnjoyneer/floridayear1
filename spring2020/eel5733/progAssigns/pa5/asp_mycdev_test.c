@@ -16,7 +16,7 @@
 
 int main(void)
 {
-	char data[128];
+	char data[256];
 	int fd[3];
 
 	fd[0] = open("/dev/mycdev0", O_RDWR);
@@ -58,16 +58,16 @@ int main(void)
 	else
 	{
 		// // Clear the buffer with the ioctl function
-		//ioctl(fd[0], ASP_CLEAR_BUF, NULL);
+		ioctl(fd[0], ASP_CLEAR_BUF, NULL);
 
 		// // Write to the device
-		// write(fd[0], "\n Christopher Brant says: Hello /dev/mycdev0!\n", 45);
+		write(fd[0], "\n Christopher Brant says: Hello /dev/mycdev0!\n", 45);
 
 		// Possibly read from the driver here
 		// sleep(3);
-		// lseek(fd[0], 0, SEEK_SET);
-		// read(fd[0], data, 45);
-		// data[45] = '\0';
+		lseek(fd[0], 0, SEEK_SET);
+		read(fd[0], data, 45);
+		data[45] = '\0';
 		
 		// // Print the value that was read
 		// printf("Data read from the device driver: %s\n", data);
@@ -92,9 +92,9 @@ int main(void)
 
 		// lseek(fd[0], 0, SEEK_SET);
 
-		// read(fd[0], data, 46);
-		// data[46] = '\0';
-		// printf("Data read from the device driver: %s\n", data);
+		read(fd[0], data, 150);
+		data[46] = '\0';
+		printf("Data read from the device driver: %s\n", data);
 
 		// // Sleep some more
 		wait(NULL);
