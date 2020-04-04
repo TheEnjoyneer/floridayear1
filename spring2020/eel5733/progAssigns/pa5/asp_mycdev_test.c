@@ -62,6 +62,7 @@ int main(void)
 
 		// Possibly read from the driver here
 		sleep(2);
+		lseek(fd[0], 0, SEEK_SET);
 		read(fd[0], data, 45);
 		data[45] = '\0';
 		
