@@ -31,7 +31,7 @@ int main(void)
 	if (fork() == 0)
 	{
 		// Write to the device
-		write(fd[0], "Christopher Brant says: Hello /dev/mycdev0!\n", 45);
+		write(fd[0], "\n Christopher Brant says: Hello /dev/mycdev0!\n", 45);
 		// sleep(1);
 
 		// // Let the other process read, clear, and write then try to read and then lseek and write then the other will read
