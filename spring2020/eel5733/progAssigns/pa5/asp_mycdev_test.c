@@ -64,6 +64,7 @@ int main(void)
 		// read(fd[0], data, 10);
 		// data[10] = '\0';
 		// printf("Data read from the device driver: %s\n", data);
+		sleep(1);
 
 		printf("Clearing the device driver buffer with ioctl\n");
 
