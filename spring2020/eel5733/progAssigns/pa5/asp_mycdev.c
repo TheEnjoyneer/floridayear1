@@ -18,7 +18,7 @@
 
 #define MYDRV_NAME "asp_mycdev"
 #define MYDEV_NAME "/dev/mycdev"
-#define RAMDISK_SIZE (size_t) (16*PAGE_SIZE)
+#define RAMDISK_SIZE 128//(size_t) (16*PAGE_SIZE)
 #define ASP_CLEAR_BUF _IO('k', 1)
 
 struct asp_mycdev {
