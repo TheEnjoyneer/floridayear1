@@ -73,6 +73,8 @@ int main(void)
 		// Write new value to buffer
 		write(fd[0], "\nChristopher Brant says: CRIKEY /dev/mycdev0!\n", 46);
 
+		lseek(fd[0], 0, SEEK_SET);
+
 		read(fd[0], data, 46);
 		data[46] = '\0';
 		printf("Data read from the device driver: %s\n", data);
