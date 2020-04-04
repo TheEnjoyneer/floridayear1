@@ -36,7 +36,7 @@ int main(void)
 
 		// Write to the device
 		write(fd[0], "\n Christopher Brant says: Hello /dev/mycdev0!\n", 45);
-		sleep(10);
+		//sleep(10);
 
 		// // Let the other process read, clear, and write then try to read and then lseek and write then the other will read
 		lseek(fd[0], 0, SEEK_SET);
@@ -63,7 +63,7 @@ int main(void)
 		// write(fd[0], "\n Christopher Brant says: Hello /dev/mycdev0!\n", 45);
 
 		// Possibly read from the driver here
-		sleep(2);
+		//sleep(2);
 		lseek(fd[0], 0, SEEK_SET);
 		read(fd[0], data, 45);
 		data[45] = '\0';
@@ -71,7 +71,7 @@ int main(void)
 		// Print the value that was read
 		printf("Data read from the device driver: %s\n", data);
 
-		sleep(2);
+		//sleep(2);
 
 		lseek(fd[0], 0, SEEK_SET);
 
