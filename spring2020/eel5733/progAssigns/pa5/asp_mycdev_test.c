@@ -51,7 +51,7 @@ int main(void)
 		// read(fd[0], data, 10);
 		// data[10] = '\0';
 		// printf("Data read from the device driver: %s\n", data);
-		exit(0);
+		//exit(0);
 
 
 	}
@@ -94,12 +94,14 @@ int main(void)
 
 		lseek(fd[0], 0, SEEK_SET);
 
+		sleep(1);
+
 		read(fd[0], data, 150);
 		data[150] = '\0';
 		printf("Data read from the device driver: %s\n", data);
 
 		// // Sleep some more
-		wait(NULL);
+		//wait(NULL);
 
 	}
 
