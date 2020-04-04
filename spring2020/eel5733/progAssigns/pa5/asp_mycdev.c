@@ -15,13 +15,14 @@
 
 #define MYDRV_NAME "asp_mycdev"
 #define MYDEV_NAME "/dev/mycdev"
+#define RAMDISK_SIZE (size_t) (16*PAGE_SIZE)
 
 struct asp_mycdev {
 	struct cdev dev;
 	char *ramdisk;
 	struct semaphore sem;
 	int devNo;
-	size_t ramdisk_size = (size_t) (16*PAGE_SIZE);
+	size_t ramdisk_size;;
 }
 
 // Parameters to be set at load time
@@ -35,7 +36,6 @@ module_param(mycdev_nr_devs, int, S_IRUGO);
 
 // More necessary global variables
 static dev_t devNum;
-static unsigned int count = 1;
 static struct class *mycdev_class;
 static struct asp_mycdev **mycdevices;
 
@@ -201,11 +201,6 @@ static loff_t mycdev_lseek(struct file *file, loff_t * offset, int orig)
 
 static int mycdev_ioctl(struct inode *inode, struct file *file, unsigned int command, unsigned long args)
 {
-	// Declare necessary variables
-	int err = 0;
-	int retVal = 0;
-	int tmp;
-
 	// Set the dev structure up first so we are doing the right thing
 	struct asp_mycdev *mycdev = file->private_data;
 
@@ -214,7 +209,7 @@ static int mycdev_ioctl(struct inode *inode, struct file *file, unsigned int com
 		return -ERESTARTSYS;
 
 	// Switch statement for handling the control commands
-	switch (cmd)
+	switch (command)
 	{
 		// Clear the buffer and reset the file position pointer to 0
 		case ASP_CLEAR_BUF:
@@ -241,8 +236,9 @@ static const struct file_operations mycdev_fops = {
 	.write = mycdev_write,
 	.open = mycdev_open,
 	.release = mycdev_release,
-	.lseek = mycdev_lseek,
-	.ioctl = mycdev_ioctl,
+	.llseek = mycdev_lseek,
+	.unlocked_ioctl = mycdev_ioctl,
+	.compat_ioctl = mycdev_ioctl,
 };
 
 
@@ -296,6 +292,7 @@ static int __init my_init(void)
 		device_create(mycdev_class, NULL, devNum, NULL, devName);
 
 		// Allocate and set all the structure variables here too
+		mycdevices[i]->ramdisk_size = RAMDISK_SIZE;
 		mycdevices[i]->ramdisk = kmalloc(mycdevices[i]->ramdisk_size, GFP_KERNEL);
 		mycdevices[i]->devNo = currDev;
 		init_MUTEX(&mycdevices[i]->sem); 
