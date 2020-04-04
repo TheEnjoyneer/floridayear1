@@ -54,9 +54,14 @@ int main(void)
 	}
 	else
 	{
+		// Clear the buffer with the ioctl function
+		ioctl(fd[0], ASP_CLEAR_BUF, NULL);
+
+		// Write to the device
+		write(fd[0], "\n Christopher Brant says: Hello /dev/mycdev0!\n", 45);
 
 		// Possibly read from the driver here
-		sleep(2);
+		//sleep(2);
 		read(fd[0], data, 45);
 		data[45] = '\0';
 		
