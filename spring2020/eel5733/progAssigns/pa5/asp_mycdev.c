@@ -37,7 +37,7 @@ module_param(mycdev_nr_devs, int, S_IRUGO);
 static dev_t devNum;
 static unsigned int count = 1;
 static struct class *mycdev_class;
-static struct asp_mycdev *mycdevices;
+static struct asp_mycdev **mycdevices;
 
 
 static int mycdev_open(struct inode *inode, struct file *file)
@@ -46,7 +46,7 @@ static int mycdev_open(struct inode *inode, struct file *file)
 	static int openCount = 0;
 
 	// Set the dev structure up first so we are doing the right thing
-	struct asp_mycdev mycdev;
+	struct asp_mycdev *mycdev;
 	mycdev = container_of(inode->i_cdev, struct asp_mycdev, dev);
 	file->private_data = mycdev;
 
@@ -57,7 +57,7 @@ static int mycdev_open(struct inode *inode, struct file *file)
 	openCount++;
 
 	// Then print messages
-	pr_info("cbrant succesfully opened device: %s:\n\n", MYDEV_NAME);
+	pr_info("cbrant successfully opened device with MAJOR number = %d, MINOR number = %d\n", MAJOR(mycdev->devNo), MINOR(mycdev->devNo));
 	pr_info("I have been opened %d times since being loaded.\n", openCount);
 	pr_info("ref=%d\n", (int)module_refcount(THIS_MODULE));
 
@@ -67,7 +67,11 @@ static int mycdev_open(struct inode *inode, struct file *file)
 
 static int mycdev_release(struct inode *inode, struct file *file)
 {
-	pr_info("cbrant dictates: CLOSING device: %s:\n\n", MYDEV_NAME);
+	// Declare necessary variable
+	struct asp_mycdev *mycdev = file->private_data;
+
+	// Printout
+	pr_info("cbrant dictates: CLOSING device with MAJOR number = %d, MINOR number = %d\n", MAJOR(mycdev->devNo), MINOR(mycdev->devNo));
 	return 0;
 }
 
@@ -78,13 +82,13 @@ static ssize_t mycdev_read(struct file *file, char __user *buf, size_t lbuf, lof
 	int nbytes;
 
 	// Set the dev structure up first so we are doing the right thing
-	struct asp_mycdev mycdev = file->private_data;
+	struct asp_mycdev *mycdev = file->private_data;
 
 	// Synchronization primitives...
 	if (down_interruptible(&mycdev->sem))
 		return -ERESTARTSYS;
 
-	if ((lbuf + *ppos) > ramdisk_size) {
+	if ((lbuf + *ppos) > mycdev->ramdisk_size) {
 		pr_info("cbrant dictates: trying to read past end of device,"
 			"aborting because this is just a stub!\n");
 		return 0;
@@ -106,13 +110,13 @@ static ssize_t mycdev_write(struct file *file, const char __user *buf, size_t lb
 	int nbytes;
 
 	// Set the dev structure up first so we are doing the right thing
-	struct asp_mycdev dev = file->private_data;
+	struct asp_mycdev *mycdev = file->private_data;
 
 	// Synchronization primitives...
-	if (down_interruptible(&dev->sem))
+	if (down_interruptible(&mycdev->sem))
 		return -ERESTARTSYS;
 
-	if ((lbuf + *ppos) > ramdisk_size) {
+	if ((lbuf + *ppos) > mycdev->ramdisk_size) {
 		pr_info("cbrant dictates: trying to read past end of device,"
 			"aborting because this is just a stub!\n");
 		return 0;
@@ -122,7 +126,7 @@ static ssize_t mycdev_write(struct file *file, const char __user *buf, size_t lb
 	pr_info("\ncbrant dictates: WRITING function, nbytes=%d, pos=%d\n", nbytes, (int)*ppos);
 
 	// Synchronization primitives...
-	up(&dev->sem);
+	up(&mycdev->sem);
 
 	return nbytes;
 }
@@ -136,7 +140,7 @@ static loff_t mycdev_lseek(struct file *file, loff_t * offset, int orig)
 	char *tempdisk;
 
 	// Set the dev structure up first so we are doing the right thing
-	struct asp_mycdev mycdev = file->private_data;
+	struct asp_mycdev *mycdev = file->private_data;
 
 	// Synchronization primitives...
 	if (down_interruptible(&mycdev->sem))
@@ -177,7 +181,7 @@ static loff_t mycdev_lseek(struct file *file, loff_t * offset, int orig)
 
 		// Switch newdisk and original ramdisk and then free the original ramdisk
 		tempdisk = mycdev->ramdisk;
-		mycdev.ramdisk = newdisk;
+		mycdev->ramdisk = newdisk;
 		kfree(tempdisk);
 
 		// Set ramdisk size to new size
@@ -203,7 +207,7 @@ static int mycdev_ioctl(struct inode *inode, struct file *file, unsigned int com
 	int tmp;
 
 	// Set the dev structure up first so we are doing the right thing
-	struct asp_mycdev mycdev = file->private_data;
+	struct asp_mycdev *mycdev = file->private_data;
 
 	// Synchronization primitives...
 	if (down_interruptible(&mycdev->sem))
@@ -250,7 +254,11 @@ static int __init my_init(void)
 	dev_t currDev;
 
 	// Allocate all devices
-	mycdevices = kmalloc(mycdev_nr_devs * sizeof(struct asp_mycdev), GFP_KERNEL);
+	mycdevices = (struct asp_mycdev **)kmalloc(mycdev_nr_devs * sizeof(struct asp_mycdev *), GFP_KERNEL);
+
+	// Loop to allocate each structure
+	for (i = 0; i < mycdev_nr_devs; i++)
+		mycdevices[i] = (struct asp_mycdev *)kmalloc(sizeof(struct asp_mycdev), GFP_KERNEL);
 
 	// allocate region and cdev
 	if (alloc_chrdev_region(&devNum, mycdev_minor, mycdev_nr_devs, MYDRV_NAME) < 0)
@@ -272,7 +280,7 @@ static int __init my_init(void)
 		currDev = MKDEV(mycdev_major, i);
 
 		// This should work as we have to allocate the cdev structures
-		if (!(mycdevices[i].dev = cdev_alloc()))
+		if (!(mycdevices[i]->dev = cdev_alloc()))
 		{
 			pr_err("cdev_alloc() failed for index %d\n", i);
 			unregister_chrdev_region(devNum, mycdev_nr_devs);
@@ -283,10 +291,10 @@ static int __init my_init(void)
 		sprintf(devName, "%s%d", MYDEV_NAME, i);
 
 		// Init and add cdev the individual cdev structs within my structure
-		cdev_init(&(mycdevices[i].dev), &mycdev_fops);
+		cdev_init(&(mycdevices[i]->dev), &mycdev_fops);
 
 		// Add the cdev, but with some error checks
-		if (cdev_add(&(mycdevices[i].dev), currDev, 1))
+		if (cdev_add(&(mycdevices[i]->dev), currDev, 1))
 		{
 			printk(KERN_NOTICE "Error %d adding %s\n", retVal, devName);
 			return -1;
@@ -296,9 +304,9 @@ static int __init my_init(void)
 		device_create(mycdev_class, NULL, devNum, NULL, devName);
 
 		// Allocate and set all the structure variables here too
-		mycdevices[i].ramdisk = kmalloc(mycdevices[i].ramdisk_size, GFP_KERNEL);
-		mycdevices[i].devNo = currDev;
-		init_MUTEX(&mycdevices[i].sem); 
+		mycdevices[i]->ramdisk = kmalloc(mycdevices[i]->ramdisk_size, GFP_KERNEL);
+		mycdevices[i]->devNo = currDev;
+		init_MUTEX(&mycdevices[i]->sem); 
 
 		// Printouts and return
 		pr_info("cbrant succeeded in registering character device %s\n", devName);
@@ -312,7 +320,6 @@ static int __init my_init(void)
 static void __exit my_exit(void)
 {
 	int i;
-	int major = MAJOR(devNum);
 	dev_t currDev;
 
 	// Loop through devices and delete the cdevs then destroy the devices
@@ -322,8 +329,9 @@ static void __exit my_exit(void)
 		cdev_del(&mycdevices[i].dev);
 		device_destroy(mycdev_class, currDev);
 
-		// Also free the individual asp_mycdev structure's ramdisk
-		kfree(mycdevices[i].ramdisk);
+		// Also free the individual asp_mycdev structure's ramdisk and the struct itself
+		kfree(mycdevices[i]->ramdisk);
+		kfree(mycdevices[i]);
 	}
 
 	// Free the custom struct array destroy the class, unregister the region and print
