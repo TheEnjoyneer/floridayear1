@@ -31,6 +31,7 @@ int main(void)
 	
 	if (fork() == 0)
 	{
+		sleep(2);
 		// Clear the buffer with the ioctl function
 		ioctl(fd[0], ASP_CLEAR_BUF, NULL);
 
@@ -57,7 +58,7 @@ int main(void)
 	else
 	{
 		// // Clear the buffer with the ioctl function
-		// ioctl(fd[0], ASP_CLEAR_BUF, NULL);
+		//ioctl(fd[0], ASP_CLEAR_BUF, NULL);
 
 		// // Write to the device
 		// write(fd[0], "\n Christopher Brant says: Hello /dev/mycdev0!\n", 45);
