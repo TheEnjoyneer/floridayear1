@@ -201,7 +201,7 @@ static loff_t mycdev_lseek(struct file *file, loff_t offset, int orig)
 }
 
 
-static int mycdev_ioctl(struct file *file, unsigned int command, unsigned long args)
+static long mycdev_ioctl(struct file *file, unsigned int command, unsigned long args)
 {
 	// Set the dev structure up first so we are doing the right thing
 	struct asp_mycdev *mycdev = file->private_data;
