@@ -11,6 +11,8 @@
 #include <fcntl.h>
 #include <pthreads.h>
 
+#define ASP_CLEAR_BUF _IO('k', 1)
+
 int main(void)
 {
 	char data[128];
@@ -20,31 +22,60 @@ int main(void)
 	fd[1] = open("/dev/mycdev1", O_RDWR);
 	fd[2] = open("/dev/mycdev2", O_RDWR);
 
-	if (fd < 0)
+	if (fd[0] < 0 || fd[1] < 0 || fd[2] < 0)
 	{
-		printf("Error in opening device file.\n");
+		printf("Error in opening one of the device files.\n");
 		return 1;
 	}
 	
 	if (fork() == 0)
 	{
 		// Write to the device
-		write(fd, "\nChristopher Brant says: Hello tuxdrv!\n", 39);
-		exit(0);
+		write(fd[0], "\nChristopher Brant says: Hello /dev/mycdev0!\n", 45);
+		sleep(5);
+
+		// Let the other process read, clear, and write then try to read and then lseek and write then the other will read
+		read(fd[0], data, 46);
+		data[46] = '\0';
+		printf("Data read from the device driver: %s\n", data);
+
+		// lseek and try and read again
+		printf("Now trying lseek\n");
+		lseek(fd[0], 4, SEEK_SET);
+		read(fd[0], data, 10);
+		data[10] = '\0';
+		printf("Data read from the device driver: %s\n", data);
+
+
 	}
 	else
 	{
 
 		// Possibly read from the driver here
-		read(fd, data, 39);
-		data[39] = '\0';
+		sleep(1);
+		read(fd[0], data, 45);
+		data[45] = '\0';
 		
 		// Print the value that was read
-		printf("Data read from the device driver: %s", data);
+		printf("Data read from the device driver: %s\n", data);
+
+		printf("Clearing the device driver buffer with ioctl\n");
+
+		// Clear the buffer with the ioctl function
+		ioctl(fd[0], ASP_CLEAR_BUF, NULL);
+
+		// Write new value to buffer
+		write(fd[0], "\nChristopher Brant says: CRIKEY /dev/mycdev0!\n", 46);
+
+		// Sleep some more
+		sleep(5);
+
 	}
 
 	// Close the file descriptor
-	close(fd);
+	close(fd[0]);
+	close(fd[1]);
+	close(fd[2]);
 
 	return 0;
 }
