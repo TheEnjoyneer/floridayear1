@@ -19,10 +19,10 @@ int main(void)
 	int fd[3];
 
 	fd[0] = open("/dev/mycdev0", O_RDWR);
-	fd[1] = open("/dev/mycdev1", O_RDWR);
-	fd[2] = open("/dev/mycdev2", O_RDWR);
+	//fd[1] = open("/dev/mycdev1", O_RDWR);
+	//fd[2] = open("/dev/mycdev2", O_RDWR);
 
-	if (fd[0] < 0 || fd[1] < 0 || fd[2] < 0)
+	if (fd[0] < 0)// || fd[1] < 0 || fd[2] < 0)
 	{
 		printf("Error in opening one of the device files.\n");
 		return 1;
@@ -74,8 +74,8 @@ int main(void)
 
 	// Close the file descriptor
 	close(fd[0]);
-	close(fd[1]);
-	close(fd[2]);
+	//close(fd[1]);
+	//close(fd[2]);
 
 	return 0;
 }
