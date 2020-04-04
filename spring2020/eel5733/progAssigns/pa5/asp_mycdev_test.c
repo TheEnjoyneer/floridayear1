@@ -42,7 +42,7 @@ int main(void)
 		lseek(fd[0], 0, SEEK_SET);
 		read(fd[0], data, 46);
 		data[46] = '\0';
-		printf("Data read from the device driver: %s\n", data);
+		printf("1) Data read from the device driver: %s\n", data);
 
 		// // lseek and try and read again
 		// printf("Now trying lseek\n");
@@ -63,7 +63,7 @@ int main(void)
 		data[45] = '\0';
 		
 		// // Print the value that was read
-		printf("Data read from the device driver: %s\n", data);
+		printf("2) Data read from the device driver: %s\n", data);
 		sleep(3);
 
 		// // lseek(fd[0], 4, SEEK_SET);
@@ -88,7 +88,7 @@ int main(void)
 
 		read(fd[0], data, 150);
 		data[150] = '\0';
-		printf("Data read from the device driver: %s\n", data);
+		printf("3) Data read from the device driver: %s\n", data);
 
 		// // Sleep some more
 		wait(NULL);
