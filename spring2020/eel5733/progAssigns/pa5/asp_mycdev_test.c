@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <sys/ioctl.h>
 
 #define ASP_CLEAR_BUF _IO('k', 1)
 
