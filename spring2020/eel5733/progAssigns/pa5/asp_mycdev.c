@@ -296,7 +296,7 @@ static int __init my_init(void)
 		}
 
 		// Create the device
-		device_create(mycdev_class, NULL, devNum, NULL, devName);
+		device_create(mycdev_class, NULL, currDev, NULL, devName);
 
 		// Allocate and set all the structure variables here too
 		mycdevices[i]->ramdisk_size = RAMDISK_SIZE;
@@ -306,7 +306,7 @@ static int __init my_init(void)
 
 		// Printouts and return
 		pr_info("cbrant succeeded in registering character device %s\n", devName);
-		pr_info("MAJOR number = %d, MINOR number = %d\n", MAJOR(devNum), MINOR(devNum));
+		pr_info("MAJOR number = %d, MINOR number = %d\n", MAJOR(currDev), MINOR(currDev));
 	}
 
 	return 0;
