@@ -330,7 +330,8 @@ static void __exit my_exit(void)
 		kfree(mycdevices[i]);
 
 		// Printout
-		pr_info("cbrant succeeded in unregistering character device with MAJOR number = %d, MINOR number = %d\n", MAJOR(currDev), MINOR(currDev));
+		pr_info("cbrant succeeded in unregistering character device\n");
+		pr_info("MAJOR number = %d, MINOR number = %d\n", MAJOR(currDev), MINOR(currDev));
 	}
 
 	// Free the custom struct array destroy the class, unregister the region and print
