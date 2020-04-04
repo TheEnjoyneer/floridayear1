@@ -1,19 +1,24 @@
-/* HelloDriver.c
+/* asp_mycdev_test.c
  * Christopher Brant
  * EEL 5733 Advanced Systems Programming
- * Device Driver In-Class Activity
- * 3/18/20
+ * Assignment 5 Test Program
+ * 4/4/20
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <pthreads.h>
 
 int main(void)
 {
 	char data[128];
-	int fd = open("/dev/tux0", O_RDWR);
+	int fd[3];
+
+	fd[0] = open("/dev/mycdev0", O_RDWR);
+	fd[1] = open("/dev/mycdev1", O_RDWR);
+	fd[2] = open("/dev/mycdev2", O_RDWR);
 
 	if (fd < 0)
 	{
