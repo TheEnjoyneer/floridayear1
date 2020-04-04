@@ -20,10 +20,10 @@ int main(void)
 	int fd[3];
 
 	fd[0] = open("/dev/mycdev0", O_RDWR);
-	//fd[1] = open("/dev/mycdev1", O_RDWR);
-	//fd[2] = open("/dev/mycdev2", O_RDWR);
+	fd[1] = open("/dev/mycdev1", O_RDWR);
+	fd[2] = open("/dev/mycdev2", O_RDWR);
 
-	if (fd[0] < 0)// || fd[1] < 0 || fd[2] < 0)
+	if (fd[0] < 0 || fd[1] < 0 || fd[2] < 0)
 	{
 		printf("Error in opening one of the device files.\n");
 		return 1;
@@ -44,15 +44,7 @@ int main(void)
 		data[46] = '\0';
 		printf("1) Data read from the device driver: %s\n", data);
 
-		// // lseek and try and read again
-		// printf("Now trying lseek\n");
-		// lseek(fd[0], 4, SEEK_SET);
-		// read(fd[0], data, 10);
-		// data[10] = '\0';
-		// printf("Data read from the device driver: %s\n", data);
 		exit(0);
-
-
 	}
 	else
 	{
@@ -65,17 +57,6 @@ int main(void)
 		// // Print the value that was read
 		printf("2) Data read from the device driver: %s\n", data);
 		sleep(3);
-
-		// // lseek(fd[0], 4, SEEK_SET);
-		// // read(fd[0], data, 10);
-		// // data[10] = '\0';
-		// // printf("Data read from the device driver: %s\n", data);
-		// //sleep(1);
-
-		// // printf("Clearing the device driver buffer with ioctl\n");
-
-		// // // Clear the buffer with the ioctl function
-		// // ioctl(fd[0], ASP_CLEAR_BUF, NULL);
 
 		// Write new value to buffer
 		write(fd[0], "\n Christopher Brant says: CRIKEY /dev/mycdev0!\n", 46);
@@ -97,8 +78,8 @@ int main(void)
 
 	// Close the file descriptor
 	close(fd[0]);
-	//close(fd[1]);
-	//close(fd[2]);
+	close(fd[1]);
+	close(fd[2]);
 
 	return 0;
 }
