@@ -50,14 +50,14 @@ int main(void)
 		// read(fd[0], data, 10);
 		// data[10] = '\0';
 		// printf("Data read from the device driver: %s\n", data);
-		//exit(0);
+		exit(0);
 
 
 	}
 	else
 	{
 		// Possibly read from the driver here
-		sleep(2);
+		sleep(5);
 		lseek(fd[0], 0, SEEK_SET);
 		read(fd[0], data, 45);
 		data[45] = '\0';
