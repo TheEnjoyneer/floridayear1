@@ -54,11 +54,11 @@ int main(void)
 	}
 	else
 	{
-		// Clear the buffer with the ioctl function
-		ioctl(fd[0], ASP_CLEAR_BUF, NULL);
+		// // Clear the buffer with the ioctl function
+		// ioctl(fd[0], ASP_CLEAR_BUF, NULL);
 
-		// Write to the device
-		write(fd[0], "\n Christopher Brant says: Hello /dev/mycdev0!\n", 45);
+		// // Write to the device
+		// write(fd[0], "\n Christopher Brant says: Hello /dev/mycdev0!\n", 45);
 
 		// Possibly read from the driver here
 		//sleep(2);
@@ -74,19 +74,19 @@ int main(void)
 		// printf("Data read from the device driver: %s\n", data);
 		//sleep(1);
 
-		printf("Clearing the device driver buffer with ioctl\n");
+		// printf("Clearing the device driver buffer with ioctl\n");
 
-		// Clear the buffer with the ioctl function
-		ioctl(fd[0], ASP_CLEAR_BUF, NULL);
+		// // Clear the buffer with the ioctl function
+		// ioctl(fd[0], ASP_CLEAR_BUF, NULL);
 
-		// Write new value to buffer
-		write(fd[0], "\nChristopher Brant says: CRIKEY /dev/mycdev0!\n", 46);
+		// // Write new value to buffer
+		// write(fd[0], "\nChristopher Brant says: CRIKEY /dev/mycdev0!\n", 46);
 
-		lseek(fd[0], 0, SEEK_SET);
+		// lseek(fd[0], 0, SEEK_SET);
 
-		read(fd[0], data, 46);
-		data[46] = '\0';
-		printf("Data read from the device driver: %s\n", data);
+		// read(fd[0], data, 46);
+		// data[46] = '\0';
+		// printf("Data read from the device driver: %s\n", data);
 
 		// // Sleep some more
 		// sleep(5);
