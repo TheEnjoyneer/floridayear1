@@ -38,6 +38,7 @@ int main(void)
 		sleep(10);
 
 		// // Let the other process read, clear, and write then try to read and then lseek and write then the other will read
+		lseek(fd[0], 0, SEEK_SET);
 		read(fd[0], data, 46);
 		data[46] = '\0';
 		printf("Data read from the device driver: %s\n", data);
