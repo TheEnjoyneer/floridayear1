@@ -279,14 +279,6 @@ static int __init my_init(void)
 		// Get the current device number to give to the device creation function
 		currDev = MKDEV(mycdev_major, i);
 
-		// This should work as we have to allocate the cdev structures
-		if (!(mycdevices[i]->dev = cdev_alloc()))
-		{
-			pr_err("cdev_alloc() failed for index %d\n", i);
-			unregister_chrdev_region(devNum, mycdev_nr_devs);
-			return -1;
-		}
-
 		// Set device name string
 		sprintf(devName, "%s%d", MYDEV_NAME, i);
 
