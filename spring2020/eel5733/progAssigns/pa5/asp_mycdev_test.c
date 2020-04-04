@@ -64,7 +64,7 @@ int main(void)
 		// write(fd[0], "\n Christopher Brant says: Hello /dev/mycdev0!\n", 45);
 
 		// Possibly read from the driver here
-		sleep(2);
+		sleep(3);
 		lseek(fd[0], 0, SEEK_SET);
 		read(fd[0], data, 45);
 		data[45] = '\0';
