@@ -70,7 +70,7 @@ int main(void)
 		data[45] = '\0';
 		
 		// // Print the value that was read
-		// printf("Data read from the device driver: %s\n", data);
+		printf("Data read from the device driver: %s\n", data);
 
 		// //sleep(2);
 
