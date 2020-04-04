@@ -6,15 +6,15 @@
  * 4/4/20
  */
 
-#include <linux/module.h>	/* for modules */
-#include <linux/fs.h>		/* file_operations */
-#include <linux/uaccess.h>	/* copy_(to,from)_user */
-#include <linux/init.h>		/* module_init, module_exit */
-#include <linux/slab.h>		/* kmalloc */
-#include <linux/cdev.h>		/* cdev utilities */
-#include <linux/semaphore.h> /* semaphores */
-#include <linux/sem.h>		/* more semaphores */
-#include <linux/iotcl.h>
+#include <linux/module.h>		/* for modules */
+#include <linux/fs.h>			/* file_operations */
+#include <linux/uaccess.h>		/* copy_(to,from)_user */
+#include <linux/init.h>			/* module_init, module_exit */
+#include <linux/slab.h>			/* kmalloc */
+#include <linux/cdev.h>			/* cdev utilities */
+#include <linux/semaphore.h> 	/* semaphores */
+#include <linux/sem.h>			/* more semaphores */
+#include <linux/ioctl.h>		/* ioctl stuff */
 
 #define MYDRV_NAME "asp_mycdev"
 #define MYDEV_NAME "/dev/mycdev"
