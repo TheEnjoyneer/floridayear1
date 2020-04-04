@@ -53,7 +53,7 @@ int main(void)
 	{
 
 		// Possibly read from the driver here
-		sleep(15);
+		//sleep(5);
 		read(fd[0], data, 45);
 		data[45] = '\0';
 		
