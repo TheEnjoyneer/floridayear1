@@ -63,7 +63,6 @@ static int mycdev_open(struct inode *inode, struct file *file)
 	// Then print messages
 	pr_info("cbrant successfully opened device with MAJOR number = %d, MINOR number = %d\n", MAJOR(mycdev->devNo), MINOR(mycdev->devNo));
 	pr_info("I have been opened %d times since being loaded.\n", openCount);
-	pr_info("ref=%d\n", (int)module_refcount(THIS_MODULE));
 
 	return 0;
 }
