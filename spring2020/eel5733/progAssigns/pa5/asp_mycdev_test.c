@@ -49,6 +49,7 @@ int main(void)
 		// read(fd[0], data, 10);
 		// data[10] = '\0';
 		// printf("Data read from the device driver: %s\n", data);
+		exit(0);
 
 
 	}
@@ -94,7 +95,7 @@ int main(void)
 		// printf("Data read from the device driver: %s\n", data);
 
 		// // Sleep some more
-		// sleep(5);
+		wait();
 
 	}
 
