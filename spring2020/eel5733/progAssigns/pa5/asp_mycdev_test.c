@@ -69,7 +69,7 @@ int main(void)
 		// Print the value that was read
 		printf("Data read from the device driver: %s\n", data);
 
-		sleep(5);
+		sleep(2);
 
 		lseek(fd[0], 0, SEEK_SET);
 
