@@ -12,6 +12,8 @@
 #include <linux/init.h>		/* module_init, module_exit */
 #include <linux/slab.h>		/* kmalloc */
 #include <linux/cdev.h>		/* cdev utilities */
+#include <linux/semaphore.h> /* semaphores */
+#include <linux/sem.h>		/* more semaphores */
 
 #define MYDRV_NAME "asp_mycdev"
 #define MYDEV_NAME "/dev/mycdev"
@@ -315,7 +317,7 @@ static void __exit my_exit(void)
 	for (i = 0; i < mycdev_nr_devs; i++)
 	{
 		currDev = MKDEV(mycdev_major, i);
-		cdev_del(&mycdevices[i].dev);
+		cdev_del(&mycdevices[i]->dev);
 		device_destroy(mycdev_class, currDev);
 
 		// Also free the individual asp_mycdev structure's ramdisk and the struct itself
