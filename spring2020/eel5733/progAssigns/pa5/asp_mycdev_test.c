@@ -33,7 +33,7 @@ int main(void)
 	{
 		sleep(2);
 		// Clear the buffer with the ioctl function
-		lseek(fd[0], 0, SEEK_SET);
+		ioctl(fd[0], ASP_CLEAR_BUF, NULL);
 
 		// Write to the device
 		write(fd[0], "\n Christopher Brant says: Hello /dev/mycdev0!\n", 45);
