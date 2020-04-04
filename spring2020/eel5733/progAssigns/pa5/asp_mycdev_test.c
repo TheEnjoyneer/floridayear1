@@ -60,6 +60,11 @@ int main(void)
 		// Print the value that was read
 		printf("Data read from the device driver: %s\n", data);
 
+		lseek(fd[0], 4, SEEK_SET);
+		read(fd[0], data, 10);
+		data[10] = '\0';
+		printf("Data read from the device driver: %s\n", data);
+
 		// printf("Clearing the device driver buffer with ioctl\n");
 
 		// // Clear the buffer with the ioctl function
