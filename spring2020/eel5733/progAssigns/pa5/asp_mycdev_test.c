@@ -90,6 +90,8 @@ int main(void)
 		// // // Write new value to buffer
 		write(fd[0], "\nChristopher Brant says: CRIKEY /dev/mycdev0!\n", 46);
 
+		lseek(fd[0], 150, SEEK_SET);
+
 		lseek(fd[0], 0, SEEK_SET);
 
 		read(fd[0], data, 150);
@@ -98,8 +100,6 @@ int main(void)
 
 		// // Sleep some more
 		wait(NULL);
-
-		lseek(fd[0], 150, SEEK_SET);
 
 	}
 
