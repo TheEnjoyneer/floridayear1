@@ -22,7 +22,7 @@ struct asp_mycdev {
 	char *ramdisk;
 	struct semaphore sem;
 	int devNo;
-	size_t ramdisk_size;;
+	size_t ramdisk_size;
 }
 
 // Parameters to be set at load time
@@ -132,7 +132,7 @@ static ssize_t mycdev_write(struct file *file, const char __user *buf, size_t lb
 }
 
 
-static loff_t mycdev_lseek(struct file *file, loff_t * offset, int orig)
+static loff_t mycdev_lseek(struct file *file, loff_t offset, int orig)
 {
 	// Declare necessary variables
 	loff_t newpos;
