@@ -95,7 +95,7 @@ int main(void)
 		lseek(fd[0], 0, SEEK_SET);
 
 		read(fd[0], data, 150);
-		data[46] = '\0';
+		data[150] = '\0';
 		printf("Data read from the device driver: %s\n", data);
 
 		// // Sleep some more
