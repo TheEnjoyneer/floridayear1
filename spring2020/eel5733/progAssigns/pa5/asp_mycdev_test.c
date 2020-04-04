@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
+#include <sys/wait.h>
 
 #define ASP_CLEAR_BUF _IO('k', 1)
 
