@@ -299,7 +299,7 @@ static int __init my_init(void)
 		mycdevices[i]->ramdisk_size = RAMDISK_SIZE;
 		mycdevices[i]->ramdisk = kmalloc(mycdevices[i]->ramdisk_size, GFP_KERNEL);
 		mycdevices[i]->devNo = currDev;
-		sem_init(&mycdevices[i]->sem, 1); 
+		sema_init(&mycdevices[i]->sem, 1); 
 
 		// Printouts and return
 		pr_info("cbrant succeeded in registering character device %s\n", devName);
