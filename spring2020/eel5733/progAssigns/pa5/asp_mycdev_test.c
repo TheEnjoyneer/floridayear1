@@ -74,7 +74,7 @@ int main(void)
 
 		// //sleep(2);
 
-		// lseek(fd[0], 0, SEEK_SET);
+		lseek(fd[0], 0, SEEK_SET);
 
 		// // lseek(fd[0], 4, SEEK_SET);
 		// // read(fd[0], data, 10);
@@ -88,7 +88,7 @@ int main(void)
 		// // ioctl(fd[0], ASP_CLEAR_BUF, NULL);
 
 		// // // Write new value to buffer
-		// write(fd[0], "\nChristopher Brant says: CRIKEY /dev/mycdev0!\n", 46);
+		write(fd[0], "\nChristopher Brant says: CRIKEY /dev/mycdev0!\n", 46);
 
 		lseek(fd[0], 0, SEEK_SET);
 
