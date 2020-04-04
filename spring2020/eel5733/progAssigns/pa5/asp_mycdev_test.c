@@ -35,12 +35,12 @@ int main(void)
 
 		// Write to the device
 		write(fd[0], "\n Christopher Brant says: Hello /dev/mycdev0!\n", 45);
-		// sleep(1);
+		sleep(10);
 
 		// // Let the other process read, clear, and write then try to read and then lseek and write then the other will read
-		// read(fd[0], data, 46);
-		// data[46] = '\0';
-		// printf("Data read from the device driver: %s\n", data);
+		read(fd[0], data, 46);
+		data[46] = '\0';
+		printf("Data read from the device driver: %s\n", data);
 
 		// // lseek and try and read again
 		// printf("Now trying lseek\n");
@@ -69,6 +69,10 @@ int main(void)
 		// Print the value that was read
 		printf("Data read from the device driver: %s\n", data);
 
+		sleep(5);
+
+		lseek(fd[0], 0, SEEK_SET);
+
 		// lseek(fd[0], 4, SEEK_SET);
 		// read(fd[0], data, 10);
 		// data[10] = '\0';
@@ -81,7 +85,7 @@ int main(void)
 		// ioctl(fd[0], ASP_CLEAR_BUF, NULL);
 
 		// // Write new value to buffer
-		// write(fd[0], "\nChristopher Brant says: CRIKEY /dev/mycdev0!\n", 46);
+		write(fd[0], "\nChristopher Brant says: CRIKEY /dev/mycdev0!\n", 46);
 
 		// lseek(fd[0], 0, SEEK_SET);
 
