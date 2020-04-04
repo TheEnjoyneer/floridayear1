@@ -77,8 +77,8 @@ int main(void)
 		// // // Clear the buffer with the ioctl function
 		// // ioctl(fd[0], ASP_CLEAR_BUF, NULL);
 
-		// // // Write new value to buffer
-		//write(fd[0], "\n Christopher Brant says: CRIKEY /dev/mycdev0!\n", 46);
+		// Write new value to buffer
+		write(fd[0], "\n Christopher Brant says: CRIKEY /dev/mycdev0!\n", 46);
 
 		lseek(fd[0], 150, SEEK_SET);
 
