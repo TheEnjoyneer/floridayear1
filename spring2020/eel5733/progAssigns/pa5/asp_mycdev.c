@@ -14,10 +14,13 @@
 #include <linux/cdev.h>		/* cdev utilities */
 #include <linux/semaphore.h> /* semaphores */
 #include <linux/sem.h>		/* more semaphores */
+#include <linux/iotcl.h>
 
 #define MYDRV_NAME "asp_mycdev"
 #define MYDEV_NAME "/dev/mycdev"
 #define RAMDISK_SIZE (size_t) (16*PAGE_SIZE)
+#define MAGIC_CONCH_SHELL 'F'
+#define ASP_CLEAR_BUF _IO(MAGIC_CONCH_SHELL, 1)
 
 struct asp_mycdev {
 	struct cdev dev;
@@ -25,7 +28,7 @@ struct asp_mycdev {
 	struct semaphore sem;
 	int devNo;
 	size_t ramdisk_size;
-}
+};
 
 // Parameters to be set at load time
 static int mycdev_major;
