@@ -96,7 +96,7 @@ int main(void)
 		// printf("Data read from the device driver: %s\n", data);
 
 		// // Sleep some more
-		wait();
+		wait(NULL);
 
 	}
 
