@@ -201,7 +201,7 @@ static loff_t mycdev_lseek(struct file *file, loff_t offset, int orig)
 }
 
 
-static int mycdev_ioctl(struct inode *inode, struct file *file, unsigned int command, unsigned long args)
+static int mycdev_ioctl(struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg)
 {
 	// Set the dev structure up first so we are doing the right thing
 	struct asp_mycdev *mycdev = file->private_data;
@@ -211,7 +211,7 @@ static int mycdev_ioctl(struct inode *inode, struct file *file, unsigned int com
 		return -ERESTARTSYS;
 
 	// Switch statement for handling the control commands
-	switch (command)
+	switch (cmd)
 	{
 		// Clear the buffer and reset the file position pointer to 0
 		case ASP_CLEAR_BUF:
