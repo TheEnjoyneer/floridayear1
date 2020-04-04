@@ -295,6 +295,7 @@ static int __init my_init(void)
 		}
 
 		// Create the device
+		pr_info("trying to create device number %d, %d, %d\n", currDev, MAJOR(currDev), MINOR(currDev));
 		device_create(mycdev_class, NULL, currDev, NULL, devName);
 
 		// Allocate and set all the structure variables here too
