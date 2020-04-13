@@ -12,7 +12,7 @@
 #include <tcp_connection.h>
 #include <netinet/tcp.h>
 
-#define PACKETSTOREAD 10
+#define PACKETSTOREAD 0
 #define BUFSIZE 65536
 #define GARBOSIZE 65536
 
