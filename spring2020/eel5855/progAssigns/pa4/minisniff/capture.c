@@ -19,8 +19,8 @@ void pcap_callback (u_char * arg, const struct pcap_pkthdr *pkthdr, const u_char
 
   // If the packet is a tcp syn or syn/ack packet, then we add it to the buffer
   tcp_header *tcpptr = (tcp_header *) (packet + size_of_ehdr + size_of_iphdr);
-
-  if (((tcpptr->th_flags & 0x02) >> 1) && ((tcpptr->th_flags & 0x10) >> 4))
+  int size_tcp = TH_OFF(tcpptr)*4
+  if (((tcpptr->th_flags & 0x02) >> 1) && ((tcpptr->th_flags & 0x10) >> 4) && (size_tcp >= 20))
 		append_item ((buffer *) arg, pkthdr, packet);
 
 }
