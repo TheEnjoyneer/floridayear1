@@ -11,6 +11,7 @@
  * you want this packet. see what i'm doing with the packets i store in the linked-list in the main, you can almost
  * copy-paste that stuff here and it would work just fine.
  */
+
 void pcap_callback (u_char * arg, const struct pcap_pkthdr *pkthdr, const u_char * packet){
 
 	// Get sizes
