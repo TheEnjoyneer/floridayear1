@@ -99,9 +99,9 @@ int main (int argc, char **argv){
   tmp = buf.header;
   while(tmp != NULL)
   {
-    fprintf(stdout, "actual length=%d captured length=%d\n",
-		    tmp->packet_header->len,
-		    tmp->packet_header->caplen);
+    // fprintf(stdout, "actual length=%d captured length=%d\n",
+		  //   tmp->packet_header->len,
+		  //   tmp->packet_header->caplen);
 
     /* here we want to access the ethernet header of a packet, which looks like this
      *              ------------------------------------------
@@ -161,41 +161,41 @@ int main (int argc, char **argv){
       	}
 
         /* we have a valid ip packet, so lets print out its fields */
-      	fprintf(stdout, "information about this IP packet:\n");
-      	fprintf(stdout, "length = %d\n", ntohs(ipptr->tot_len));
-      	fprintf(stdout, "header length = %d\n", ipptr->ihl);
-      	fprintf(stdout, "version = %d\n", ipptr->version);
-      	fprintf(stdout, "id = 0x%x\n", ntohs(ipptr->id));
-      	fprintf(stdout, "offset = %d\n", ipptr->frag_off);
-      	fprintf(stdout, "ttl = %d\n", ipptr->ttl);
-      	fprintf(stdout, "protocol = %d\n", ipptr->protocol);
+      	// fprintf(stdout, "information about this IP packet:\n");
+      	// fprintf(stdout, "length = %d\n", ntohs(ipptr->tot_len));
+      	// fprintf(stdout, "header length = %d\n", ipptr->ihl);
+      	// fprintf(stdout, "version = %d\n", ipptr->version);
+      	// fprintf(stdout, "id = 0x%x\n", ntohs(ipptr->id));
+      	// fprintf(stdout, "offset = %d\n", ipptr->frag_off);
+      	// fprintf(stdout, "ttl = %d\n", ipptr->ttl);
+      	// fprintf(stdout, "protocol = %d\n", ipptr->protocol);
       	
-      	ipaddr.s_addr = (unsigned long int)ipptr->saddr;
-              fprintf(stdout, "source = %s\n", inet_ntoa(ipaddr)); /* source address */
+      	// ipaddr.s_addr = (unsigned long int)ipptr->saddr;
+       //        fprintf(stdout, "source = %s\n", inet_ntoa(ipaddr)); /* source address */
       	
-      	ipaddr.s_addr = (unsigned long int)ipptr->daddr;
-      	fprintf(stdout, "destination = %s\n", inet_ntoa(ipaddr));
-        /* and so on, you got the idea */	
+      	// ipaddr.s_addr = (unsigned long int)ipptr->daddr;
+      	// fprintf(stdout, "destination = %s\n", inet_ntoa(ipaddr));
+       //  /* and so on, you got the idea */	
 
-        /* So here is where we will look at the tcp header information
-         * For each TCP packet source we need to record:
-         *    - Connection requests: TCP SYN
-         *    - Positive responses: TCP SYN/ACK
-         * And if the ratio of ConReqs to PosResp exceeds 3:1, issue a warning
-         */
-        tcpptr = (tcp_header *) (packet + size_of_ehdr + size_of_iphdr);
+       //   So here is where we will look at the tcp header information
+       //   * For each TCP packet source we need to record:
+       //   *    - Connection requests: TCP SYN
+       //   *    - Positive responses: TCP SYN/ACK
+       //   * And if the ratio of ConReqs to PosResp exceeds 3:1, issue a warning
+         
+       //  tcpptr = (tcp_header *) (packet + size_of_ehdr + size_of_iphdr);
 
-        if ((tmp->packet_header->len - (size_of_ehdr + size_of_iphdr)) < size_of_tcphdr)
-        {
-          fprintf(stderr, "not a valid TCP packet\n");
-          continue;
-        }
+       //  if ((tmp->packet_header->len - (size_of_ehdr + size_of_iphdr)) < size_of_tcphdr)
+       //  {
+       //    fprintf(stderr, "not a valid TCP packet\n");
+       //    continue;
+       //  }
 
-        fprintf(stdout, "information about this TCP packet:\n");
-        fprintf(stdout, "src port = %d\n", ntohs(tcpptr->th_sport));
-        fprintf(stdout, "dest port = %d\n", ntohs(tcpptr->th_dport));
-        fprintf(stdout, "seq number = %u\n", ntohl(tcpptr->th_seq));
-        fprintf(stdout, "ack number = %u\n", ntohl(tcpptr->th_ack));
+       //  fprintf(stdout, "information about this TCP packet:\n");
+       //  fprintf(stdout, "src port = %d\n", ntohs(tcpptr->th_sport));
+       //  fprintf(stdout, "dest port = %d\n", ntohs(tcpptr->th_dport));
+       //  fprintf(stdout, "seq number = %u\n", ntohl(tcpptr->th_seq));
+       //  fprintf(stdout, "ack number = %u\n", ntohl(tcpptr->th_ack));
 
 
         // SOMEHOW COLLECT INFORMATION FOR DIAGNOSTICS AND SCANNING HERE
