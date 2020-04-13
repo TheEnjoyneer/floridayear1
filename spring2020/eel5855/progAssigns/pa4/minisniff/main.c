@@ -163,9 +163,9 @@ int main (int argc, char **argv){
         /* we have a valid ip packet, so lets print out its fields */
       	fprintf(stdout, "information about this IP packet:\n");
       	fprintf(stdout, "length = %d\n", ntohs(ipptr->tot_len));
-      	fprintf(stdout, "header length = %d\n", ipptr->ihl );
+      	fprintf(stdout, "header length = %d\n", ipptr->ihl);
       	fprintf(stdout, "version = %d\n", ipptr->version);
-      	fprintf(stdout, "id = 0x%x\n", ipptr->id);
+      	fprintf(stdout, "id = 0x%x\n", ntohs(ipptr->id));
       	fprintf(stdout, "offset = %d\n", ipptr->frag_off);
       	fprintf(stdout, "ttl = %d\n", ipptr->ttl);
       	fprintf(stdout, "protocol = %d\n", ipptr->protocol);
