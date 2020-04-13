@@ -14,7 +14,7 @@
 #include <time.h>
 
 #include <buffer.h>
-#define TH_OFF(th)      (((th)->th_offx2 & 0xf0) >> 4)
+#define TH_OFF(th)      (((th)->th_off & 0xf0) >> 4)
 
 typedef struct iphdr ip_header;
 typedef struct ether_header ethernet_header;
