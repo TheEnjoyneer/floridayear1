@@ -195,9 +195,9 @@ int main (int argc, char **argv){
         fprintf(stdout, "dest port = %d\n", ntohs(tcpptr->th_dport));
         fprintf(stdout, "seq number = %u\n", ntohl(tcpptr->th_seq));
         fprintf(stdout, "ack number = %u\n", ntohl(tcpptr->th_ack));
-        fprintf(stdout, "tcp flags = %x\n", tcpptr->th_flags);
-        //fprintf(stdout, "SYN flag = %d\n", (ntohs(tcpptr->th_flags) & 0x02) >> 1);
-        //fprintf(stdout, "ACK flag = %d\n", (ntohs(tcpptr->th_flags) & 0x10) >> 4);
+        //fprintf(stdout, "tcp flags = %x\n", tcpptr->th_flags);
+        fprintf(stdout, "SYN flag = %d\n", (tcpptr->th_flags & 0x02) >> 1);
+        fprintf(stdout, "ACK flag = %d\n", (tcpptr->th_flags & 0x10) >> 4);
 
 
         // SOMEHOW COLLECT INFORMATION FOR DIAGNOSTICS AND SCANNING HERE
