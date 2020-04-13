@@ -13,10 +13,14 @@
  */
 void pcap_callback (u_char * arg, const struct pcap_pkthdr *pkthdr, const u_char * packet){
 
-  /* just append the packet header and raw packet to the linked-list
-   * nothing fancy here, look at main() to learn how to work with the 
-   * packet header etc. 
-   */
-  append_item ((buffer *) arg, pkthdr, packet);
+	// Get sizes
+	unsigned int size_of_iphdr = sizeof(ip_header);       /* size of the ip header */
+  unsigned int size_of_ehdr = sizeof(ethernet_header);  /* size of the ethernet header */
+
+  // If the packet is a tcp syn or syn/ack packet, then we add it to the buffer
+  tcp_header *tcpptr = (tcp_header *) (packet + size_of_ehdr + size_of_iphdr);
+
+  if (((tcpptr->th_flags & 0x02) >> 1) && ((tcpptr->th_flags & 0x10) >> 4))
+		append_item ((buffer *) arg, pkthdr, packet);
 
 }
