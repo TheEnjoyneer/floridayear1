@@ -194,8 +194,8 @@ int main (int argc, char **argv){
         fprintf(stdout, "information about this TCP packet:\n");
         fprintf(stdout, "src port = %d\n", ntohs(tcpptr->th_sport));
         fprintf(stdout, "dest port = %d\n", ntohs(tcpptr->th_dport));
-        fprintf(stdout, "seq number = %d\n", ntohl(tcpptr->th_seq));
-        fprintf(stdout, "ack number = %d\n", ntohl(tcpptr->th_ack));
+        fprintf(stdout, "seq number = %u\n", ntohl(tcpptr->th_seq));
+        fprintf(stdout, "ack number = %u\n", ntohl(tcpptr->th_ack));
 
 
         // SOMEHOW COLLECT INFORMATION FOR DIAGNOSTICS AND SCANNING HERE
