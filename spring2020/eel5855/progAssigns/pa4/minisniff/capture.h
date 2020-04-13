@@ -10,10 +10,14 @@
 #include <arpa/inet.h>
 #include <netinet/if_ether.h>
 #include <netinet/ip.h>
+#include <netinet/tcp.h>
 #include <time.h>
 
 #include <buffer.h>
 
+typedef struct iphdr ip_header;
+typedef struct ether_header ethernet_header;
+typedef struct tcphdr tcp_header;
 
 /* callback foo for the capture library */
 void pcap_callback(u_char *, const struct pcap_pkthdr *, const u_char *);

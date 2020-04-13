@@ -12,9 +12,7 @@
 #include <tcp_connection.h>
 #include <netinet/tcp.h>
 
-#define PACKETSTOREAD 0
-#define BUFSIZE 65536
-#define GARBOSIZE 65536
+#define PACKETSTOREAD 10
 
 typedef struct iphdr ip_header;
 typedef struct ether_header ethernet_header;
@@ -161,41 +159,44 @@ int main (int argc, char **argv){
       	}
 
         /* we have a valid ip packet, so lets print out its fields */
-      	// fprintf(stdout, "information about this IP packet:\n");
-      	// fprintf(stdout, "length = %d\n", ntohs(ipptr->tot_len));
-      	// fprintf(stdout, "header length = %d\n", ipptr->ihl);
-      	// fprintf(stdout, "version = %d\n", ipptr->version);
-      	// fprintf(stdout, "id = 0x%x\n", ntohs(ipptr->id));
-      	// fprintf(stdout, "offset = %d\n", ipptr->frag_off);
-      	// fprintf(stdout, "ttl = %d\n", ipptr->ttl);
-      	// fprintf(stdout, "protocol = %d\n", ipptr->protocol);
+      	fprintf(stdout, "information about this IP packet:\n");
+      	fprintf(stdout, "length = %d\n", ntohs(ipptr->tot_len));
+      	fprintf(stdout, "header length = %d\n", ipptr->ihl);
+      	fprintf(stdout, "version = %d\n", ipptr->version);
+      	fprintf(stdout, "id = 0x%x\n", ntohs(ipptr->id));
+      	fprintf(stdout, "offset = %d\n", ipptr->frag_off);
+      	fprintf(stdout, "ttl = %d\n", ipptr->ttl);
+      	fprintf(stdout, "protocol = %d\n", ipptr->protocol);
       	
-      	// ipaddr.s_addr = (unsigned long int)ipptr->saddr;
-       //        fprintf(stdout, "source = %s\n", inet_ntoa(ipaddr)); /* source address */
+      	ipaddr.s_addr = (unsigned long int)ipptr->saddr;
+              fprintf(stdout, "source = %s\n", inet_ntoa(ipaddr)); /* source address */
       	
-      	// ipaddr.s_addr = (unsigned long int)ipptr->daddr;
-      	// fprintf(stdout, "destination = %s\n", inet_ntoa(ipaddr));
-       //  /* and so on, you got the idea */	
+      	ipaddr.s_addr = (unsigned long int)ipptr->daddr;
+      	fprintf(stdout, "destination = %s\n", inet_ntoa(ipaddr));
+        /* and so on, you got the idea */	
 
-       //   So here is where we will look at the tcp header information
-       //   * For each TCP packet source we need to record:
-       //   *    - Connection requests: TCP SYN
-       //   *    - Positive responses: TCP SYN/ACK
-       //   * And if the ratio of ConReqs to PosResp exceeds 3:1, issue a warning
-         
-       //  tcpptr = (tcp_header *) (packet + size_of_ehdr + size_of_iphdr);
+         /* So here is where we will look at the tcp header information
+          * For each TCP packet source we need to record:
+          *    - Connection requests: TCP SYN
+          *    - Positive responses: TCP SYN/ACK
+          * And if the ratio of ConReqs to PosResp exceeds 3:1, issue a warning
+          */
 
-       //  if ((tmp->packet_header->len - (size_of_ehdr + size_of_iphdr)) < size_of_tcphdr)
-       //  {
-       //    fprintf(stderr, "not a valid TCP packet\n");
-       //    continue;
-       //  }
+        tcpptr = (tcp_header *) (packet + size_of_ehdr + size_of_iphdr);
 
-       //  fprintf(stdout, "information about this TCP packet:\n");
-       //  fprintf(stdout, "src port = %d\n", ntohs(tcpptr->th_sport));
-       //  fprintf(stdout, "dest port = %d\n", ntohs(tcpptr->th_dport));
-       //  fprintf(stdout, "seq number = %u\n", ntohl(tcpptr->th_seq));
-       //  fprintf(stdout, "ack number = %u\n", ntohl(tcpptr->th_ack));
+        if ((tmp->packet_header->len - (size_of_ehdr + size_of_iphdr)) < size_of_tcphdr)
+        {
+          fprintf(stderr, "not a valid TCP packet\n");
+          continue;
+        }
+
+        fprintf(stdout, "information about this TCP packet:\n");
+        fprintf(stdout, "src port = %d\n", ntohs(tcpptr->th_sport));
+        fprintf(stdout, "dest port = %d\n", ntohs(tcpptr->th_dport));
+        fprintf(stdout, "seq number = %u\n", ntohl(tcpptr->th_seq));
+        fprintf(stdout, "ack number = %u\n", ntohl(tcpptr->th_ack));
+        fprintf(stdout, "SYN flag = %d\n", (ntohs(tcpptr->th_flags) & 0x02) >> 1);
+        fprintf(stdout, "ACK flag = %d\n", (ntohs(tcpptr->th_flags) & 0x10) >> 4);
 
 
         // SOMEHOW COLLECT INFORMATION FOR DIAGNOSTICS AND SCANNING HERE
