@@ -192,10 +192,10 @@ int main (int argc, char **argv){
         }
 
         fprintf(stdout, "information about this TCP packet:\n");
-        fprintf(stdout, "src port = %d\n", tcpptr->th_sport);
-        fprintf(stdout, "dest port = %d\n", tcpptr->th_dport);
-        fprintf(stdout, "seq number = %d\n", tcpptr->th_seq);
-        fprintf(stdout, "ack number = %d\n", tcpptr->th_ack);
+        fprintf(stdout, "src port = %d\n", ntohs(tcpptr->th_sport));
+        fprintf(stdout, "dest port = %d\n", ntohs(tcpptr->th_dport));
+        fprintf(stdout, "seq number = %d\n", ntohs(tcpptr->th_seq));
+        fprintf(stdout, "ack number = %d\n", ntohs(tcpptr->th_ack));
 
 
         // SOMEHOW COLLECT INFORMATION FOR DIAGNOSTICS AND SCANNING HERE
