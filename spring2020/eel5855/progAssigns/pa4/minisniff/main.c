@@ -59,7 +59,8 @@ int main (int argc, char **argv){
    * 0) first parameter is the trace file name
    * 1) second parameter is a pointer to the error buffer
    */
-  if((descr = pcap_fopen_offline(argv[1], errbuf))==NULL){
+  FILE *tracefile = fopen(argv[1], "r");
+  if((descr = pcap_fopen_offline(tracefile, errbuf))==NULL){
       fprintf (stderr, "%s: pcap_fopen_offline: %s\n", argv[0], errbuf);
       exit (-1);
   }
