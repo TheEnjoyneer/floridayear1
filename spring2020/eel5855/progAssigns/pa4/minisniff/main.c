@@ -12,7 +12,7 @@
 #include <tcp_connection.h>
 #include <netinet/tcp.h>
 
-#define PACKETSTOREAD 10
+#define PACKETSTOREAD 0
 
 typedef struct iphdr ip_header;
 typedef struct ether_header ethernet_header;
