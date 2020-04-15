@@ -141,6 +141,7 @@ Race Condition Code Reviews:
 	   			- devc->mode
 	   			- devc->count2
 	   			- devc->count1
+	   			- &(devc->queue2)  **
 
 	   	4) In e2_open(), basically the entire function:
 	   		Beginning with line <#>...
@@ -197,9 +198,8 @@ Race Condition Code Reviews:
 	   			- &(devc->queue1)  **
 	   			- &(devc->queue2)  **
 
-	   		** For these two, while they are shared data, they are wait queue
-
-
+	   		** For these two, while they are shared data, they are just wait queues
+	   		   and used for signaling/conditional events
 
 
 	CR Pairs and their code reviews:
@@ -207,25 +207,40 @@ Race Condition Code Reviews:
 		1) The first pair of critical regions that we are going to look at are CR1 and CR2.
 			- For this particular pair of critical regions, I believe there there IS indeed a
 			  possibility of race conditions.
-			- The reason for this is...
-
+			- The reason for this is that since CR1 and CR2 do not hold any locks other than their
+			  parent process holding devc->sem2, if that process were to open the driver file first,
+			  then create two threads that then attempt to read and write at the same time in MODE1,
+			  then there is a possibility for a data race for both the *f_pos AND for the actual data
+			  in devc->ramdisk. 
 
 		2) The second pair of critical regions that we are going to look at are CR2 and CR2 again.
 			- For this particular pair of critical regions, I believe there there IS indeed a
 			  possibility of race conditions.
-			- The reason for this is...
+			- The reason for this is virtually the same as that of the above critical region pair,
+			  that since CR2 and CR2 do not hold any locks other than their parent process holding
+			  devc->sem2, if that process were to open the driver file first, then create two threads
+			  that then attempt to read and write at the same time in MODE1, then there is a possibility
+			  for a data race for both the *f_pos AND for the actual data in devc->ramdisk. The only
+			  difference is that this pair would be attempting two writes at the same time and not
+			  a read and a write.
 
-
-		3) The third pair of critical regions that we are going to look at are CR3 and CR5.
+		3) The third pair of critical regions that we are going to look at are CR3 and CR4.
 			- For this particular pair of critical regions, I believe there there is NOT a
 			  possibility of race conditions.
-			- The reason for this is...
-
+			- The reason for this is is that the only shared data that is accessed within these
+			  regions is accessed within the portions where devc->sem1 is held, and therefore
+			  should not have the possibility for a race condition.  So that even if there is
+			  an attempt to open another device while the e2_ioctl function is called, there
+			  should be no conflict because the synchronization primitives are correctly placed.
 
 		4) The last pair of critical regions that we are going to look at are CR4 and CR5.
 			- For this particular pair of critical regions, I believe there there is NOT a
 			  possibility of race conditions.
-			- The reason for this is...
+			- The reason for this is is that the only shared data that is accessed within these
+			  regions is accessed within the portions where devc->sem1 is held, and therefore
+			  should not have the possibility for a race condition.  So that even in the case that
+			  there is an attempt to open and close a driver at the same time, the synchronization
+			  primitives prevent any data races, and there should be no errors caused by this.
 
 
 
