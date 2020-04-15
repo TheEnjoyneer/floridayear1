@@ -6,14 +6,12 @@
  * 4/15/20
  */
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <sys/wait.h>
-
 
 #define CDRV_IOC_MAGIC 'Z'
 #define E2_IOCMODE1 _IOWR(CDRV_IOC_MAGIC, 1, int)
@@ -28,40 +26,67 @@ void operations(int fd, char ch);
 int main(int argc, char *argv[])
 {
 	// Quick check for args
-	if (argc < 2) {
+	if (argc < 2)
+	{
 		fprintf(stderr, "Deadlock scenario number not specified\n");
 		fprintf(stderr, "Correct usage: ./deadlockTest <deadlock scenario #>\n");
 		return 1;
 	}
 
 	// Declare necessary variables
-	char dev_path[20];
 	int i,fd;
 	char ch, write_buf[100], read_buf[100];
 	int offset, origin;
-	sprintf(dev_path, "%s%d", DEVICE, dev_no);
+	int deadlockScenario = atoi(argv[1]);
 
 	// Open the device file
 	fd = open(dev_path, O_RDWR);
-	if(fd == -1) {
+	if(fd == -1)
+	{
 		printf("File %s either does not exist or has been locked by another "
 				"process\n", DEVICE);
 		exit(-1);
 	}
 
+	switch(deadlockScenario)
+	{
+		// Run procedure to test the scenario given in the readMe as deadlock scenario 1
+		case 1:
+
+
+			break;
+
+		// Run procedure to test the scenario given in the readMe as deadlock scenario 2
+		case 2:
+
+
+			break;
+
+		// Run procedure to test the scenario given in the readMe as deadlock scenario 3
+		case 3:
+
+
+			break;
+
+		// Run procedure to test the scenario given in the readMe as deadlock scenario 4
+		case 4:
+
+
+			break;
+
+		// Default case for if the given input is not valid
+		default:
+			fprintf(stderr, "\nError: Invalid input option for Deadlock Scenario.\n");
+			break;
+	}
 
 
 
-
-
-
-
-
-
-
-
-
+	// Probably will have to remove this close and do it in the case statement
 	close(fd);
+
+
+
 	return 0;
 }
 
@@ -69,7 +94,8 @@ int main(int argc, char *argv[])
 // Define helper funcs
 void operations(int fd, char ch)
 {
-	switch(ch) {
+	switch(ch)
+	{
 	case 'w':
 		printf("Enter Data to write: ");
 		scanf(" %[^\n]", write_buf);
@@ -79,7 +105,8 @@ void operations(int fd, char ch)
 	case 's':
 		printf("\n Will clear data \n");
 		int rc = ioctl(fd, E2_IOCMODE1, 0);
-		if (rc == -1) { 
+		if (rc == -1)
+		{ 
 			perror("\n***error in ioctl***\n");
 			return -1;
 		}
@@ -89,7 +116,8 @@ void operations(int fd, char ch)
 	case 'p':
 		printf("\n Will switch to mode2 \n");
 		int rc = ioctl(fd, E2_IOCMODE2, 0);
-		if (rc == -1) { 
+		if (rc == -1)
+		{ 
 			perror("\n***error in ioctl***\n");
 			return -1;
 		}
@@ -103,9 +131,12 @@ void operations(int fd, char ch)
 		printf(" \n enter offset :");
 		scanf("%d", &offset);
 		lseek(fd, offset, origin);
-		if (read(fd, read_buf, sizeof(read_buf)) > 0) {
+		if (read(fd, read_buf, sizeof(read_buf)) > 0)
+		{
 			printf("\ndevice: %s\n", read_buf);
-		} else {
+		}
+		else
+		{
 			fprintf(stderr, "Reading failed\n");
 		}
 		break;
