@@ -27,16 +27,21 @@ void operations(int fd, char ch);
 // Main func
 int main(int argc, char *argv[])
 {
+	// Quick check for args
 	if (argc < 2) {
-		fprintf(stderr, "Device number not specified\n");
+		fprintf(stderr, "Deadlock scenario number not specified\n");
+		fprintf(stderr, "Correct usage: ./deadlockTest <deadlock scenario #>\n");
 		return 1;
 	}
-	int dev_no = atoi(argv[1]);
+
+	// Declare necessary variables
 	char dev_path[20];
 	int i,fd;
-	char ch, write_buf[100], read_buf[10];
+	char ch, write_buf[100], read_buf[100];
 	int offset, origin;
 	sprintf(dev_path, "%s%d", DEVICE, dev_no);
+
+	// Open the device file
 	fd = open(dev_path, O_RDWR);
 	if(fd == -1) {
 		printf("File %s either does not exist or has been locked by another "
@@ -44,12 +49,26 @@ int main(int argc, char *argv[])
 		exit(-1);
 	}
 
-	printf(" r = read from device after seeking to desired offset\n"
-			" w = write to device \n");
-	printf(" c = Clear buffer\n");
-	printf("\n\n enter command :");
 
-	scanf("%c", &ch);
+
+
+
+
+
+
+
+
+
+
+
+	close(fd);
+	return 0;
+}
+
+
+// Define helper funcs
+void operations(int fd, char ch)
+{
 	switch(ch) {
 	case 'w':
 		printf("Enter Data to write: ");
@@ -96,13 +115,4 @@ int main(int argc, char *argv[])
 		break;
 
 	}
-	close(fd);
-	return 0;
-}
-
-
-// Define helper funcs
-void operations(int fd, char ch)
-{
-
 }

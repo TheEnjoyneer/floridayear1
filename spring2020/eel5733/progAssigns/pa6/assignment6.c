@@ -1,3 +1,13 @@
+/* assignment6.c
+ * Christopher Brant
+ * Programming Assignment 6
+ * EEL 5733 Advanced Systems Programming
+ * University of Florida
+ * 4/15/20
+ */
+
+// As is obvious, this is the actual device driver code file
+
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/fs.h>
@@ -12,8 +22,7 @@
 #include <linux/device.h>
 #include <linux/ioctl.h>
 
-
-#define MYDEV_NAME "a5"
+#define MYDEV_NAME "a6"
 #define ramdisk_size (size_t) (16 * PAGE_SIZE)
 
 #define CDRV_IOC_MAGIC 'Z'
@@ -56,6 +65,7 @@ int e2_open(struct inode *inode, struct file *filp)
     return 0;
 }
 
+
 int e2_release(struct inode *inode, struct file *filp)
 {
     struct e2_dev *devc = container_of(inode->i_cdev, struct e2_dev, cdev);
@@ -74,6 +84,7 @@ int e2_release(struct inode *inode, struct file *filp)
     up(&devc->sem1);
     return 0;
 }
+
 
 static ssize_t e2_read (struct file *filp, char __user *buf, size_t count, loff_t *f_pos)
 {
@@ -126,6 +137,7 @@ static ssize_t e2_write (struct file *filp, const char __user *buf, size_t count
 	}
 	return ret;
 }
+
 
 static long e2_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 {
@@ -190,6 +202,7 @@ static long e2_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 	return 0;
 }
 
+
 static const struct file_operations fops = { 
   .owner = THIS_MODULE,
 	.read = e2_read,
@@ -198,6 +211,7 @@ static const struct file_operations fops = {
 	.release = e2_release,
 	.unlocked_ioctl = e2_ioctl,
 };
+
 
 static int __init my_init (void) {
 
@@ -229,6 +243,7 @@ static int __init my_init (void) {
    return 0;
 }
 
+
 static void __exit my_exit(void) {
 
    dev_t devNo = MKDEV(majorNo, minorNo);  
@@ -241,8 +256,11 @@ static void __exit my_exit(void) {
    class_destroy(cl);
 }
 
+
 module_init(my_init);
 module_exit(my_exit);
 
-MODULE_AUTHOR("Assignment5");
+
+MODULE_AUTHOR("Assignment6");
 MODULE_LICENSE("GPL v2");
+
