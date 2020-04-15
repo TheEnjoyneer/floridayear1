@@ -97,24 +97,24 @@ static ssize_t e2_read (struct file *filp, char __user *buf, size_t count, loff_
 	down_interruptible(&devc->sem1);
 	if (devc->mode == MODE1)
     {
-	   up(&devc->sem1);
-           if (*f_pos + count > ramdisk_size)
-           {
-              printk("Trying to read past end of buffer!\n");
-              return ret;
-           }
-	   ret = count - copy_to_user(buf, devc->ramdisk, count);
+        up(&devc->sem1);
+        if (*f_pos + count > ramdisk_size)
+        {
+            printk("Trying to read past end of buffer!\n");
+            return ret;
+        }
+        ret = count - copy_to_user(buf, devc->ramdisk, count);
 	}
 	else
     {
-          if (*f_pos + count > ramdisk_size)
-          {
-             printk("Trying to read past end of buffer!\n");
-             up(&devc->sem1);
-             return ret;
-          }
-          ret = count - copy_to_user(buf, devc->ramdisk, count);
-	  up(&devc->sem1);
+        if (*f_pos + count > ramdisk_size)
+        {
+            printk("Trying to read past end of buffer!\n");
+            up(&devc->sem1);
+            return ret;
+        }
+        ret = count - copy_to_user(buf, devc->ramdisk, count);
+        up(&devc->sem1);
 	}
 	return ret;
 }
@@ -214,7 +214,7 @@ static long e2_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 				up(&devc->sem1);
 				break;
 				
-				default :
+				default:
 					pr_info("Unrecognized ioctl command\n");
 					return -1;
 					break;	
@@ -239,7 +239,7 @@ static int __init my_init (void)
     int ret = 0;
     dev_t dev_no = MKDEV(majorNo, minorNo);
     ret = register_chrdev_region(dev_no, 1, MYDEV_NAME);
-    if (ret<0)
+    if (ret < 0)
     {
         printk(KERN_ALERT "mycdrv: failed to reserve major number");
         return ret;
@@ -257,7 +257,7 @@ static int __init my_init (void)
     sema_init(&dev->sem1, 1);
     sema_init(&dev->sem2, 1);
     ret = cdev_add(&dev->cdev, dev_no, 1);
-    if(ret < 0 )
+    if(ret < 0)
     {
         printk(KERN_INFO "Unable to register cdev");
         return ret;
