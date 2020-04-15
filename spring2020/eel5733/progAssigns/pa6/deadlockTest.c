@@ -6,6 +6,7 @@
  * 4/15/20
  */
 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -13,10 +14,17 @@
 #include <sys/ioctl.h>
 #include <sys/wait.h>
 
+
 #define CDRV_IOC_MAGIC 'Z'
 #define E2_IOCMODE1 _IOWR(CDRV_IOC_MAGIC, 1, int)
 #define E2_IOCMODE2 _IOWR(CDRV_IOC_MAGIC, 2, int)
 
+
+// Declare helper function prototypes
+void operations(int fd, char ch);
+
+
+// Main func
 int main(int argc, char *argv[])
 {
 	if (argc < 2) {
@@ -49,14 +57,24 @@ int main(int argc, char *argv[])
 		write(fd, write_buf, sizeof(write_buf));
 		break;
 
-	case 'c':
+	case 's':
 		printf("\n Will clear data \n");
-		int rc = ioctl(fd, ASP_CLEAR_BUF, 0);
+		int rc = ioctl(fd, E2_IOCMODE1, 0);
 		if (rc == -1) { 
 			perror("\n***error in ioctl***\n");
 			return -1;
 		}
-		printf("\n Data cleared \n");
+		printf("\n In mode 1 now \n");
+		break;
+
+	case 'p':
+		printf("\n Will switch to mode2 \n");
+		int rc = ioctl(fd, E2_IOCMODE2, 0);
+		if (rc == -1) { 
+			perror("\n***error in ioctl***\n");
+			return -1;
+		}
+		printf("\n In mode 2 now \n");
 		break;
 
 	case 'r':
@@ -80,4 +98,11 @@ int main(int argc, char *argv[])
 	}
 	close(fd);
 	return 0;
+}
+
+
+// Define helper funcs
+void operations(int fd, char ch)
+{
+
 }
