@@ -40,13 +40,13 @@ int main(int argc, char *argv[])
 	int deadlockScenario = atoi(argv[1]);
 
 	// Open the device file
-	fd = open(dev_path, O_RDWR);
-	if(fd == -1)
-	{
-		printf("File %s either does not exist or has been locked by another "
-				"process\n", DEVICE);
-		exit(-1);
-	}
+	// fd = open(dev_path, O_RDWR);
+	// if(fd == -1)
+	// {
+	// 	printf("File %s either does not exist or has been locked by another "
+	// 			"process\n", DEVICE);
+	// 	exit(-1);
+	// }
 
 	switch(deadlockScenario)
 	{
@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
 
 
 	// Probably will have to remove this close and do it in the case statement
-	close(fd);
+	// close(fd);
 
 
 
