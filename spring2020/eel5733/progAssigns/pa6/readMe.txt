@@ -81,8 +81,14 @@ Race Condition Code Reviews:
 	   		...Ending with line <#>
 
 	   		- Locks held entering this region are:
+	   			- devc->sem1 is explicitly NOT held in this region
+	   			- Technically devc->sem2 is held at all times when in MODE1,
+	   			  however it is not explicitly acquited in this place as it is held
+	   			  by the process that opened it at the time of opening
 
 	   		- Shared data accessed during this region:
+	   			- *f_pos
+	   			- devc->ramdisk
 
 	   	2) In e2_write(), the conditional that executes if in MODE1:
 	   		Beginning with line <#>...
@@ -95,8 +101,14 @@ Race Condition Code Reviews:
 	   		...Ending with line <#>
 
 	   		- Locks held entering this region are:
+	   			- devc->sem1 is explicitly NOT held in this region
+	   			- Technically devc->sem2 is held at all times when in MODE1,
+	   			  however it is not explicitly acquited in this place as it is held
+	   			  by the process that opened it at the time of opening
 
 	   		- Shared data accessed during this region:
+	   			- *f_pos
+	   			- devc->ramdisk
 
 	   	3) In e2_ioctl(), case E2_IOCMODE1:
 	   		Beginning with line <#>...
@@ -121,8 +133,14 @@ Race Condition Code Reviews:
 	   		...Ending with line <#>
 
 	   		- Locks held entering this region are:
+	   			- devc->sem1 is held across this region, except when waiting for
+	   			  the conditional signal/event
+	   			- devc->sem2 is seen to be acquired at the end as part of the sequence
 
 	   		- Shared data accessed during this region:
+	   			- devc->mode
+	   			- devc->count2
+	   			- devc->count1
 
 	   	4) In e2_open(), basically the entire function:
 	   		Beginning with line <#>...
@@ -140,8 +158,15 @@ Race Condition Code Reviews:
 	   		...Ending with line <#>
 
 	   		- Locks held entering this region are:
+	   			- devc->sem1 is held across the region, until it is released
+	   			  right before devc->sem2 is acquired
+	   			- devc->sem2 is acquired if in MODE1 right before returning
+	   			  from the function
 
 	   		- Shared data accessed during this region:
+	   			- devc->mode
+	   			- devc->count1
+	   			- devc->count2
 
 	   	5) In e2_release(), basically the entire function:
 	   		Beginning with line <#>...
@@ -161,6 +186,9 @@ Race Condition Code Reviews:
 	   		...Ending with line <#>
 
 	   		- Locks held entering this region are:
+	   			- devc->sem1 is held across the region
+	   			- devc->sem2 is held and subsequently ends up released right
+	   			  before returning from the function if in MODE1
 
 	   		- Shared data accessed during this region:
 
