@@ -25,6 +25,11 @@ void operations(int fd, char ch);
 // Main func
 int main(int argc, char *argv[])
 {
+	// Declare necessary variables
+	int i;
+	char ch;
+	int deadlockScenario;
+
 	// Quick check for args
 	if (argc < 2)
 	{
@@ -33,20 +38,19 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	// Declare necessary variables
-	int i,fd;
-	char ch, write_buf[100], read_buf[100];
-	int offset, origin;
-	int deadlockScenario = atoi(argv[1]);
+	// Set deadlockScenario now that we checked args
+	deadlockScenario = atoi(argv[1]);
 
+	
 	// Open the device file
-	// fd = open(dev_path, O_RDWR);
+	// int fd = open(dev_path, O_RDWR);
 	// if(fd == -1)
 	// {
 	// 	printf("File %s either does not exist or has been locked by another "
 	// 			"process\n", DEVICE);
 	// 	exit(-1);
 	// }
+	
 
 	switch(deadlockScenario)
 	{
@@ -94,17 +98,24 @@ int main(int argc, char *argv[])
 // Define helper funcs
 void operations(int fd, char ch)
 {
+	// Declare necessary variables
+	int rc;
+	char write_buf[100], read_buf[100];
+	
+	// Switch statement for running the different VFS operations
 	switch(ch)
 	{
+	// case for writing data to the device..."w" for "write" *duh*
 	case 'w':
 		printf("Enter Data to write: ");
 		scanf(" %[^\n]", write_buf);
 		write(fd, write_buf, sizeof(write_buf));
 		break;
 
+	// case for switching to mode 1..."s" for "singular"
 	case 's':
 		printf("\n Will clear data \n");
-		int rc = ioctl(fd, E2_IOCMODE1, 0);
+		rc = ioctl(fd, E2_IOCMODE1, 0);
 		if (rc == -1)
 		{ 
 			perror("\n***error in ioctl***\n");
@@ -113,9 +124,10 @@ void operations(int fd, char ch)
 		printf("\n In mode 1 now \n");
 		break;
 
+	// case for switching to mode2..."p" for "plural"
 	case 'p':
 		printf("\n Will switch to mode2 \n");
-		int rc = ioctl(fd, E2_IOCMODE2, 0);
+		rc = ioctl(fd, E2_IOCMODE2, 0);
 		if (rc == -1)
 		{ 
 			perror("\n***error in ioctl***\n");
@@ -124,13 +136,9 @@ void operations(int fd, char ch)
 		printf("\n In mode 2 now \n");
 		break;
 
+	// WILL NEED TO CHANGE THIS SECTION TO FIX IT CORRECTLY
+	// case for reading data from the device..."r" for "read" *duh*
 	case 'r':
-		printf("Origin \n 0 = beginning \n 1 = current \n 2 = end \n\n");
-		printf(" enter origin :");
-		scanf("%d", &origin);
-		printf(" \n enter offset :");
-		scanf("%d", &offset);
-		lseek(fd, offset, origin);
 		if (read(fd, read_buf, sizeof(read_buf)) > 0)
 		{
 			printf("\ndevice: %s\n", read_buf);
@@ -144,6 +152,5 @@ void operations(int fd, char ch)
 	default:
 		printf("Command not recognized\n");
 		break;
-
 	}
 }
