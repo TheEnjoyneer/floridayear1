@@ -57,15 +57,156 @@ Deadlock Scenarios:
 
 Race Condition Code Reviews:
 	
-	* In this section, a series of critical regions of code will be described,
-	  specifically, the first line numbers and the code on that line will be given
-	  to indicate the first and last lines of the chosen critical regions, such that
-	  there is no confusion. *
+		* In this section, a series of critical regions of code will be described,
+	  	  specifically, the first line numbers and the code on that line will be given
+	  	  to indicate the first and last lines of the chosen critical regions, such that
+	  	  there is no confusion. *
 
-	* Pairs of the described critical regions will be listed, and once pairs are listed,
-	  a code review will be given, including listings of the data accessed within that region,
-	  the locks held at the time the regions are entered, and reasoning for the possibility
-	  or absence of race conditions in the given critical region pair. *
+		* Pairs of the described critical regions will be listed, and once pairs are listed,
+	  	  a code review will be given, including listings of the data accessed within that region,
+	  	  the locks held at the time the regions are entered, and reasoning for the possibility
+	  	  or absence of race conditions in the given critical region pair. *
+
+
+	Critical Regions (CRs):
+
+		1) In e2_read(), the conditional that executes if in MODE1:
+			Beginning with line <#>...
+				if (*f_pos + count > ramdisk_size)
+	        	{
+	            	printk("Trying to read past end of buffer!\n");
+	            	return ret;
+	        	}
+		   		ret = count - copy_to_user(buf, devc->ramdisk, count);
+	   		...Ending with line <#>
+
+	   		- Locks held entering this region are:
+
+	   		- Shared data accessed during this region:
+
+	   	2) In e2_write(), the conditional that executes if in MODE1:
+	   		Beginning with line <#>...
+		   		if (*f_pos + count > ramdisk_size)
+	        	{
+	            	printk("Trying to read past end of buffer!\n");
+	            	return ret;
+	        	}
+	        	ret = count - copy_from_user(devc->ramdisk, buf, count);
+	   		...Ending with line <#>
+
+	   		- Locks held entering this region are:
+
+	   		- Shared data accessed during this region:
+
+	   	3) In e2_ioctl(), case E2_IOCMODE1:
+	   		Beginning with line <#>...
+				if (devc->mode == MODE1)
+				{
+				   up(&devc->sem1);
+				   break;
+				}
+				if (devc->count2 > 1)
+				{
+				   while (devc->count2 > 1)
+				   {
+				       up(&devc->sem1);
+				       wait_event_interruptible(devc->queue2, (devc->count2 == 1));
+				       down_interruptible(&devc->sem1);
+				   }
+				}
+				devc->mode = MODE1;
+				devc->count2--;
+				devc->count1++;
+				down_interruptible(&devc->sem2);
+	   		...Ending with line <#>
+
+	   		- Locks held entering this region are:
+
+	   		- Shared data accessed during this region:
+
+	   	4) In e2_open(), basically the entire function:
+	   		Beginning with line <#>...
+			    if (devc->mode == MODE1)
+			    {
+			        devc->count1++;
+			        up(&devc->sem1);
+			        down_interruptible(&devc->sem2);
+			        return 0;
+			    }
+			    else if (devc->mode == MODE2)
+			    {
+			        devc->count2++;
+			    }
+	   		...Ending with line <#>
+
+	   		- Locks held entering this region are:
+
+	   		- Shared data accessed during this region:
+
+	   	5) In e2_release(), basically the entire function:
+	   		Beginning with line <#>...
+			    if (devc->mode == MODE1)
+			    {
+			        devc->count1--;
+			        if (devc->count1 == 1)
+			            wake_up_interruptible(&(devc->queue1));
+						up(&devc->sem2);
+			    }
+			    else if (devc->mode == MODE2)
+			    {
+			        devc->count2--;
+			        if (devc->count2 == 1)
+			            wake_up_interruptible(&(devc->queue2));
+			    }
+	   		...Ending with line <#>
+
+	   		- Locks held entering this region are:
+
+	   		- Shared data accessed during this region:
+
+
+
+
+	CR Pairs and their code reviews:
+
+		1) The first pair of critical regions that we are going to look at are CR1 and CR2.
+			- For this particular pair of critical regions, I believe there there IS indeed a
+			  possibility of race conditions.
+			- The reason for this is...
+
+
+		2) The second pair of critical regions that we are going to look at are CR2 and CR2 again.
+			- For this particular pair of critical regions, I believe there there IS indeed a
+			  possibility of race conditions.
+			- The reason for this is...
+
+
+		3) The third pair of critical regions that we are going to look at are CR3 and CR5.
+			- For this particular pair of critical regions, I believe there there is NOT a
+			  possibility of race conditions.
+			- The reason for this is...
+
+
+		4) The last pair of critical regions that we are going to look at are CR4 and CR5.
+			- For this particular pair of critical regions, I believe there there is NOT a
+			  possibility of race conditions.
+			- The reason for this is...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
