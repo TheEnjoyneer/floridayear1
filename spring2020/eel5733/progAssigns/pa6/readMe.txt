@@ -191,6 +191,13 @@ Race Condition Code Reviews:
 	   			  before returning from the function if in MODE1
 
 	   		- Shared data accessed during this region:
+	   			- devc->mode
+	   			- devc->count1
+	   			- devc->count2
+	   			- &(devc->queue1)  **
+	   			- &(devc->queue2)  **
+
+	   		** For these two, while they are shared data, they are wait queue
 
 
 
