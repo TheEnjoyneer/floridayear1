@@ -14,6 +14,8 @@
 
 #define PACKETSTOREAD 0
 #define MAXPACKETS 262144
+#define TESTVAL 65536
+#define RATIOTHRESHOLD 3
 
 typedef struct iphdr ip_header;
 typedef struct ether_header ethernet_header;
@@ -22,7 +24,7 @@ typedef struct tcphdr tcp_header;
 static ip_header ipType;
 static tcp_header tcpType;
 
-struct packetStats {
+struct packetStats_s {
   typeof(ipType.saddr) srcAddr;
   typeof(ipType.daddr) destAddr;
   typeof(tcpType.th_sport) srcPort;
@@ -49,7 +51,12 @@ int main (int argc, char **argv){
   item *tmp;                /* an item in the linked-list */
   u_char *ptr, *packet;     /* vars to store raw packets */
   register int i = 0;
-  struct in_addr ipaddr;    /* you should know this one */
+  struct in_addr ipaddr_s;    /* you should know this one */
+  struct in_addr ipaddr_d;
+  struct packetStats_s *packetStats = malloc(sizeof(struct packetStats_s) * TESTVAL);
+  long long int statsCount = 0;
+  int j, found;
+  long long testRatio;
   
  /* simple sanity check to make sure that the application is used properly */ 
   if (argc != 2){
@@ -78,6 +85,7 @@ int main (int argc, char **argv){
 
   /* so, i'm preparing a linked-list to store the packets i sniff */
   create_buffer(&buf, MAXPACKETS, MAXPACKETS / 2);
+
 
   /* hokey dokey, so we are now ready to sniff the wire! */
   /* step-3: read the network card (sniff in short!)
@@ -109,6 +117,7 @@ int main (int argc, char **argv){
   tmp = buf.header;
   while(tmp != NULL)
   {
+    found = 0;
     // fprintf(stdout, "actual length=%d captured length=%d\n",
 		  //   tmp->packet_header->len,
 		  //   tmp->packet_header->caplen);
@@ -171,20 +180,20 @@ int main (int argc, char **argv){
       	}
 
         /* we have a valid ip packet, so lets print out its fields */
-      	fprintf(stdout, "information about this IP packet:\n");
-      	fprintf(stdout, "length = %d\n", ntohs(ipptr->tot_len));
+      	//fprintf(stdout, "information about this IP packet:\n");
+      	//fprintf(stdout, "length = %d\n", ntohs(ipptr->tot_len));
       	//fprintf(stdout, "header length = %d\n", ipptr->ihl);
       	//fprintf(stdout, "version = %d\n", ipptr->version);
-      	fprintf(stdout, "id = 0x%x\n", ntohs(ipptr->id));
+      	//fprintf(stdout, "id = 0x%x\n", ntohs(ipptr->id));
       	//fprintf(stdout, "offset = %d\n", ipptr->frag_off);
       	//fprintf(stdout, "ttl = %d\n", ipptr->ttl);
       	//fprintf(stdout, "protocol = %d\n", ipptr->protocol);
       	
-      	ipaddr.s_addr = (unsigned long int)ipptr->saddr;
-              fprintf(stdout, "source = %s\n", inet_ntoa(ipaddr)); /* source address */
+      	ipaddr_s.s_addr = (unsigned long int)ipptr->saddr;
+        //      fprintf(stdout, "source = %s\n", inet_ntoa(ipaddr)); /* source address */
       	
-      	ipaddr.s_addr = (unsigned long int)ipptr->daddr;
-      	fprintf(stdout, "destination = %s\n", inet_ntoa(ipaddr));
+      	ipaddr_d.s_addr = (unsigned long int)ipptr->daddr;
+      	//fprintf(stdout, "destination = %s\n", inet_ntoa(ipaddr));
         /* and so on, you got the idea */	
 
          /* So here is where we will look at the tcp header information
@@ -202,19 +211,48 @@ int main (int argc, char **argv){
           continue;
         }
 
-        fprintf(stdout, "information about this TCP packet:\n");
-        fprintf(stdout, "src port = %d\n", ntohs(tcpptr->th_sport));
-        fprintf(stdout, "dest port = %d\n", ntohs(tcpptr->th_dport));
-        fprintf(stdout, "seq number = %u\n", ntohl(tcpptr->th_seq));
-        fprintf(stdout, "ack number = %u\n", ntohl(tcpptr->th_ack));
+        //fprintf(stdout, "information about this TCP packet:\n");
+        //fprintf(stdout, "src port = %d\n", ntohs(tcpptr->th_sport));
+        //fprintf(stdout, "dest port = %d\n", ntohs(tcpptr->th_dport));
+        //fprintf(stdout, "seq number = %u\n", ntohl(tcpptr->th_seq));
+        //fprintf(stdout, "ack number = %u\n", ntohl(tcpptr->th_ack));
         //fprintf(stdout, "tcp flags = %x\n", tcpptr->th_flags);
-        fprintf(stdout, "SYN flag = %d\n", (tcpptr->th_flags & 0x02) >> 1);
-        fprintf(stdout, "ACK flag = %d\n", (tcpptr->th_flags & 0x10) >> 4);
+        //fprintf(stdout, "SYN flag = %d\n", (tcpptr->th_flags & 0x02) >> 1);
+        //fprintf(stdout, "ACK flag = %d\n", (tcpptr->th_flags & 0x10) >> 4);
 
 
         // SOMEHOW COLLECT INFORMATION FOR DIAGNOSTICS AND SCANNING HERE
+        for (j = 0; j < statsCount; j++)
+        {
+          // If the packet is already in the list of structs, then increment its statistics values
+          if ((packetStats[j].srcAddr == ipptr->saddr) && (packetStats[j].destAddr == ipptr->daddr) && (packetStats[j].srcPort == tcpptr->th_sport))
+          {
+            // Set to be found
+            found = 1;
+            // If the packet is just a SYN packet, increment its connection requests value
+            if ((tcpptr->th_flags & 0x02) >> 1)
+              packetStats[j].connectReqs++;
+            else if (((tcpptr->th_flags & 0x02) >> 1) && ((tcpptr->th_flags & 0x10) >> 4))
+              packetStats[j].successResps++;
 
+            // Check stats now too
+            testRatio = packetStats[j].connectReqs / packetStats[j].successResps;
 
+            if (testRatio > RATIOTHRESHOLD)
+              fprintf(stdout, "\nWARNING: PORT SCAN ATTEMPT from Source IP: %s, port: %d on Destination IP: %s.\n\n", ipaddr_s.s_addr, ntohs(tcpptr->th_sport), ipaddr_d.s_addr);
+          }
+        }
+
+        // If not found, add it to the array
+        if (!found)
+        {
+          packetStats[statsCount].srcAddr = ipptr->saddr;
+          packetStats[statsCount].destAddr = ipptr->daddr;
+          packetStats[statsCount].srcPort = tcpptr->th_sport;
+          packetStats[statsCount].connectReqs = 0;
+          packetStats[statsCount++].successResps = 0;
+        }
+        
         break;
 
       case (ETHERTYPE_ARP):
