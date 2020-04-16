@@ -227,7 +227,7 @@ int main (int argc, char **argv){
         for (j = 0; j < statsCount; j++)
         {
           // TEST PRINTS
-          fprintf(stdout, "Current Packet in Linked List Info:\n");
+          fprintf(stdout, "\n\nCurrent Packet in Linked List Info:\n");
           fprintf(stdout, "source IP: 0x%x\n", ipptr->saddr);
           fprintf(stdout, "source port: 0x%x\n", tcpptr->th_sport);
           fprintf(stdout, "dest IP: 0x%x\n", ipptr->daddr);
