@@ -43,7 +43,6 @@ struct e2_dev {
 	int mode;
     wait_queue_head_t queue1, queue2;
 };
-
 struct e2_dev *dev;
 
 

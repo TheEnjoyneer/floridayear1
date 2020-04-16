@@ -5,7 +5,7 @@
 #include <pcap.h>
 #include <stdlib.h>
 
-#define DEFAULT_CAPACITY 65536
+#define DEFAULT_CAPACITY 262144
 #define GARBAGE_SIZE (DEFAULT_CAPACITY/2)
 
 /* an item in buffer contains packet header

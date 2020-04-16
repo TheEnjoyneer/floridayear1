@@ -18,6 +18,14 @@ typedef struct iphdr ip_header;
 typedef struct ether_header ethernet_header;
 typedef struct tcphdr tcp_header;
 
+struct packetStats {
+  typeof(ip_header.saddr) srcAddr;
+  typeof(ip_header.daddr) destAddr;
+  typeof(tcp_header.th_sport) srcPort;
+  long long int connectReqs;
+  long long int successResps;
+};
+
 int main (int argc, char **argv){
   
   /* variables for network device */
