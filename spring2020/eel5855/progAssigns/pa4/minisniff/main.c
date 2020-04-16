@@ -56,7 +56,7 @@ int main (int argc, char **argv){
   struct packetStats_s *packetStats = malloc(sizeof(struct packetStats_s) * TESTVAL);
   long long int statsCount = 0;
   int j, found;
-  long long testRatio;
+  unsigned long long testRatio;
   
  /* simple sanity check to make sure that the application is used properly */ 
   if (argc != 2){
@@ -241,7 +241,7 @@ int main (int argc, char **argv){
             if (packetStats[j].successResps != 0)
             {
               testRatio = packetStats[j].connectReqs / packetStats[j].successResps;
-              fprintf(stdout, "\ntestRatio = %f\n", testRatio);
+              fprintf(stdout, "\ntestRatio = %llu\n", testRatio);
             }
 
             if (testRatio > RATIOTHRESHOLD)
