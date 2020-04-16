@@ -269,7 +269,7 @@ int main (int argc, char **argv){
             }
 
             if (testRatio > RATIOTHRESHOLD)
-              fprintf(stdout, "\nWARNING: PORT SCAN ATTEMPT from Source IP: %s, port: %d on Destination IP: %s.\n\n", inet_ntoa(arrIPAddr_s), ntohs(packetStats[j].srcPort), inet_ntoa(arrIPAddr_d));
+              fprintf(stdout, "\nWARNING: PORT SCAN ATTEMPT from Source IP: %s, port: %d on Destination IP: %s.\n\n", inet_ntoa(ipaddr_s), ntohs(packetStats[j].srcPort), inet_ntoa(ipaddr_d));
           
             // Break from the loop if a match is found
             break;
