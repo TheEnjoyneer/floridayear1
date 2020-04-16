@@ -239,7 +239,10 @@ int main (int argc, char **argv){
 
             // Check stats now too
             if (packetStats[j].successResps != 0)
+            {
               testRatio = packetStats[j].connectReqs / packetStats[j].successResps;
+              fprintf("\ntestRatio = %d\n", testRatio);
+            }
 
             if (testRatio > RATIOTHRESHOLD)
               fprintf(stdout, "\nWARNING: PORT SCAN ATTEMPT from Source IP: %s, port: %d on Destination IP: %s.\n\n", inet_ntoa(ipaddr_s), ntohs(tcpptr->th_sport), inet_ntoa(ipaddr_d));
