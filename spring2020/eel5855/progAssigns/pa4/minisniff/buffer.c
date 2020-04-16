@@ -107,7 +107,7 @@ int append_item(buffer* buf, const struct pcap_pkthdr* packet_header, const u_ch
   gc(buf);
 
 #ifdef DEBUG
-  fprintf(stderr, ".");
+  //fprintf(stderr, ".");
 #endif
 
   return 0;
