@@ -239,7 +239,7 @@ int main (int argc, char **argv){
             testRatio = packetStats[j].connectReqs / packetStats[j].successResps;
 
             if (testRatio > RATIOTHRESHOLD)
-              fprintf(stdout, "\nWARNING: PORT SCAN ATTEMPT from Source IP: %s, port: %d on Destination IP: %s.\n\n", ipaddr_s.s_addr, ntohs(tcpptr->th_sport), ipaddr_d.s_addr);
+              fprintf(stdout, "\nWARNING: PORT SCAN ATTEMPT from Source IP: %s, port: %d on Destination IP: %s.\n\n", inet_ntoa(ipaddr_s), ntohs(tcpptr->th_sport), inet_ntoa(ipaddr_d));
           }
         }
 
@@ -252,7 +252,7 @@ int main (int argc, char **argv){
           packetStats[statsCount].connectReqs = 0;
           packetStats[statsCount++].successResps = 0;
         }
-        
+
         break;
 
       case (ETHERTYPE_ARP):
