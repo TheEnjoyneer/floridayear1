@@ -228,6 +228,8 @@ int main (int argc, char **argv){
     tmp = tmp->next;
   }
 
+  fprintf(stdout, "Number of items in this filtered buffer of packets = %d\n", buf.items);
+
   // close the file
   pcap_close(descr);
   
