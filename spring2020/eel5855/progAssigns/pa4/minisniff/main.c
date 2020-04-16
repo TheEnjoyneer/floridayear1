@@ -241,7 +241,7 @@ int main (int argc, char **argv){
             if (packetStats[j].successResps != 0)
             {
               testRatio = packetStats[j].connectReqs / packetStats[j].successResps;
-              fprintf("\ntestRatio = %d\n", testRatio);
+              fprintf(stdout, "\ntestRatio = %d\n", testRatio);
             }
 
             if (testRatio > RATIOTHRESHOLD)
