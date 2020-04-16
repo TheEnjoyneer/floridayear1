@@ -222,17 +222,17 @@ int main (int argc, char **argv){
         //fprintf(stdout, "SYN flag = %d\n", (tcpptr->th_flags & 0x02) >> 1);
         //fprintf(stdout, "ACK flag = %d\n", (tcpptr->th_flags & 0x10) >> 4);
 
+        fprintf(stdout, "\n\nCurrent Packet in Linked List Info:\n");
+        fprintf(stdout, "source IP: 0x%x\n", ipptr->saddr);
+        fprintf(stdout, "source port: 0x%x\n", tcpptr->th_sport);
+        fprintf(stdout, "dest IP: 0x%x\n", ipptr->daddr);
+        fprintf(stdout, "SYN flag = %d\n", (tcpptr->th_flags & 0x02) >> 1);
+        fprintf(stdout, "ACK flag = %d\n", (tcpptr->th_flags & 0x10) >> 4);
 
         // SOMEHOW COLLECT INFORMATION FOR DIAGNOSTICS AND SCANNING HERE
         for (j = 0; j < statsCount; j++)
         {
           // TEST PRINTS
-          fprintf(stdout, "\n\nCurrent Packet in Linked List Info:\n");
-          fprintf(stdout, "source IP: 0x%x\n", ipptr->saddr);
-          fprintf(stdout, "source port: 0x%x\n", tcpptr->th_sport);
-          fprintf(stdout, "dest IP: 0x%x\n", ipptr->daddr);
-          fprintf(stdout, "SYN flag = %d\n", (tcpptr->th_flags & 0x02) >> 1);
-          fprintf(stdout, "ACK flag = %d\n", (tcpptr->th_flags & 0x10) >> 4);
           fprintf(stdout, "-----------------------------------------------\n");
           fprintf(stdout, "Current Packet in Array Info:\n");
           fprintf(stdout, "source IP: 0x%x\n", packetStats[j].srcAddr);
