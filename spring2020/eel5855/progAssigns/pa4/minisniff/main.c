@@ -260,7 +260,6 @@ int main (int argc, char **argv){
             if (packetStats[j].successResps != 0)
             {
               testRatio = packetStats[j].connectReqs / packetStats[j].successResps;
-              fprintf(stdout, "\ntestRatio = %llu\n", testRatio);
             }
             else
             {
