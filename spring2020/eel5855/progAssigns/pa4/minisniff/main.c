@@ -53,6 +53,8 @@ int main (int argc, char **argv){
   register int i = 0;
   struct in_addr ipaddr_s;    /* you should know this one */
   struct in_addr ipaddr_d;
+  struct in_addr arrIPAddr_s;
+  struct in_addr arrIPAddr_d;
   struct packetStats_s *packetStats = malloc(sizeof(struct packetStats_s) * TESTVAL);
   long long int statsCount = 0;
   int j, found;
@@ -233,11 +235,13 @@ int main (int argc, char **argv){
         for (j = 0; j < statsCount; j++)
         {
           // TEST PRINTS
+          arrIPAddr_s.s_addr = packetStats[j].srcAddr;
+          arrIPAddr_d.s_addr = packetStats[j].destAddr;
           fprintf(stdout, "-----------------------------------------------\n");
           fprintf(stdout, "Current Packet in Array Info:\n");
-          fprintf(stdout, "source IP: %s\n", inet_ntoa((unsigned long int)packetStats[j].srcAddr));
+          fprintf(stdout, "source IP: %s\n", inet_ntoa(arrIPAddr_s));
           fprintf(stdout, "source port: %d\n", ntohs(packetStats[j].srcPort));
-          fprintf(stdout, "dest IP: %s\n", inet_ntoa((unsigned long int)packetStats[j].destAddr));
+          fprintf(stdout, "dest IP: %s\n", inet_ntoa(arrIPAddr_d));
           fprintf(stdout, "# of connection requests: %lld\n", packetStats[j].connectReqs);
           fprintf(stdout, "# of sucessful responses: %lld\n", packetStats[j].successResps);
 
