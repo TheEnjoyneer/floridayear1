@@ -224,7 +224,7 @@ int main (int argc, char **argv){
 
         fprintf(stdout, "\n\nCurrent Packet in Linked List Info:\n");
         fprintf(stdout, "source IP: 0x%x\n", ipptr->saddr);
-        fprintf(stdout, "source port: 0x%x\n", tcpptr->th_sport);
+        fprintf(stdout, "source port: %d\n", ntohs(tcpptr->th_sport));
         fprintf(stdout, "dest IP: 0x%x\n", ipptr->daddr);
         fprintf(stdout, "SYN flag = %d\n", (tcpptr->th_flags & 0x02) >> 1);
         fprintf(stdout, "ACK flag = %d\n", (tcpptr->th_flags & 0x10) >> 4);
@@ -236,7 +236,7 @@ int main (int argc, char **argv){
           fprintf(stdout, "-----------------------------------------------\n");
           fprintf(stdout, "Current Packet in Array Info:\n");
           fprintf(stdout, "source IP: 0x%x\n", packetStats[j].srcAddr);
-          fprintf(stdout, "source port: 0x%x\n", packetStats[j].srcPort);
+          fprintf(stdout, "source port: %d\n", ntohs(packetStats[j].srcPort));
           fprintf(stdout, "dest IP: 0x%x\n", packetStats[j].destAddr);
           fprintf(stdout, "# of connection requests: %lld\n", packetStats[j].connectReqs);
           fprintf(stdout, "# of sucessful responses: %lld\n", packetStats[j].successResps);
