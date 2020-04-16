@@ -13,7 +13,7 @@
 #include <netinet/tcp.h>
 
 #define PACKETSTOREAD 0
-#define MAXPACKETS 262144
+#define MAXPACKETS 256
 #define TESTVAL 65536
 #define RATIOTHRESHOLD 3
 
@@ -182,20 +182,20 @@ int main (int argc, char **argv){
       	}
 
         /* we have a valid ip packet, so lets print out its fields */
-      	//fprintf(stdout, "information about this IP packet:\n");
+      	fprintf(stdout, "information about this IP packet:\n");
       	//fprintf(stdout, "length = %d\n", ntohs(ipptr->tot_len));
       	//fprintf(stdout, "header length = %d\n", ipptr->ihl);
       	//fprintf(stdout, "version = %d\n", ipptr->version);
-      	//fprintf(stdout, "id = 0x%x\n", ntohs(ipptr->id));
+      	fprintf(stdout, "id = 0x%x\n", ntohs(ipptr->id));
       	//fprintf(stdout, "offset = %d\n", ipptr->frag_off);
       	//fprintf(stdout, "ttl = %d\n", ipptr->ttl);
       	//fprintf(stdout, "protocol = %d\n", ipptr->protocol);
       	
       	ipaddr_s.s_addr = (unsigned long int)ipptr->saddr;
-        //      fprintf(stdout, "source = %s\n", inet_ntoa(ipaddr)); /* source address */
+        fprintf(stdout, "source = %s\n", inet_ntoa(ipaddr_s)); /* source address */
       	
       	ipaddr_d.s_addr = (unsigned long int)ipptr->daddr;
-      	//fprintf(stdout, "destination = %s\n", inet_ntoa(ipaddr));
+      	fprintf(stdout, "destination = %s\n", inet_ntoa(ipaddr_d));
         /* and so on, you got the idea */	
 
          /* So here is where we will look at the tcp header information
@@ -213,14 +213,14 @@ int main (int argc, char **argv){
           continue;
         }
 
-        //fprintf(stdout, "information about this TCP packet:\n");
-        //fprintf(stdout, "src port = %d\n", ntohs(tcpptr->th_sport));
-        //fprintf(stdout, "dest port = %d\n", ntohs(tcpptr->th_dport));
+        fprintf(stdout, "information about this TCP packet:\n");
+        fprintf(stdout, "src port = %d\n", ntohs(tcpptr->th_sport));
+        fprintf(stdout, "dest port = %d\n", ntohs(tcpptr->th_dport));
         //fprintf(stdout, "seq number = %u\n", ntohl(tcpptr->th_seq));
         //fprintf(stdout, "ack number = %u\n", ntohl(tcpptr->th_ack));
         //fprintf(stdout, "tcp flags = %x\n", tcpptr->th_flags);
-        //fprintf(stdout, "SYN flag = %d\n", (tcpptr->th_flags & 0x02) >> 1);
-        //fprintf(stdout, "ACK flag = %d\n", (tcpptr->th_flags & 0x10) >> 4);
+        fprintf(stdout, "SYN flag = %d\n", (tcpptr->th_flags & 0x02) >> 1);
+        fprintf(stdout, "ACK flag = %d\n", (tcpptr->th_flags & 0x10) >> 4);
 
 
         // SOMEHOW COLLECT INFORMATION FOR DIAGNOSTICS AND SCANNING HERE
