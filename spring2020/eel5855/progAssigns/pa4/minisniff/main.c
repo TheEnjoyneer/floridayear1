@@ -239,7 +239,7 @@ int main (int argc, char **argv){
     tmp = tmp->next;
   }
 
-  fprintf(stdout, "Number of items in this filtered buffer of packets = %lld\n", buf.capacity);
+  fprintf(stdout, "Number of items in this filtered buffer of packets = %lld\n", buf.items);
 
   // close the file
   pcap_close(descr);
