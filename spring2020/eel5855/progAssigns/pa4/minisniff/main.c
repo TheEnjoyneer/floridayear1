@@ -117,7 +117,9 @@ int main (int argc, char **argv){
   tmp = buf.header;
   while(tmp != NULL)
   {
+    // Reset important vals
     found = 0;
+    testRatio = 1;
     // fprintf(stdout, "actual length=%d captured length=%d\n",
 		  //   tmp->packet_header->len,
 		  //   tmp->packet_header->caplen);
@@ -236,7 +238,8 @@ int main (int argc, char **argv){
               packetStats[j].successResps++;
 
             // Check stats now too
-            testRatio = packetStats[j].connectReqs / packetStats[j].successResps;
+            if (packetStats[j].successResps != 0)
+              testRatio = packetStats[j].connectReqs / packetStats[j].successResps;
 
             if (testRatio > RATIOTHRESHOLD)
               fprintf(stdout, "\nWARNING: PORT SCAN ATTEMPT from Source IP: %s, port: %d on Destination IP: %s.\n\n", inet_ntoa(ipaddr_s), ntohs(tcpptr->th_sport), inet_ntoa(ipaddr_d));
