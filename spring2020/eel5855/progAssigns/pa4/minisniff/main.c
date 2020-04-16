@@ -238,9 +238,9 @@ int main (int argc, char **argv){
           fprintf(stdout, "source IP: 0x%x\n", packetStats[j].srcAddr);
           fprintf(stdout, "source port: 0x%x\n", packetStats[j].srcPort);
           fprintf(stdout, "dest IP: 0x%x\n", packetStats[j].destAddr);
-          fprintf(stdout, "# of connection requests: %d\n", packetStats[j].connectReqs);
-          fprintf(stdout, "# of sucessful responses: %d\n", packetStats[j].successResps);
-          
+          fprintf(stdout, "# of connection requests: %lld\n", packetStats[j].connectReqs);
+          fprintf(stdout, "# of sucessful responses: %lld\n", packetStats[j].successResps);
+
           // If the packet is already in the list of structs, then increment its statistics values
           if ((packetStats[j].srcAddr == ipptr->saddr) && (packetStats[j].destAddr == ipptr->daddr) && (packetStats[j].srcPort == tcpptr->th_sport))
           {
