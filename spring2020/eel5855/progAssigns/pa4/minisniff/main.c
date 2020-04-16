@@ -192,10 +192,10 @@ int main (int argc, char **argv){
       	//fprintf(stdout, "protocol = %d\n", ipptr->protocol);
       	
       	ipaddr_s.s_addr = (unsigned long int)ipptr->saddr;
-        fprintf(stdout, "source = %s\n", inet_ntoa(ipaddr_s)); /* source address */
+        //fprintf(stdout, "source = %s\n", inet_ntoa(ipaddr_s)); /* source address */
       	
       	ipaddr_d.s_addr = (unsigned long int)ipptr->daddr;
-      	fprintf(stdout, "destination = %s\n", inet_ntoa(ipaddr_d));
+      	//fprintf(stdout, "destination = %s\n", inet_ntoa(ipaddr_d));
         /* and so on, you got the idea */	
 
          /* So here is where we will look at the tcp header information
@@ -213,19 +213,34 @@ int main (int argc, char **argv){
           continue;
         }
 
-        fprintf(stdout, "information about this TCP packet:\n");
-        fprintf(stdout, "src port = %d\n", ntohs(tcpptr->th_sport));
-        fprintf(stdout, "dest port = %d\n", ntohs(tcpptr->th_dport));
+        //fprintf(stdout, "information about this TCP packet:\n");
+        //fprintf(stdout, "src port = %d\n", ntohs(tcpptr->th_sport));
+        //fprintf(stdout, "dest port = %d\n", ntohs(tcpptr->th_dport));
         //fprintf(stdout, "seq number = %u\n", ntohl(tcpptr->th_seq));
         //fprintf(stdout, "ack number = %u\n", ntohl(tcpptr->th_ack));
         //fprintf(stdout, "tcp flags = %x\n", tcpptr->th_flags);
-        fprintf(stdout, "SYN flag = %d\n", (tcpptr->th_flags & 0x02) >> 1);
-        fprintf(stdout, "ACK flag = %d\n", (tcpptr->th_flags & 0x10) >> 4);
+        //fprintf(stdout, "SYN flag = %d\n", (tcpptr->th_flags & 0x02) >> 1);
+        //fprintf(stdout, "ACK flag = %d\n", (tcpptr->th_flags & 0x10) >> 4);
 
 
         // SOMEHOW COLLECT INFORMATION FOR DIAGNOSTICS AND SCANNING HERE
         for (j = 0; j < statsCount; j++)
         {
+          // TEST PRINTS
+          fprintf(stdout, "Current Packet in Linked List Info:\n");
+          fprintf(stdout, "source IP: 0x%x\n", ipptr->saddr);
+          fprintf(stdout, "source port: 0x%x\n", tcpptr->th_sport);
+          fprintf(stdout, "dest IP: 0x%x\n", ipptr->daddr);
+          fprintf(stdout, "SYN flag = %d\n", (tcpptr->th_flags & 0x02) >> 1);
+          fprintf(stdout, "ACK flag = %d\n", (tcpptr->th_flags & 0x10) >> 4);
+          fprintf(stdout, "-----------------------------------------------\n");
+          fprintf(stdout, "Current Packet in Array Info:\n");
+          fprintf(stdout, "source IP: 0x%x\n", packetStats[j].srcAddr);
+          fprintf(stdout, "source port: 0x%x\n", packetStats[j].srcPort);
+          fprintf(stdout, "dest IP: 0x%x\n", packetStats[j].destAddr);
+          fprintf(stdout, "# of connection requests: %d\n", packetStats[j].connectReqs);
+          fprintf(stdout, "# of sucessful responses: %d\n", packetStats[j].successResps);
+          
           // If the packet is already in the list of structs, then increment its statistics values
           if ((packetStats[j].srcAddr == ipptr->saddr) && (packetStats[j].destAddr == ipptr->daddr) && (packetStats[j].srcPort == tcpptr->th_sport))
           {
