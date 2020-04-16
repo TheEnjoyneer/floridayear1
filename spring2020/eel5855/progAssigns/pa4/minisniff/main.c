@@ -13,7 +13,7 @@
 #include <netinet/tcp.h>
 
 #define PACKETSTOREAD 0
-#define LINKEDLISTSIZE 262144
+#define MAXPACKETS 262144
 
 typedef struct iphdr ip_header;
 typedef struct ether_header ethernet_header;
@@ -77,7 +77,7 @@ int main (int argc, char **argv){
 
 
   /* so, i'm preparing a linked-list to store the packets i sniff */
-  create_buffer(&buf, LINKEDLISTSIZE, LINKEDLISTSIZE / 2);
+  create_buffer(&buf, MAXPACKETS, MAXPACKETS / 2);
 
   /* hokey dokey, so we are now ready to sniff the wire! */
   /* step-3: read the network card (sniff in short!)
