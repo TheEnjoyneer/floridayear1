@@ -43,12 +43,25 @@ Deadlock Scenarios:
 			  and at that time, a deadlock SHOULD occur.
 
 
-	Scenario 2)
+	Scenario 2) The second scenario I test for is the deadlock possibility when there are two 
+				processes running, both in MODE2, and then both of them at the same time attempt
+				to switch to MODE1, however with a sleep() statement in the user code so that it
+				is ensured that there are two processes open and both are in MODE2 before having 
+				both of them then attempt to switch to MODE1.  When they both attempt to do so, 
+				the devc->count2 variable will never be able to decrement to equal 1, and therefore
+				we should see a deadlock scenario as both of them will wait forever in deadlock.
 
-
-
+				- The "wait" statements that I'm checking this for are the same in both processes
+				  since both processes will be waiting in the same spot in the same function, and
+				  that place is Line <#>: wait_event_interruptible(devc->queue2, (devc->count2 == 1)); 
 
 		General Test Procedure:
+			- This will be tested similarly to Scenario 1, as two processes will be forked off and
+			  the first process will open the device, but it will then immediately switch to MODE2
+			  while the second process sleeps for a moment, and then the second process will open the
+			  device and it will open in MODE2.  Then both processes will attempt to switch to MODE1
+			  at the same time, and with devc->count2 being more than 1, and having either process
+			  not being able to release and decrement devc->count2, a deadlock SHOULD occur.
 
 
 	Scenario 3)
