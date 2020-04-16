@@ -131,7 +131,7 @@ static ssize_t e2_write (struct file *filp, const char __user *buf, size_t count
 		up(&devc->sem1);
         if (*f_pos + count > ramdisk_size)
         {
-            printk("Trying to read past end of buffer!\n");
+            printk("Trying to write past end of buffer!\n");
             return ret;
         }
         ret = count - copy_from_user(devc->ramdisk, buf, count);

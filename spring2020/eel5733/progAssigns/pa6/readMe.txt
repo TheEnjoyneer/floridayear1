@@ -22,12 +22,25 @@ For Running My Test Program:
 
 Deadlock Scenarios:
 
-	Scenario 1)
+	Scenario 1) The first scenario I test for is the deadlock possibility when a process running 
+				multiple threads is currently running in MODE1, and another process attempts to
+				open the device while the driver is in the case E2_IOCMODE2 section.  If the thread
+				wanting to switch (P1) has to wait for the thread that is attempting to also open the
+				device (P2), then P1 will still be holding devc->sem2, and P2 will be unable to acquire
+				devc->sem2, but it will acquire devc->sem1 and open and increment devc->count1. So 
+				P2 will block until it can acquire devc->sem2, and P1 will block until devc->count1 == 1,
+				and since P2 won't release until it has been opened, then this creates a deadlock scenario.
 
-
-
+				- The "wait" statements that I'm checking this for are:
+					- In P1, Line <#>: wait_event_interruptible(devc->queue1, (devc->count1 == 1));
+					- In P2, Line <#>: down_interruptible(&devc->sem2);
 
 		General Test Procedure:
+			- This will be tested by forking 2 processes that both attempt to open the driver, one will
+			  sleep immediately so the other will be able to open the driver first (P1), then that process
+			  will sleep so that the other will be able to attempt to open and be waiting for devc->sem2
+			  which it cannot acquire (P2), then P1 will attempt to switch from MODE1 to MODE2 via e2_ioctl,
+			  and at that time, a deadlock SHOULD occur.
 
 
 	Scenario 2)
