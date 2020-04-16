@@ -223,9 +223,9 @@ int main (int argc, char **argv){
         //fprintf(stdout, "ACK flag = %d\n", (tcpptr->th_flags & 0x10) >> 4);
 
         fprintf(stdout, "\n\nCurrent Packet in Linked List Info:\n");
-        fprintf(stdout, "source IP: %s\n", inet_ntoa((unsigned long int)ipptr->saddr));
+        fprintf(stdout, "source IP: %s\n", inet_ntoa(ipaddr_s));
         fprintf(stdout, "source port: %d\n", ntohs(tcpptr->th_sport));
-        fprintf(stdout, "dest IP: %s\n", inet_ntoa((unsigned long int)ipptr->daddr));
+        fprintf(stdout, "dest IP: %s\n", inet_ntoa(ipaddr_d));
         fprintf(stdout, "SYN flag = %d\n", (tcpptr->th_flags & 0x02) >> 1);
         fprintf(stdout, "ACK flag = %d\n", (tcpptr->th_flags & 0x10) >> 4);
 
@@ -265,7 +265,7 @@ int main (int argc, char **argv){
             }
 
             if (testRatio > RATIOTHRESHOLD)
-              fprintf(stdout, "\nWARNING: PORT SCAN ATTEMPT from Source IP: %s, port: %d on Destination IP: %s.\n\n", inet_ntoa((unsigned long int)ipptr->saddr), ntohs(tcpptr->th_sport), inet_ntoa((unsigned long int)ipptr->daddr));
+              fprintf(stdout, "\nWARNING: PORT SCAN ATTEMPT from Source IP: %s, port: %d on Destination IP: %s.\n\n", inet_ntoa(ipaddr_s), ntohs(tcpptr->th_sport), inet_ntoa(ipaddr_d));
           
             // Break from the loop if a match is found
             break;
