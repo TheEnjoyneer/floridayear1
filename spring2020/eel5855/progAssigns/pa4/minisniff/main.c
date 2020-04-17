@@ -276,7 +276,7 @@ int main (int argc, char **argv){
             //     fprintf(stdout, "(Ratio of %llu:1) <1>\n", testRatio);
             //   else
             //     fprintf(stdout, "(Ratio of %llu:1) <2>\n", packetStats[j].connectReqs);
-            }
+            //}
           
             // Break from the loop if a match is found
             break;
