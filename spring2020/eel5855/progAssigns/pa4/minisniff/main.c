@@ -318,6 +318,31 @@ int main (int argc, char **argv){
     tmp = tmp->next;
   }
 
+  for (j = 0; j < statsCount; j++)
+  {
+    // Check stats now too
+    if (packetStats[j].successResps != 0)
+    {
+      testRatio = packetStats[j].connectReqs / packetStats[j].successResps;
+    }
+    else
+    {
+      if (packetStats[j].connectReqs > RATIOTHRESHOLD)
+        testRatio = RATIOTHRESHOLD + 1;
+    }
+
+    if (testRatio > RATIOTHRESHOLD)
+    {
+      fprintf(stdout, "\nWARNING: PORT SCAN ATTEMPT from Source IP: %s", inet_ntoa(ipaddr_s));
+      fprintf(stdout, ", port: %d", ntohs(packetStats[j].srcPort));
+      fprintf(stdout, " on Destination IP: %s.\n", inet_ntoa(ipaddr_d));
+      if (packetStats[j].successResps != 0)
+        fprintf(stdout, "(Ratio of %llu:1) <1>\n", testRatio);
+      else
+        fprintf(stdout, "(Ratio of %llu:1) <2>\n", packetStats[j].connectReqs);
+    }
+  }
+
   //fprintf(stdout, "Number of items in this filtered buffer of packets = %lld\n", buf.items);
 
   // close the file
