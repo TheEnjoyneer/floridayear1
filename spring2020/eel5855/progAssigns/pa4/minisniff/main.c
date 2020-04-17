@@ -341,7 +341,10 @@ int main (int argc, char **argv){
       if (packetStats[j].successResps != 0)
         fprintf(stdout, "(Ratio of %llu:1) <1>\n", testRatio);
       else
-        fprintf(stdout, "(Ratio of %llu:1) <2>\n", packetStats[j].connectReqs);
+      {
+        if (packetStats[j].connectReqs > RATIOTHRESHOLD)
+          fprintf(stdout, "(Ratio of %llu:1) <2>\n", packetStats[j].connectReqs);
+      }
     }
   }
 
