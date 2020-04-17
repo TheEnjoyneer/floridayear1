@@ -321,8 +321,7 @@ int main (int argc, char **argv){
   for (j = 0; j < statsCount; j++)
   {
     // Check stats now too
-    arrIPAddr_s.s_addr = packetStats[j].srcAddr;
-    arrIPAddr_d.s_addr = packetStats[j].destAddr;
+    
     if (packetStats[j].successResps != 0)
     {
       testRatio = packetStats[j].connectReqs / packetStats[j].successResps;
@@ -335,6 +334,8 @@ int main (int argc, char **argv){
 
     if (testRatio > RATIOTHRESHOLD)
     {
+      arrIPAddr_s.s_addr = packetStats[j].srcAddr;
+      arrIPAddr_d.s_addr = packetStats[j].destAddr;
       fprintf(stdout, "\nWARNING: PORT SCAN ATTEMPT from Source IP: %s", inet_ntoa(arrIPAddr_s));
       fprintf(stdout, ", port: %d", ntohs(packetStats[j].srcPort));
       fprintf(stdout, " on Destination IP: %s.\n", inet_ntoa(arrIPAddr_d));
