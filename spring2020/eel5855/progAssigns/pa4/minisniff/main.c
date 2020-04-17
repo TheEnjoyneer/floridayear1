@@ -272,7 +272,10 @@ int main (int argc, char **argv){
               fprintf(stdout, "\nWARNING: PORT SCAN ATTEMPT from Source IP: %s", inet_ntoa(ipaddr_s));
               fprintf(stdout, ", port: %d", ntohs(packetStats[j].srcPort));
               fprintf(stdout, " on Destination IP: %s.\n", inet_ntoa(ipaddr_d));
-              fprintf(stdout, "(Ratio of %llu:1)\n", testRatio);
+              if (packetStats[j].successResps != 0)
+                fprintf(stdout, "(Ratio of %llu:1)\n", testRatio);
+              else
+                fprintf(stdout, "(Ratio of %llu:1)\n", packetStats[j].connectReqs);
             }
           
             // Break from the loop if a match is found
