@@ -271,7 +271,7 @@ int main (int argc, char **argv){
             {
               fprintf(stdout, "\nWARNING: PORT SCAN ATTEMPT from Source IP: %s", inet_ntoa(ipaddr_s));
               fprintf(stdout, ", port: %d", ntohs(packetStats[j].srcPort));
-              fprintf(stdout, " on Destination IP: %s.\n\n", inet_ntoa(ipaddr_d));
+              fprintf(stdout, " on Destination IP: %s.\n", inet_ntoa(ipaddr_d));
             }
           
             // Break from the loop if a match is found
@@ -308,7 +308,7 @@ int main (int argc, char **argv){
       	break;
     }
       
-    fprintf(stdout, "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n");
+    //fprintf(stdout, "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n");
     
     /* next packet please */
     tmp = tmp->next;
