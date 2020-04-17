@@ -290,9 +290,9 @@ int main (int argc, char **argv){
           packetStats[statsCount].destAddr = ipptr->daddr;
           packetStats[statsCount].srcPort = tcpptr->th_sport;
           if (tcpptr->th_flags == 0x12)
-              packetStats[j].successResps = 1;
-            else if (tcpptr->th_flags == 0x02)
-              packetStats[j].connectReqs = 1;
+              packetStats[statsCount++].successResps = 1;
+          else if (tcpptr->th_flags == 0x02)
+            packetStats[statsCount++].connectReqs = 1;
         }
 
         break;
