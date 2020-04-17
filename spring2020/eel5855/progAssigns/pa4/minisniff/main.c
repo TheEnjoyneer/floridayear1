@@ -322,6 +322,7 @@ int main (int argc, char **argv){
   {
     arrIPAddr_s.s_addr = packetStats[j].srcAddr;
     arrIPAddr_d.s_addr = packetStats[j].destAddr;
+    fprintf(stdout, "\n-----------------------------------------------\n");
     fprintf(stdout, "Current Packet in Array Info:\n");
     fprintf(stdout, "source IP: %s\n", inet_ntoa(arrIPAddr_s));
     fprintf(stdout, "source port: %d\n", ntohs(packetStats[j].srcPort));
