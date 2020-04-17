@@ -251,9 +251,9 @@ int main (int argc, char **argv){
             // Set to be found
             found = 1;
             // If the packet is just a SYN packet, increment its connection requests value
-            if ((tcpptr->th_flags & 0x02) >> 1)
+            if (((tcpptr->th_flags & 0x02) >> 1) && ((tcpptr->th_flags & 0x10) >> 4))
               packetStats[j].connectReqs++;
-            else if (((tcpptr->th_flags & 0x02) >> 1) && ((tcpptr->th_flags & 0x10) >> 4))
+            else if ((tcpptr->th_flags & 0x02) >> 1)
               packetStats[j].successResps++;
 
             // Check stats now too
