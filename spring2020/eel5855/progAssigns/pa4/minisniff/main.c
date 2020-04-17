@@ -224,12 +224,12 @@ int main (int argc, char **argv){
         //fprintf(stdout, "SYN flag = %d\n", (tcpptr->th_flags & 0x02) >> 1);
         //fprintf(stdout, "ACK flag = %d\n", (tcpptr->th_flags & 0x10) >> 4);
 
-        fprintf(stdout, "\n\nCurrent Packet in Linked List Info:\n");
-        fprintf(stdout, "source IP: %s\n", inet_ntoa(ipaddr_s));
-        fprintf(stdout, "source port: %d\n", ntohs(tcpptr->th_sport));
-        fprintf(stdout, "dest IP: %s\n", inet_ntoa(ipaddr_d));
-        fprintf(stdout, "SYN flag = %d\n", (tcpptr->th_flags & 0x02) >> 1);
-        fprintf(stdout, "ACK flag = %d\n", (tcpptr->th_flags & 0x10) >> 4);
+        // fprintf(stdout, "\n\nCurrent Packet in Linked List Info:\n");
+        // fprintf(stdout, "source IP: %s\n", inet_ntoa(ipaddr_s));
+        // fprintf(stdout, "source port: %d\n", ntohs(tcpptr->th_sport));
+        // fprintf(stdout, "dest IP: %s\n", inet_ntoa(ipaddr_d));
+        // fprintf(stdout, "SYN flag = %d\n", (tcpptr->th_flags & 0x02) >> 1);
+        // fprintf(stdout, "ACK flag = %d\n", (tcpptr->th_flags & 0x10) >> 4);
 
         // SOMEHOW COLLECT INFORMATION FOR DIAGNOSTICS AND SCANNING HERE
         for (j = 0; j < statsCount; j++)
@@ -237,13 +237,13 @@ int main (int argc, char **argv){
           // TEST PRINTS
           arrIPAddr_s.s_addr = packetStats[j].srcAddr;
           arrIPAddr_d.s_addr = packetStats[j].destAddr;
-          fprintf(stdout, "-----------------------------------------------\n");
-          fprintf(stdout, "Current Packet in Array Info:\n");
-          fprintf(stdout, "source IP: %s\n", inet_ntoa(arrIPAddr_s));
-          fprintf(stdout, "source port: %d\n", ntohs(packetStats[j].srcPort));
-          fprintf(stdout, "dest IP: %s\n", inet_ntoa(arrIPAddr_d));
-          fprintf(stdout, "# of connection requests: %lld\n", packetStats[j].connectReqs);
-          fprintf(stdout, "# of sucessful responses: %lld\n", packetStats[j].successResps);
+          // fprintf(stdout, "-----------------------------------------------\n");
+          // fprintf(stdout, "Current Packet in Array Info:\n");
+          // fprintf(stdout, "source IP: %s\n", inet_ntoa(arrIPAddr_s));
+          // fprintf(stdout, "source port: %d\n", ntohs(packetStats[j].srcPort));
+          // fprintf(stdout, "dest IP: %s\n", inet_ntoa(arrIPAddr_d));
+          // fprintf(stdout, "# of connection requests: %lld\n", packetStats[j].connectReqs);
+          // fprintf(stdout, "# of sucessful responses: %lld\n", packetStats[j].successResps);
 
           // If the packet is already in the list of structs, then increment its statistics values
           if ((packetStats[j].srcAddr == ipptr->saddr) && (packetStats[j].destAddr == ipptr->daddr) && (packetStats[j].srcPort == tcpptr->th_sport))
@@ -314,7 +314,7 @@ int main (int argc, char **argv){
     tmp = tmp->next;
   }
 
-  fprintf(stdout, "Number of items in this filtered buffer of packets = %lld\n", buf.items);
+  //fprintf(stdout, "Number of items in this filtered buffer of packets = %lld\n", buf.items);
 
   // close the file
   pcap_close(descr);
