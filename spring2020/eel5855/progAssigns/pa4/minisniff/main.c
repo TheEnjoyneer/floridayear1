@@ -13,7 +13,7 @@
 #include <netinet/tcp.h>
 
 #define PACKETSTOREAD 0
-#define MAXPACKETS 256
+#define MAXPACKETS 262144
 #define TESTVAL 65536
 #define RATIOTHRESHOLD 3
 
