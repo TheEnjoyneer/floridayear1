@@ -28,9 +28,11 @@ void pcap_callback (u_char * arg, const struct pcap_pkthdr *pkthdr, const u_char
 
   if (!((pkthdr->len - (size_of_ehdr + size_of_iphdr)) < size_of_tcphdr))
   {
-  	if (((tcpptr->th_flags & 0x02) >> 1) && ((tcpptr->th_flags & 0x10) >> 4))
+  	if ((tcpptr->th_flags == 0x12) || (tcpptr->th_flags == 0x02))
   		append_item((buffer *) arg, pkthdr, packet);
-  	else if ((tcpptr->th_flags & 0x02) >> 1)
-  		append_item((buffer *) arg, pkthdr, packet);
+  	// if (((tcpptr->th_flags & 0x02) >> 1) && ((tcpptr->th_flags & 0x10) >> 4))
+  	// 	append_item((buffer *) arg, pkthdr, packet);
+  	// else if ((tcpptr->th_flags & 0x02) >> 1)
+  	// 	append_item((buffer *) arg, pkthdr, packet);
   }
 }
