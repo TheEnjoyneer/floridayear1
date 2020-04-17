@@ -273,9 +273,9 @@ int main (int argc, char **argv){
               fprintf(stdout, ", port: %d", ntohs(packetStats[j].srcPort));
               fprintf(stdout, " on Destination IP: %s.\n", inet_ntoa(ipaddr_d));
               if (packetStats[j].successResps != 0)
-                fprintf(stdout, "(Ratio of %llu:1)\n", testRatio);
+                fprintf(stdout, "(Ratio of %llu:1) <1>\n", testRatio);
               else
-                fprintf(stdout, "(Ratio of %llu:1)\n", packetStats[j].connectReqs);
+                fprintf(stdout, "(Ratio of %llu:1) <2>\n", packetStats[j].connectReqs);
             }
           
             // Break from the loop if a match is found
