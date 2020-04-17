@@ -321,6 +321,8 @@ int main (int argc, char **argv){
   for (j = 0; j < statsCount; j++)
   {
     // Check stats now too
+    arrIPAddr_s.s_addr = packetStats[j].srcAddr;
+    arrIPAddr_d.s_addr = packetStats[j].destAddr;
     if (packetStats[j].successResps != 0)
     {
       testRatio = packetStats[j].connectReqs / packetStats[j].successResps;
