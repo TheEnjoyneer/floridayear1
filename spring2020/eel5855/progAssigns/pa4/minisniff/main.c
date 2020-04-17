@@ -289,8 +289,10 @@ int main (int argc, char **argv){
           packetStats[statsCount].srcAddr = ipptr->saddr;
           packetStats[statsCount].destAddr = ipptr->daddr;
           packetStats[statsCount].srcPort = tcpptr->th_sport;
-          packetStats[statsCount].connectReqs = 0;
-          packetStats[statsCount++].successResps = 0;
+          if (tcpptr->th_flags == 0x12)
+              packetStats[j].successResps = 1;
+            else if (tcpptr->th_flags == 0x02)
+              packetStats[j].connectReqs = 1;
         }
 
         break;
