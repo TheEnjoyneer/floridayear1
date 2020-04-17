@@ -335,9 +335,9 @@ int main (int argc, char **argv){
 
     if (testRatio > RATIOTHRESHOLD)
     {
-      fprintf(stdout, "\nWARNING: PORT SCAN ATTEMPT from Source IP: %s", inet_ntoa(ipaddr_s));
+      fprintf(stdout, "\nWARNING: PORT SCAN ATTEMPT from Source IP: %s", inet_ntoa(arrIPAddr_s));
       fprintf(stdout, ", port: %d", ntohs(packetStats[j].srcPort));
-      fprintf(stdout, " on Destination IP: %s.\n", inet_ntoa(ipaddr_d));
+      fprintf(stdout, " on Destination IP: %s.\n", inet_ntoa(arrIPAddr_d));
       if (packetStats[j].successResps != 0)
         fprintf(stdout, "(Ratio of %llu:1) <1>\n", testRatio);
       else
