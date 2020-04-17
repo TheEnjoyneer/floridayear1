@@ -234,49 +234,16 @@ int main (int argc, char **argv){
         // SOMEHOW COLLECT INFORMATION FOR DIAGNOSTICS AND SCANNING HERE
         for (j = 0; j < statsCount; j++)
         {
-          // TEST PRINTS
-          arrIPAddr_s.s_addr = packetStats[j].srcAddr;
-          arrIPAddr_d.s_addr = packetStats[j].destAddr;
-          // fprintf(stdout, "-----------------------------------------------\n");
-          // fprintf(stdout, "Current Packet in Array Info:\n");
-          // fprintf(stdout, "source IP: %s\n", inet_ntoa(arrIPAddr_s));
-          // fprintf(stdout, "source port: %d\n", ntohs(packetStats[j].srcPort));
-          // fprintf(stdout, "dest IP: %s\n", inet_ntoa(arrIPAddr_d));
-          // fprintf(stdout, "# of connection requests: %lld\n", packetStats[j].connectReqs);
-          // fprintf(stdout, "# of sucessful responses: %lld\n", packetStats[j].successResps);
-
           // If the packet is already in the list of structs, then increment its statistics values
           if ((packetStats[j].srcAddr == ipptr->saddr) && (packetStats[j].destAddr == ipptr->daddr) && (packetStats[j].srcPort == tcpptr->th_sport))
           {
             // Set to be found
             found = 1;
             // If the packet is just a SYN packet, increment its connection requests value
-            if (tcpptr->th_flags == 0x12)
+            if ((tcpptr->th_flags & 0x12) == 0x12)
               packetStats[j].successResps++;
-            else if (tcpptr->th_flags == 0x02)
+            else if ((tcpptr->th_flags & 0x02) == 0x02)
               packetStats[j].connectReqs++;
-
-            // Check stats now too
-            // if (packetStats[j].successResps != 0)
-            // {
-            //   testRatio = packetStats[j].connectReqs / packetStats[j].successResps;
-            // }
-            // else
-            // {
-            //   if (packetStats[j].connectReqs > RATIOTHRESHOLD)
-            //     testRatio = RATIOTHRESHOLD + 1;
-            // }
-
-            // if (testRatio > RATIOTHRESHOLD)
-            // {
-            //   fprintf(stdout, "\nWARNING: PORT SCAN ATTEMPT from Source IP: %s", inet_ntoa(ipaddr_s));
-            //   fprintf(stdout, ", port: %d", ntohs(packetStats[j].srcPort));
-            //   fprintf(stdout, " on Destination IP: %s.\n", inet_ntoa(ipaddr_d));
-            //   if (packetStats[j].successResps != 0)
-            //     fprintf(stdout, "(Ratio of %llu:1) <1>\n", testRatio);
-            //   else
-            //     fprintf(stdout, "(Ratio of %llu:1) <2>\n", packetStats[j].connectReqs);
-            //}
           
             // Break from the loop if a match is found
             break;
