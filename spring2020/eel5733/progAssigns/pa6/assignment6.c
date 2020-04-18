@@ -76,7 +76,7 @@ int e2_release(struct inode *inode, struct file *filp)
         devc->count1--;
         if (devc->count1 == 1)
             wake_up_interruptible(&(devc->queue1));
-			up(&devc->sem2);
+		up(&devc->sem2);
     }
     else if (devc->mode == MODE2)
     {

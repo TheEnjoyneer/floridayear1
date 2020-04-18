@@ -48,31 +48,39 @@ Deadlock Scenarios:
 				to switch to MODE1, however with a sleep() statement in the user code so that it
 				is ensured that there are two processes open and both are in MODE2 before having 
 				both of them then attempt to switch to MODE1.  When they both attempt to do so, 
-				the devc->count2 variable will never be able to decrement to equal 1, and therefore
+				the devc->count2 variable will never be able to decrement to equal 0, and therefore
 				we should see a deadlock scenario as both of them will wait forever in deadlock.
 
 				- The "wait" statements that I'm checking this for are the same in both processes
 				  since both processes will be waiting in the same spot in the same function, and
-				  that place is Line <#>: wait_event_interruptible(devc->queue2, (devc->count2 == 1)); 
+				  that place is Line <#>: wait_event_interruptible(devc->queue2, (devc->count2 == 0)); 
 
 		General Test Procedure:
 			- This will be tested similarly to Scenario 1, as two processes will be forked off and
 			  the first process will open the device, but it will then immediately switch to MODE2
 			  while the second process sleeps for a moment, and then the second process will open the
 			  device and it will open in MODE2.  Then both processes will attempt to switch to MODE1
-			  at the same time, and with devc->count2 being more than 1, and having either process
+			  at the same time, and with devc->count2 being more than 0, and having either process
 			  not being able to release and decrement devc->count2, a deadlock SHOULD occur.
 
 
-	Scenario 3)
+	Scenario 3) The third scenario I test for is the deadlock possibility when a process is opened in 
+				MODE1, then switches to MODE2.  Another process opens in MODE2 attempts to switch to MODE1
+				and cannot since devc->count2 is currently equal to 1, so it will wait. Then the first
+				process will close the device, but because after it decrements devc->count2 will be equal
+				to 0, and will not call the wake_up_interruptable(&dev->queue2);
 
-
-
+				- The "wait" statement that I'm checking this one for will be the same as in Scenario 2
+				  which is Line <#>: wait_event_interruptible(devc->queue2, (devc->count2 == 0));
 
 		General Test Procedure:
+			- This will be tested basically the same as the scenario was given, so sleep statements
+			  will be inserted in the first process to open after it has switched to MODE2 so that
+			  second process to open will open in MODE2, and it is able to able to attempt to switch
+			  to MODE1 first, then the first process will close the device.
 
 
-	Scenario 4)
+	Scenario 4) The last scenario I test for is the deadlock possibility when
 
 
 
