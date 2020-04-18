@@ -7,12 +7,12 @@
 
 For Running My Test Program:
 	Prerequisites
-	- Compiled and loaded the modified device driver program
+	- Compiled and loaded the device driver program
 	- Compiled my testing program
 	- Decide on which deadlock scenario you are wanting to test for with my program
 
 	Running
-	1) Run "./deadlockTest <deadlock scenario #>"
+	1) Run "./deadlockTest <deadlock scenario #> <device name>"
 
 	* This program will execute a test for one of the following four scenarios. *
 
