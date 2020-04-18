@@ -278,6 +278,12 @@ Race Condition Code Reviews:
 			  primitives prevent any data races, and there should be no errors caused by this.
 
 
+		*** However it is important to note that any two critical regions that are entered after
+			down_interruptible() is called, and where there is no check on the return value
+			of down_interruptible(), that that becomes a race condition as there is a possibility 
+			that no lock is held there if it returns as a result of a signal.
+
+
 
 
 
