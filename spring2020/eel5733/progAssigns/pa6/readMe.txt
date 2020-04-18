@@ -81,13 +81,14 @@ Deadlock Scenarios:
 
 
 	Scenario 4) The last scenario I test for is the deadlock possibility when a process opens the device
-				in MODE1
+				in MODE1, and then again attempts to open the same device again in MODE1, which will
+				cause a deadlock in that process as it cannot acquire devc->sem2 again.
 
-
+				- The "wait" statement that I'm checking this one for will be the 
+				  Line <#>: down_interruptible(&devc->sem2);
 
 		General Test Procedure:
-
-
+			- This will be as simple as it sounds, just attempt to open the device twice in the same process.
 
 
 Race Condition Code Reviews:

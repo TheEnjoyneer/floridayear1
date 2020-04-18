@@ -122,14 +122,10 @@ int main(int argc, char *argv[])
 		// Run procedure to test the scenario given in the readMe as deadlock scenario 4
 		case 4:
 
-			if (fork() == 0)
-			{
+			/* This will be as simple as it sounds, just attempt to open the device twice in the same process. */
 
-			}
-			else
-			{
-
-			}
+			fd[0] = open(argv[2], O_RDWR);
+			fd[1] = open(argv[2], O_RDWR);
 
 			break;
 
