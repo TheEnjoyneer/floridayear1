@@ -16,6 +16,7 @@
 #define CDRV_IOC_MAGIC 'Z'
 #define E2_IOCMODE1 _IOWR(CDRV_IOC_MAGIC, 1, int)
 #define E2_IOCMODE2 _IOWR(CDRV_IOC_MAGIC, 2, int)
+#define DEVNAME "/dev/assignment6"
 
 
 // Declare helper function prototypes
@@ -26,49 +27,95 @@ void operations(int fd, char ch);
 int main(int argc, char *argv[])
 {
 	// Declare necessary variables
-	int i;
+	int i, fd[2];
 	char ch;
 	int deadlockScenario;
 
 	// Quick check for args
-	if (argc < 2)
+	if (argc < 3)
 	{
 		fprintf(stderr, "Deadlock scenario number not specified\n");
-		fprintf(stderr, "Correct usage: ./deadlockTest <deadlock scenario #>\n");
+		fprintf(stderr, "Correct usage: ./deadlockTest <deadlock scenario #> <device file name>\n");
 		return 1;
 	}
 
 	// Set deadlockScenario now that we checked args
 	deadlockScenario = atoi(argv[1]);
 
-	
-	// Open the device file
-	// int fd = open(dev_path, O_RDWR);
-	// if(fd == -1)
-	// {
-	// 	printf("File %s either does not exist or has been locked by another "
-	// 			"process\n", DEVICE);
-	// 	exit(-1);
-	// }
-	
-
+	// Switch statement for the scenarios to play out
 	switch(deadlockScenario)
 	{
 		// Run procedure to test the scenario given in the readMe as deadlock scenario 1
 		case 1:
 
+			/* This will be tested by forking 2 processes that both attempt to open the driver, one will
+			  sleep immediately so the other will be able to open the driver first (P1), then that process
+			  will sleep so that the other will be able to attempt to open and be waiting for devc->sem2
+			  which it cannot acquire (P2), then P1 will attempt to switch from MODE1 to MODE2 via e2_ioctl,
+			  and at that time, a deadlock SHOULD occur. */
+
+			if (fork() == 0)
+			{
+				fd[0] = open(argv[2], O_RDWR);
+				sleep(2);
+				operations(fd[0], 'p');
+			}
+			else
+			{
+				sleep(1);
+				fd[1] = open(argv[2], O_RDWR);
+				sleep(3);
+			}
 
 			break;
 
 		// Run procedure to test the scenario given in the readMe as deadlock scenario 2
 		case 2:
 
+			/* This will be tested similarly to Scenario 1, as two processes will be forked off and
+			  the first process will open the device, but it will then immediately switch to MODE2
+			  while the second process sleeps for a moment, and then the second process will open the
+			  device and it will open in MODE2.  Then both processes will attempt to switch to MODE1
+			  at the same time, and with devc->count2 being more than 0, and having either process
+			  not being able to release and decrement devc->count2, a deadlock SHOULD occur. */
+
+			if (fork() == 0)
+			{
+				fd[0] = open(argv[2], O_RDWR);
+				operations(fd[0], 'p');
+				sleep(2);
+				operations(fd[0], 's');
+			}
+			else
+			{
+				sleep(1);
+				fd[1] = open(argv[2], O_RDWR);
+				operations(fd[1], 's');
+			}
 
 			break;
 
 		// Run procedure to test the scenario given in the readMe as deadlock scenario 3
 		case 3:
 
+			/* This will be tested basically the same as the scenario was given, so sleep statements
+			  will be inserted in the first process to open after it has switched to MODE2 so that
+			  second process to open will open in MODE2, and it is able to able to attempt to switch
+			  to MODE1 first, then the first process will close the device. */
+
+			if (fork() == 0)
+			{
+				fd[0] = open(argv[2], O_RDWR);
+				operations(fd[0], 'p');
+				sleep(2);
+				close(fd[0]);
+			}
+			else
+			{
+				sleep(1);
+				fd[1] = open(argv[2], O_RDWR);
+				operations(fd[1], 's');
+			}
 
 			break;
 
