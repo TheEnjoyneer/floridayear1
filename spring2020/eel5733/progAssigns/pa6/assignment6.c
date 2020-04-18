@@ -184,8 +184,6 @@ static long e2_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 					}
 				}
 				devc->mode = MODE2;
-                devc->count1--;
-                devc->count2++;
 				up(&devc->sem2);
 				up(&devc->sem1);
 				break;
@@ -197,18 +195,16 @@ static long e2_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 				   up(&devc->sem1);
 				   break;
 				}
-				if (devc->count2 > 1)
+				if (devc->count2 > 0)
                 {
-				   while (devc->count2 > 1)
+				   while (devc->count2 > 0)
                    {
 				       up(&devc->sem1);
-				       wait_event_interruptible(devc->queue2, (devc->count2 == 1));
+				       wait_event_interruptible(devc->queue2, (devc->count2 == 0));
 				       down_interruptible(&devc->sem1);
 				   }
 				}
 				devc->mode = MODE1;
-                devc->count2--;
-                devc->count1++;
 				down_interruptible(&devc->sem2);
 				up(&devc->sem1);
 				break;
