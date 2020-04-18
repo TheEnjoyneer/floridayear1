@@ -122,6 +122,14 @@ int main(int argc, char *argv[])
 		// Run procedure to test the scenario given in the readMe as deadlock scenario 4
 		case 4:
 
+			if (fork() == 0)
+			{
+
+			}
+			else
+			{
+
+			}
 
 			break;
 
@@ -130,13 +138,6 @@ int main(int argc, char *argv[])
 			fprintf(stderr, "\nError: Invalid input option for Deadlock Scenario.\n");
 			break;
 	}
-
-
-
-	// Probably will have to remove this close and do it in the case statement
-	// close(fd);
-
-
 
 	return 0;
 }
