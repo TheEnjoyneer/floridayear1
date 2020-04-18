@@ -80,7 +80,8 @@ Deadlock Scenarios:
 			  to MODE1 first, then the first process will close the device.
 
 
-	Scenario 4) The last scenario I test for is the deadlock possibility when
+	Scenario 4) The last scenario I test for is the deadlock possibility when a process opens the device
+				in MODE1
 
 
 
@@ -243,9 +244,9 @@ Race Condition Code Reviews:
 			  possibility of race conditions.
 			- The reason for this is that since CR1 and CR2 do not hold any locks other than their
 			  parent process holding devc->sem2, if that process were to open the driver file first,
-			  then create two threads that then attempt to read and write at the same time in MODE1,
-			  then there is a possibility for a data race for both the *f_pos AND for the actual data
-			  in devc->ramdisk. 
+			  then create two threads/fork a child process that then attempts to read and write at
+			  the same time in MODE1, then there is a possibility for a data race for both the *f_pos
+			  AND for the actual data in devc->ramdisk. 
 
 		2) The second pair of critical regions that we are going to look at are CR2 and CR2 again.
 			- For this particular pair of critical regions, I believe there there IS indeed a
