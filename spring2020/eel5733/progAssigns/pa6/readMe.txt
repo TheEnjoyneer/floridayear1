@@ -80,7 +80,8 @@ Deadlock Scenarios:
 			  to MODE1 first, then the first process will close the device.
 
 
-	Scenario 4) The last scenario I test for is the deadlock possibility when
+	Scenario 4) The last scenario I test for is similar to Scenario 3, and happens when a process is 
+				opened in MODE1, then switches to MODE2. Then two more processes open 
 
 
 
