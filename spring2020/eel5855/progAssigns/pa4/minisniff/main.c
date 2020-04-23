@@ -49,10 +49,7 @@ int main (int argc, char **argv){
   /* variables for the simple buffer, ignore them */
   buffer buf;               /* that's my linked-list */
   item *tmp;                /* an item in the linked-list */
-  u_char *ptr, *packet;     /* vars to store raw packets */
-  register int i = 0;
-  struct in_addr ipaddr_s;    /* you should know this one */
-  struct in_addr ipaddr_d;
+  u_char *packet;     /* vars to store raw packets */
   struct in_addr arrIPAddr_s;
   struct in_addr arrIPAddr_d;
   struct packetStats_s *packetStats = malloc(sizeof(struct packetStats_s) * TESTVAL);
@@ -140,16 +137,12 @@ int main (int argc, char **argv){
     eptr = (ethernet_header *) packet; /* ethernet header of current packet */
 
     /* print the source and destination from the ethernet frame */
-    ptr = eptr->ether_dhost;
-    i = ETHER_ADDR_LEN;
     // fprintf(stdout, "destination mac address= ");
     // do{
     //    fprintf(stdout, "%s%x",(i == ETHER_ADDR_LEN) ? " " : ":",*ptr++);
     //  }while(--i>0);
     //  fprintf(stdout, "\n");
 
-    ptr = eptr->ether_shost;
-    i = ETHER_ADDR_LEN;
     // fprintf(stdout, "source mac address= ");
     // do{
     //   fprintf(stdout, "%s%x",(i == ETHER_ADDR_LEN) ? " " : ":",*ptr++);
@@ -193,10 +186,10 @@ int main (int argc, char **argv){
       	//fprintf(stdout, "ttl = %d\n", ipptr->ttl);
       	//fprintf(stdout, "protocol = %d\n", ipptr->protocol);
       	
-      	ipaddr_s.s_addr = (unsigned long int)ipptr->saddr;
+      	//ipaddr_s.s_addr = (unsigned long int)ipptr->saddr;
         //fprintf(stdout, "source = %s\n", inet_ntoa(ipaddr_s)); /* source address */
       	
-      	ipaddr_d.s_addr = (unsigned long int)ipptr->daddr;
+      	//ipaddr_d.s_addr = (unsigned long int)ipptr->daddr;
       	//fprintf(stdout, "destination = %s\n", inet_ntoa(ipaddr_d));
         /* and so on, you got the idea */	
 
