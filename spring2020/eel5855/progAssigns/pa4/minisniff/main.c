@@ -228,7 +228,7 @@ int main (int argc, char **argv){
         for (j = 0; j < statsCount; j++)
         {
           // If the packet is already in the list of structs, then increment its statistics values
-          if ((packetStats[j].srcAddr == ipptr->saddr) && (packetStats[j].destAddr == ipptr->daddr))
+          if (((packetStats[j].srcAddr == ipptr->saddr) && (packetStats[j].destAddr == ipptr->daddr)) || ((packetStats[j].destAddr == ipptr->saddr) && (packetStats[j].srcAddr == ipptr->daddr)))
           {
             // Set to be found
             found = 1;
