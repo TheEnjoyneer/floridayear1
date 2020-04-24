@@ -297,7 +297,7 @@ int main (int argc, char **argv){
     // fprintf(stdout, "# of connection requests: %lld\n", packetStats[j].connectReqs);
     // fprintf(stdout, "# of sucessful responses: %lld\n", packetStats[j].successResps);
 
-    Check stats now too
+    // Check stats now too
     if (packetStats[j].successResps != 0)
     {
       testRatio = packetStats[j].connectReqs / packetStats[j].successResps;
