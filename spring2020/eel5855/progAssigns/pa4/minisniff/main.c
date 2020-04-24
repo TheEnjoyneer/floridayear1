@@ -288,35 +288,35 @@ int main (int argc, char **argv){
 
   for (j = 0; j < statsCount; j++)
   {
-    arrIPAddr_s.s_addr = packetStats[j].srcAddr;
-    arrIPAddr_d.s_addr = packetStats[j].destAddr;
-    fprintf(stdout, "\n-----------------------------------------------\n");
-    fprintf(stdout, "Current Packet in Array Info:\n");
-    fprintf(stdout, "source IP: %s\n", inet_ntoa(arrIPAddr_s));
-    fprintf(stdout, "dest IP: %s\n", inet_ntoa(arrIPAddr_d));
-    fprintf(stdout, "# of connection requests: %lld\n", packetStats[j].connectReqs);
-    fprintf(stdout, "# of sucessful responses: %lld\n", packetStats[j].successResps);
+    // arrIPAddr_s.s_addr = packetStats[j].srcAddr;
+    // arrIPAddr_d.s_addr = packetStats[j].destAddr;
+    // fprintf(stdout, "\n-----------------------------------------------\n");
+    // fprintf(stdout, "Current Packet in Array Info:\n");
+    // fprintf(stdout, "source IP: %s\n", inet_ntoa(arrIPAddr_s));
+    // fprintf(stdout, "dest IP: %s\n", inet_ntoa(arrIPAddr_d));
+    // fprintf(stdout, "# of connection requests: %lld\n", packetStats[j].connectReqs);
+    // fprintf(stdout, "# of sucessful responses: %lld\n", packetStats[j].successResps);
 
     // Check stats now too
-    // if (packetStats[j].successResps != 0)
-    // {
-    //   testRatio = packetStats[j].connectReqs / packetStats[j].successResps;
-    // }
-    // else
-    // {
-    //   if (packetStats[j].connectReqs > RATIOTHRESHOLD)
-    //     testRatio = packetStats[j].connectReqs;
-    // }
+    if (packetStats[j].successResps != 0)
+    {
+      testRatio = packetStats[j].connectReqs / packetStats[j].successResps;
+    }
+    else
+    {
+      if (packetStats[j].connectReqs > RATIOTHRESHOLD)
+        testRatio = packetStats[j].connectReqs;
+    }
 
-    // if (testRatio > RATIOTHRESHOLD)
-    // {
-    //   arrIPAddr_s.s_addr = packetStats[j].srcAddr;
-    //   arrIPAddr_d.s_addr = packetStats[j].destAddr;
-    //   fprintf(stdout, "\nWARNING: PORT SCAN ATTEMPT from Source IP: %s", inet_ntoa(arrIPAddr_s));
-    //   fprintf(stdout, ", port: %d", ntohs(packetStats[j].srcPort));
-    //   fprintf(stdout, " on Destination IP: %s.\n", inet_ntoa(arrIPAddr_d));
-    //   fprintf(stdout, "(Ratio of %llu:1)\n", testRatio);
-    // }
+    if (testRatio > RATIOTHRESHOLD)
+    {
+      arrIPAddr_s.s_addr = packetStats[j].srcAddr;
+      arrIPAddr_d.s_addr = packetStats[j].destAddr;
+      fprintf(stdout, "\nWARNING: PORT SCAN ATTEMPT from Source IP: %s", inet_ntoa(arrIPAddr_s));
+      fprintf(stdout, ", port: %d", ntohs(packetStats[j].srcPort));
+      fprintf(stdout, " on Destination IP: %s.\n", inet_ntoa(arrIPAddr_d));
+      fprintf(stdout, "(Ratio of %llu:1)\n", testRatio);
+    }
   }
 
   //fprintf(stdout, "Number of items in this filtered buffer of packets = %lld\n", buf.items);
