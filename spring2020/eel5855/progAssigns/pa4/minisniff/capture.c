@@ -22,17 +22,9 @@ void pcap_callback (u_char * arg, const struct pcap_pkthdr *pkthdr, const u_char
   // If the packet is a tcp syn or syn/ack packet, then we add it to the buffer
   tcp_header *tcpptr = (tcp_header *) (packet + size_of_ehdr + size_of_iphdr);
 
-  // fprintf(stdout, "TESTINGTESTINGTESTINGTESTING\n");
-  // fprintf(stdout, "SYN flag = %d\n", (tcpptr->th_flags & 0x02) >> 1);
-  // fprintf(stdout, "ACK flag = %d\n", (tcpptr->th_flags & 0x10) >> 4);
-
   if (!((pkthdr->len - (size_of_ehdr + size_of_iphdr)) < size_of_tcphdr))
   {
   	if (((tcpptr->th_flags & 0x12) == 0x12) || ((tcpptr->th_flags & 0x02) == 0x02))
   		append_item((buffer *) arg, pkthdr, packet);
-  	// if (((tcpptr->th_flags & 0x02) >> 1) && ((tcpptr->th_flags & 0x10) >> 4))
-  	// 	append_item((buffer *) arg, pkthdr, packet);
-  	// else if ((tcpptr->th_flags & 0x02) >> 1)
-  	// 	append_item((buffer *) arg, pkthdr, packet);
   }
 }
