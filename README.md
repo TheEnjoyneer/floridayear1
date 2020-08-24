@@ -13,7 +13,9 @@ Fall 2019 Semester contents should include code written and documents for Florid
   > `EEL 5764 - Computer Architecture`
   
 Spring 2020 Semester contents should include code written and documents for Florida's graduate courses in:
-  > `Unknown yet
+  > `EEL 5733 Advanced Systems Programming`
+  
+  > `EEL 5855 Cross-Layered Systems Security`
   
   All constructive comments are appreciated.
   
