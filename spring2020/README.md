@@ -8,7 +8,9 @@ All code in this repository is free for anyone's use. I doubt it will be too ter
 Any comments, constructive criticism, or concerns can be emailed to me or commented on the repo as well.
 
 Spring 2020 Semester contents should include code written and documents for Florida's graduate courses in:
-  > `Unknown currently`
+  > `EEL 5733 Advanced Systems Programming`
+  
+  > `EEL 5855 Cross-Layered Systems Security`
   
   All constructive comments are appreciated.
   
